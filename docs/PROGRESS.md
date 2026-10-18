@@ -5,7 +5,17 @@
 
 ## Đang làm
 
-(không có — M1.6b vừa commit; tiếp theo M1.7)
+**M1.7 — Tiếng ồn, truy đuổi, Nỏ thần** (bắt đầu 2026-10-18) [số liệu: Đề xuất]
+
+- Tiếng ồn 0–100: +0.3/s khi chạy, +1.2/s thêm khi tăng tốc; chặt/đào +0.3/nhát, lò lửa +2, bom +8, Nỏ thần +10;
+  điểm dừng hạ về ≤18 và ngừng tăng. Mức: Yên tĩnh <25 · Dò xét <50 · Bầy đàn <75 · Dữ dội <100 · TRUY ĐUỔI =100.
+  Ồn → quái sinh dày hơn (tới ×2) + đàn đông hơn; truy đuổi → sinh phía sau, quái nhanh dần, sinh dày dần, kéo dài tới điểm dừng.
+- Nỏ thần: năng lượng từ hạ quái +3, nộp đồ +1/đơn vị, xây xong +5; đầy → G / RB: 80 sát thương mọi quái trong 25 m.
+
+- [ ] `match/noise_meter.gd` (+ nguồn ồn qua group "noise"), Spawner dùng tiếng ồn
+- [ ] `fortress/divine_crossbow.gd` + nguồn năng lượng + phím G / RB
+- [ ] HUD: thanh tiếng ồn + mức, thanh Nỏ thần; thông báo vào truy đuổi
+- [ ] Test + chụp màn hình → commit
 
 ## Tiếp theo (M1, xem ROADMAP)
 
@@ -37,7 +47,7 @@
 | M1.4b | `22a9e29` | Xây chung |
 | M1.5 | `9970e8a` | Thành tự vệ cơ bản |
 | M1.6a | `fc24be8` | Than, tăng tốc, mỏ than, bỏ Đá |
-| M1.6b | (commit này) | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
+| M1.6b | `cbc4495` | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
