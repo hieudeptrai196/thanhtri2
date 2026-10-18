@@ -19,9 +19,9 @@
 
 ## Tiếp theo (M1, xem ROADMAP)
 
-- M1.4 Công trình ngoài thực địa (nhảy cóc, bộ đệm, đòn cuối)
-- M1.5 Chơi thử câu hỏi cốt lõi
-- M1.6 Tài nguyên Gỗ/Than/Đồng · M1.7 Tiếng ồn · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
+- M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
+- M1.6 Tài nguyên Gỗ/Than/Đồng + module pháo đài (thân, nâng nỏ, dầu sôi, lò lửa Than, khiên)
+- M1.7 Tiếng ồn/truy đuổi + Nỏ thần · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
 
@@ -48,6 +48,7 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Pháo đài tự phòng thủ (khác spec gốc), lấy cả 6 ý:** nỏ liên châu yếu + chông gai (M1.5), module nâng nỏ / dầu sôi / lò lửa Than / khiên tự hồi (M1.6), Nỏ thần (M1.7), ụ nỏ có người điều khiển (M2.3). Thành chỉ xử lý quái sát thân; tuyến chính vẫn là công trình + người chơi.
 - 2026-10-18 · **Xây chung**: bản vẽ + cả đội cùng gõ (nhiều người nhanh hơn), góp Gỗ trực tiếp, thu hồi chung nhanh hơn. Ý 2–4 (đa vật liệu, gia cố, liên kết) để M2.
 - 2026-10-18 · Điều khiển xây: phím 1–4 + chuột trên PC, menu vòng tròn (LB) cho tay cầm; xây thời gian thực, không slow-mo.
 - 2026-10-18 · Chọn ý tưởng 1,2,4,5,7–18 (19 ưu tiên thấp); co-op tối đa 4; roadmap viết lại (M1 vòng cốt lõi → M2 co-op…).
@@ -69,8 +70,8 @@
 
 - **Bàn giao 2026-10-18 (người dùng sắp hết token, sẽ quay lại):** M1.4b đã commit + push nhưng **chưa được chơi thử**.
   Khi quay lại: (1) nhờ người dùng chơi thử M1.4b — để ý việc phải giữ E mới xây có làm solo chậm quá không;
-  (2) làm **M1.5**: hỏi cảm nhận câu hỏi cốt lõi "nhảy cóc có vui không", rồi cân bằng (thời gian gõ, giá, bộ đệm, độ khó đầu game).
-- Tiếp sau M1.5: M1.6 tài nguyên Gỗ/Than/Đồng (bỏ Đá) → M1.7 tiếng ồn/truy đuổi → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
+  (2) làm **M1.5**: thêm **tự vệ cơ bản của pháo đài** (nỏ liên châu yếu tầm ngắn + chông gai phản sát thương), rồi hỏi cảm nhận câu hỏi cốt lõi "nhảy cóc có vui không" và cân bằng (thời gian gõ, giá, bộ đệm, độ khó đầu game, sức nỏ của thành).
+- Tiếp sau M1.5: M1.6 tài nguyên Gỗ/Than/Đồng (bỏ Đá) + module pháo đài → M1.7 tiếng ồn/truy đuổi + Nỏ thần → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
 
 ## Ghi chú cho phiên sau
 

@@ -30,6 +30,7 @@ phải tự tay dời tuyến phòng thủ"*. Bốn động từ: **Tiến → L
 | Khía cạnh | Marcha de Ferro | THÀNH TRÌ hiện tại |
 |---|---|---|
 | Thứ được hộ tống | Nhện hơi nước tự đi | Pháo đài gỗ tự đi ✔ giống |
+| Pháo đài tự vệ | Không (chỉ module tháp trên lưng / giáp phản ứng / khiên) | **[Chốt, khác spec]** nỏ liên châu yếu + chông gai có sẵn, Nỏ thần, module dầu sôi / lò lửa Than / khiên, ụ nỏ có người điều khiển |
 | Đánh | Tự bắn, công trình gánh chính | **[Chốt]** đánh chủ động ngắm chuột, nhiều vũ khí sau này |
 | Phòng thủ | Đặt/gập/mang tháp ngoài thực địa, nhảy cóc, Last Shot | Tháp gắn vào ô trên pháo đài ở điểm dừng |
 | Tài nguyên | Phế liệu + nhiên liệu (nhiên liệu = tốc độ) | **[Chốt]** Gỗ (sửa) / Đá (nâng thành) / Đồng (vũ khí) |

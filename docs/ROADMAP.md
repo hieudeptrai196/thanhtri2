@@ -22,6 +22,9 @@ Tiến độ hằng ngày: [`PROGRESS.md`](PROGRESS.md) · Game tham khảo: [`R
 - Độ khó: **quãng đường** (nền) + **tiếng ồn** (tăng tốc, khai thác, bắn…; đầy → truy đuổi; điểm dừng làm dịu).
 - Điểm dừng an toàn: **chọn 1/2 tuyến** (thưởng/rủi ro), nâng cấp, chuẩn bị, khởi hành.
 - Chết: hồi sinh / được đồng đội đỡ dậy, rơi đồ đang mang. Thua khi pháo đài bị phá.
+- **Pháo đài tự phòng thủ** (khác game tham khảo), chỉ xử lý quái lọt sát thân: nỏ liên châu yếu + chông gai có sẵn;
+  **Nỏ thần** (đòn tất sát nạp bằng hoạt động của cả đội); module: nâng nỏ, dầu sôi, lò lửa đốt Than, khiên tự hồi;
+  ụ nỏ có người điều khiển (co-op).
 
 ## 3. Đã có (prototype, xem PROGRESS)
 
@@ -43,9 +46,9 @@ Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duy
 | M1.2 | Độ khó theo quãng đường (đã code, chờ commit) |
 | M1.3 | **Đòn thường tự đánh** (stick phải/chuột ưu tiên hướng) + **dash**; phần ngắm hiện có giữ cho kỹ năng sau |
 | M1.4 | **Công trình ngoài thực địa**: chế độ xây (chọn công trình, bóng ma xanh/vàng/đỏ), **tháp gập mang theo** (mang 1 cái), **chướng ngại cố định**; **bộ đệm tiếp sức** trong bán kính pháo đài; thu hồi; **đòn cuối** khi bỏ. Tháp gắn pháo đài cũ → bỏ (sau thành module) |
-| M1.5 | **Chơi thử câu hỏi cốt lõi** + cân bằng |
-| M1.6 | **Tài nguyên mới**: Gỗ / **Than** (tiêu hao theo tốc độ, tăng tốc, hết than bò chậm) / Đồng; bỏ Đá; thân pháo đài thành module trả Đồng |
-| M1.7 | **Tiếng ồn + truy đuổi** chồng lên độ khó quãng đường |
+| M1.5 | **Tự vệ cơ bản của pháo đài**: nỏ liên châu yếu (tầm ngắn, quái sát thân) + chông gai phản sát thương · **chơi thử câu hỏi cốt lõi** + cân bằng |
+| M1.6 | **Tài nguyên mới**: Gỗ / **Than** (tiêu hao theo tốc độ, tăng tốc, hết than bò chậm) / Đồng; bỏ Đá · **Module pháo đài** (ô module hiện trên thân, mua ở điểm dừng bằng Đồng): thân vật liệu, nâng nỏ liên châu, **dầu sôi**, **lò lửa đốt Than**, **khiên tự hồi** |
+| M1.7 | **Tiếng ồn + truy đuổi** chồng lên độ khó quãng đường · **Nỏ thần**: thanh năng lượng (hạ quái, nộp đồ, xây) → một người kích hoạt loạt tên quét quanh thành (cứu nguy khi truy đuổi / boss) |
 | M1.8 | **Chọn 1/2 tuyến** ở điểm dừng (tham số đoạn đường: thưởng/rủi ro), theo seed |
 | M1.9 | **Điểm số = quãng đường**, kỷ lục, lưu cài đặt (`user://`); **seed hằng ngày/tuần** chơi được offline (10) |
 | M1.10 | **Hạ tầng i18n** (Việt + Anh), màn chọn ngôn ngữ lần đầu (cần tắt Godot khi sửa `project.godot`) |
@@ -56,7 +59,7 @@ Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duy
 |---|---|
 | M2.1 | **Mạng co-op nền** (host-authoritative, ENet; test 2–4 cửa sổ trên cùng máy / LAN): đồng bộ ý định từ `PlayerInput`, sinh/hủy entity, trạng thái trận; kho chung + túi riêng (7) |
 | M2.2 | **Class = vai trò** (1): Công binh, Tiều phu/Thợ mỏ, Võ tướng, Thầy pháp, Thợ máy — mỗi class 1 kỹ năng chủ động + 1 điểm mạnh thụ động |
-| M2.3 | **Đỡ đồng đội dậy** (2), **kết hợp giữa class** (4), **ping/đánh dấu** (5) |
+| M2.3 | **Đỡ đồng đội dậy** (2), **kết hợp giữa class** (4), **ping/đánh dấu** (5), **ụ nỏ có người điều khiển** trên pháo đài (không ai đứng thì tự bắn yếu) |
 | M2.4 | **Độ khó theo số người**, vào/ra giữa trận (8) |
 | M2.5 | **Tổng kết cuối trận theo vai trò** (MVP xây / khuân / hạ quái / cứu người) (12) |
 
