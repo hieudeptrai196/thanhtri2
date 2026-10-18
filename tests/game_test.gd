@@ -16,6 +16,8 @@ var _scene: Node
 
 ## Instantiates the main scene and returns its Match node. Enemy spawning is off unless asked.
 func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
+	if is_instance_valid(_scene):
+		_scene.free()
 	_scene = MAIN_SCENE.instantiate()
 	var match_node := _scene.get_node("Match")
 	match_node.rng_seed = rng_seed

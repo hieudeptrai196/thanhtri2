@@ -67,10 +67,12 @@ Collision layer:
 - Pháo đài chạy liên tục, **hư càng nhiều càng chậm**. Thỉnh thoảng dẫm **bom ẩn** (ít). Có **điểm dừng nâng cấp**: vùng an toàn, không quái, khởi hành khi người chơi sẵn sàng.
 - **Quái di chuyển, đánh cả người chơi lẫn pháo đài.**
 - Tài nguyên: **Gỗ** (chặt cây → sửa thành), **Đá** (đập đá → nâng cấp pháo đài), **Đồng** (quái rơi → nâng cấp vũ khí). Mang về pháo đài; ý đồ là người chơi chia việc giữ thành / đi kiếm.
+- Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
 - Chiến binh ngã thì hồi sinh nhưng **rơi hết đồ đang mang**. Thua khi pháo đài bị phá.
-- Pháo đài không chỉ bằng gỗ: nâng cấp bằng nhiều vật liệu (chi tiết chưa chốt).
+- Pháo đài không chỉ bằng gỗ. Nâng cấp ở điểm dừng theo 2 trục: **thân pháo đài lên cấp vật liệu** (gỗ → đá → …, tăng độ bền, đổi hình) + **ô quanh rìa gắn công trình tấn công** (tháp…). Prototype: 1 cấp gỗ → đá, 1 loại tháp tự bắn. Thẻ nâng cấp ngẫu nhiên có thể thêm khi làm endless.
 - Có cả solo và multiplayer (kiến trúc sẵn sàng; chưa làm networking).
 - Sau này: class nhân vật có chiêu riêng, dash; menu chọn ngôn ngữ lúc mới vào.
+- **Giao diện phải đẹp, có chất game** (thẻ, khung có style, hiệu ứng hover…), không dùng kiểu form mặc định (input, select box, nút xám trơn). Prototype được tạm, nhưng không làm UI kiểu form.
 - Asset: placeholder cho tới hết prototype; khi làm asset thì viết tiêu chuẩn asset để người dùng đưa họa sĩ.
 
 ## Lộ trình prototype

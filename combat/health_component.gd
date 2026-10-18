@@ -31,6 +31,13 @@ func heal(amount: float) -> void:
 	health_changed.emit(current, max_health)
 
 
+## Changes max health; current health moves by the same amount so damage already taken is kept.
+func set_max_health(value: float) -> void:
+	current = clampf(current + value - max_health, 0.0, value)
+	max_health = value
+	health_changed.emit(current, max_health)
+
+
 func reset() -> void:
 	current = max_health
 	health_changed.emit(current, max_health)

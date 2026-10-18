@@ -21,6 +21,7 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _player_info: Label = $DebugUI/PlayerInfo
 @onready var _carry_info: Label = $DebugUI/CarryInfo
 @onready var _storage_info: Label = $DebugUI/StorageInfo
+@onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
 
 var rng := RandomNumberGenerator.new()
 
@@ -35,6 +36,11 @@ func _ready() -> void:
 	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_warrior.health.died.connect(_on_warrior_died)
 	_spawner.enemy_dropped.connect(_spawn_pickup, CONNECT_DEFERRED)
+	_upgrade_panel.setup(_fortress)
+	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
+	_upgrade_panel.tower_requested.connect(request_build_tower)
+	_upgrade_panel.depart_requested.connect(_on_ready_requested)
+	_upgrade_panel.hide()
 
 	var players: Array[Node3D] = [_warrior]
 	_spawner.setup(rng, _fortress, players)
@@ -65,6 +71,19 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _on_ready_requested() -> void:
 	if _follower.is_stopped:
 		_follower.depart()
+
+
+## Purchases are only allowed while stopped; in multiplayer this check runs on the server.
+func request_tier_upgrade() -> bool:
+	var done := _follower.is_stopped and _fortress.upgrade_tier()
+	_upgrade_panel.refresh()
+	return done
+
+
+func request_build_tower() -> bool:
+	var done := _follower.is_stopped and _fortress.build_tower()
+	_upgrade_panel.refresh()
+	return done
 
 
 func _on_warrior_died() -> void:
@@ -103,11 +122,14 @@ func _on_reached_stop(index: int) -> void:
 	_spawner.active = false
 	_spawner.clear()
 	_status.text = "Điểm dừng %d — bấm Space / Start để khởi hành" % (index + 1)
+	_upgrade_panel.show()
+	_upgrade_panel.refresh()
 
 
 func _on_departed() -> void:
 	print("Match: khởi hành")
 	_spawner.active = true
+	_upgrade_panel.hide()
 	_status.text = "Đang chạy"
 
 

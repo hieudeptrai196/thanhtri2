@@ -26,7 +26,8 @@ func _input(event: InputEvent) -> void:
 func _physics_process(_delta: float) -> void:
 	move_direction = _to_world(Input.get_vector("move_left", "move_right", "move_up", "move_down"))
 	aim_direction = _read_aim()
-	attack_held = Input.is_action_pressed("attack")
+	# Clicking on UI (e.g. the stop panel) must not swing the weapon.
+	attack_held = Input.is_action_pressed("attack") and get_viewport().gui_get_hovered_control() == null
 	interact_held = Input.is_action_pressed("interact")
 	if Input.is_action_just_pressed("ready"):
 		ready_requested.emit()
