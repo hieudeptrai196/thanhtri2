@@ -97,7 +97,7 @@ Collision layer:
 - **[2026-10-18] Đòn thường tự đánh** (chuột / stick phải chỉ ưu tiên hướng mục tiêu); **kỹ năng class bấm chủ động và ngắm** (dùng lại phần ngắm/quạt chém hiện có). Tháp/công trình là lực sát thương chính. *(Code hiện vẫn là đánh chủ động — sẽ đổi khi làm vòng mới.)*
 - Pháo đài chạy liên tục, **hư càng nhiều càng chậm**. Thỉnh thoảng dẫm **bom ẩn** (ít). Có **điểm dừng nâng cấp**: vùng an toàn, không quái, khởi hành khi người chơi sẵn sàng.
 - **Quái di chuyển, đánh cả người chơi lẫn pháo đài.**
-- Tài nguyên: **Gỗ** (chặt cây → sửa thành), **Đá** (đập đá → nâng cấp pháo đài), **Đồng** (quái rơi → nâng cấp vũ khí). Mang về pháo đài; ý đồ là người chơi chia việc giữ thành / đi kiếm.
+- **[2026-10-18] Tài nguyên mới (3 loại):** **Gỗ** = xây công trình + sửa thành; **Than** (mới) = nhiên liệu pháo đài (đủ than chạy thường, **tăng tốc** tốn than + kéo thêm quái, hết than bò chậm); **Đồng** = vũ khí, kỹ năng, module pháo đài. **Bỏ Đá** (nâng thân pháo đài chuyển thành module trả Đồng). *(Code hiện vẫn Gỗ/Đá/Đồng — đổi khi làm vòng mới.)* Mang về pháo đài; người chơi chia việc giữ thành / đi kiếm.
 - Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
 - Chiến binh ngã thì hồi sinh nhưng **rơi hết đồ đang mang**. Thua khi pháo đài bị phá.
 - Pháo đài không chỉ bằng gỗ. Nâng cấp ở điểm dừng theo 2 trục: **thân pháo đài lên cấp vật liệu** (gỗ → đá → …, tăng độ bền, đổi hình) + **ô quanh rìa gắn công trình tấn công** (tháp…). Prototype: 1 cấp gỗ → đá, 1 loại tháp tự bắn. Thẻ nâng cấp ngẫu nhiên có thể thêm khi làm endless.
