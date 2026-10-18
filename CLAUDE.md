@@ -6,6 +6,7 @@ Game roguelite hành động 3D isometric, cảm hứng dân gian Việt Nam. Go
 
 ## Cách làm việc (bắt buộc)
 
+- **Đầu mỗi phiên đọc [`docs/PROGRESS.md`](docs/PROGRESS.md)** (đang làm gì, dang dở gì, câu hỏi chờ). **Cập nhật file đó sau mỗi bước** (bắt đầu, xong, commit, đổi quyết định) để làm tiếp được nếu phiên bị ngắt.
 - Làm theo **từng giai đoạn nhỏ**, mỗi giai đoạn kiểm thử độc lập được. Xong một giai đoạn thì báo kết quả và **chờ người dùng duyệt** rồi mới commit / làm tiếp.
 - Luôn phân biệt **[Chốt]** (người dùng đã xác nhận), **[Đề xuất]** và **[Mở]**. Không tự chốt nội dung gameplay: tên quái, vũ khí, kỹ năng, nâng cấp, điều kiện thắng, lộ trình…
 - Cần quyết định thì hỏi **một câu quan trọng nhất** trước, kèm phương án đề xuất.
