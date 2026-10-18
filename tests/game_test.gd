@@ -1,0 +1,86 @@
+class_name GameTest
+extends RefCounted
+## Base for headless gameplay tests. The runner calls every `test_*` method on a fresh instance;
+## a test typically calls `start_match()` and drives the game through physics frames and input.
+## Run with: tests/run.sh [filter]
+
+const MAIN_SCENE := preload("res://scenes/main.tscn")
+const DUMMY_SCENE := preload("res://combat/training_dummy.tscn")
+const AIM_ACTIONS: Array[StringName] = [&"aim_left", &"aim_right", &"aim_up", &"aim_down"]
+
+var tree: SceneTree
+var failures: PackedStringArray = []
+
+var _scene: Node
+
+
+## Instantiates the main scene and returns its Match node. Enemy spawning is off unless asked.
+func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
+	_scene = MAIN_SCENE.instantiate()
+	var match_node := _scene.get_node("Match")
+	match_node.rng_seed = rng_seed
+	tree.root.add_child(_scene)
+	await frames(1)
+	match_node.get_node("Spawner").active = spawn_enemies
+	return match_node
+
+
+func cleanup() -> void:
+	for action in InputMap.get_actions():
+		if not String(action).begins_with("ui_"):
+			Input.action_release(action)
+	if is_instance_valid(_scene):
+		_scene.free()
+
+
+func frames(count: int) -> void:
+	for i in count:
+		await tree.physics_frame
+
+
+func seconds(duration: float) -> void:
+	await frames(roundi(duration * Engine.physics_ticks_per_second))
+
+
+func check(condition: bool, message: String) -> void:
+	if not condition:
+		failures.append(message)
+
+
+func check_near(actual: float, expected: float, tolerance: float, message: String) -> void:
+	check(absf(actual - expected) <= tolerance,
+		"%s (got %.3f, expected %.3f ± %.3f)" % [message, actual, expected, tolerance])
+
+
+## Tilts the right stick so the player's PlayerInput aims from `who` toward `target`.
+func aim_at(who: Node3D, target: Vector3) -> void:
+	var camera := tree.root.get_viewport().get_camera_3d()
+	var direction := target - who.global_position
+	direction.y = 0.0
+	direction = direction.normalized()
+	var right := Vector3(camera.global_basis.x.x, 0.0, camera.global_basis.x.z).normalized()
+	var forward := Vector3(-camera.global_basis.z.x, 0.0, -camera.global_basis.z.z).normalized()
+	var stick := Vector2(direction.dot(right), -direction.dot(forward))
+	for action in AIM_ACTIONS:
+		Input.action_release(action)
+	Input.action_press(&"aim_right" if stick.x > 0.0 else &"aim_left", absf(stick.x))
+	Input.action_press(&"aim_down" if stick.y > 0.0 else &"aim_up", absf(stick.y))
+
+
+## Holds attack toward `target` until it is freed or `max_frames` pass. Returns true if freed.
+func attack_until_freed(who: Node3D, target: Node3D, max_frames: int = 300) -> bool:
+	Input.action_press(&"attack")
+	for i in max_frames:
+		if not is_instance_valid(target):
+			break
+		aim_at(who, target.global_position)
+		await frames(1)
+	Input.action_release(&"attack")
+	return not is_instance_valid(target)
+
+
+func spawn_dummy(match_node: Node, at: Vector3) -> Node3D:
+	var dummy: Node3D = DUMMY_SCENE.instantiate()
+	match_node.add_child(dummy)
+	dummy.global_position = at
+	return dummy
