@@ -5,17 +5,17 @@
 
 ## Đang làm
 
-**M1.4b — Xây chung** (2026-10-18, **code xong, test 61/61, chờ chơi thử**; ý 1 + ý 5 trong phản hồi của người dùng, ý 2–4 sang M2)
+**M1.6a — Tài nguyên mới: Than** (bắt đầu 2026-10-18; người dùng: "cứ theo bạn, xong điều chỉnh sau")
 
-- Đặt **bản vẽ** miễn phí (ai cũng đặt); đặt tháp đang vác thì xong ngay (giữ nhịp nhảy cóc)
-- **Gõ**: giữ E cạnh bản vẽ (khi không ở chế độ xây); tháp nỏ 4 s, rào 2 s một người; nhiều người: tốc độ × n^0.85; không tự đánh khi gõ
-- **Trả Gỗ dần**: túi người gõ trước, rồi kho; thiếu thì dừng + báo "thiếu Gỗ"
-- Bản vẽ: mờ, không bắn, quái không đánh/không hút; giữ F trên bản vẽ = dỡ, hoàn Gỗ đã góp về kho
-- **Thu hồi chung**: tiến độ giữ F tính trên công trình (2 người = nhanh gấp đôi)
+Đề xuất: bỏ Đá; **Than** = nhiên liệu thành (tiêu ~0.125/s khi chạy thường → 1 Than ~8 s; tăng tốc ×1.6 tốc độ, tiêu 0.6/s;
+hết Than → chạy 35% tốc độ); kho bắt đầu 10 Than; **mỏ than** thay mỏ đá dọc đường (5 Than mỗi mỏ); bật/tắt tăng tốc bằng **T** /
+D-pad lên (đọc trong `PlayerInput`, không sửa `project.godot`), quyền ở `Match`; HUD hiện Than + trạng thái tăng tốc/hết Than.
+Thân pháo đài "Đá" giữ tên vật liệu, đổi giá sang Gỗ + Đồng.
 
-- [x] Code (`Structure` trạng thái xây + trả dần + thu hồi chung, `StructureNetwork.place_blueprint/dismantle/nearest_blueprint`, `Builder` gõ/thu hồi chung, `Match`, HUD gợi ý)
-- [x] Test (gõ một mình, 2 người nhanh ~1.8×, trả từ túi trước, hết Gỗ thì dừng, bản vẽ không bắn/không bị đánh, dỡ hoàn Gỗ, 2 người thu hồi nhanh gấp đôi) — tổng 61/61
-- [x] Commit + push theo yêu cầu (người dùng **chưa chơi thử** M1.4b)
+- [ ] Dữ liệu: bỏ `stone.tres`, thêm `coal.tres`; mỏ than (`resources/coal_deposit.tscn`)
+- [ ] `Fortress`: nhiên liệu từ kho, chế độ tốc độ (thường / tăng tốc / hết Than) nhân với hệ số máu
+- [ ] Tăng tốc: ý định trong `PlayerInput`, `Match.request_overdrive`
+- [ ] HUD + test + người dùng chơi thử → commit
 
 ## Tiếp theo (M1, xem ROADMAP)
 
@@ -69,10 +69,8 @@
 
 ## Câu hỏi đang chờ người dùng
 
-- **Bàn giao 2026-10-18 (người dùng sắp hết token, sẽ quay lại):** M1.4b đã commit + push nhưng **chưa được chơi thử**.
-  Khi quay lại: (1) nhờ người dùng chơi thử M1.4b — để ý việc phải giữ E mới xây có làm solo chậm quá không;
-  (2) làm **M1.5**: thêm **tự vệ cơ bản của pháo đài** (nỏ liên châu yếu tầm ngắn + chông gai phản sát thương), rồi hỏi cảm nhận câu hỏi cốt lõi "nhảy cóc có vui không" và cân bằng (thời gian gõ, giá, bộ đệm, độ khó đầu game, sức nỏ của thành).
-- Tiếp sau M1.5: M1.6 tài nguyên Gỗ/Than/Đồng (bỏ Đá) + module pháo đài → M1.7 tiếng ồn/truy đuổi + Nỏ thần → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
+- Chơi thử **M1.4b (xây chung) + M1.5 (thành tự vệ)** → trả lời câu hỏi cốt lõi "nhảy cóc có vui không", chỗ nào phiền/chậm (giữ E khi solo), chết ở bao nhiêu mét → cân bằng → commit.
+- Tiếp sau: M1.6 tài nguyên Gỗ/Than/Đồng + nâng cấp pháo đài (giá trộn nguyên liệu) → M1.7 tiếng ồn/truy đuổi + Nỏ thần → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
 
 ## Ghi chú cho phiên sau
 

@@ -2,6 +2,8 @@ class_name Fortress
 extends AnimatableBody3D
 ## The moving citadel. Slows down as it loses health; repaired with resources from its storage;
 ## upgraded through its body material tier. Starts with some resources in its storage.
+## Defends itself a little: a weak crossbow on top hits enemies right at its walls, and thorns hurt
+## whatever strikes it. Holding the line is still the job of field structures and players.
 
 ## Body material levels in order; the fortress starts at the first.
 const TIERS: Array[FortressTier] = [
@@ -16,6 +18,8 @@ const TIERS: Array[FortressTier] = [
 @export var repair_per_unit: float = 10.0
 ## Seconds between repair steps while someone keeps repairing.
 @export var repair_interval: float = 0.2
+## Damage reflected to an enemy each time it hits the fortress.
+@export var thorns_damage: float = 3.0
 ## Put into the storage at the start of a run, keyed by ResourceType.id.
 @export var starting_resources: Dictionary = {&"wood": 30}
 
@@ -23,6 +27,8 @@ const TIERS: Array[FortressTier] = [
 @onready var follower: RouteFollower = $RouteFollower
 @onready var storage: Inventory = $Storage
 @onready var service_zone: ServiceZone = $ServiceZone
+@onready var crossbow: AutoShooter = $Crossbow
+@onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _body_mesh: MeshInstance3D = $Body
 
 var tier_index: int = 0
@@ -34,6 +40,7 @@ func _ready() -> void:
 	health.health_changed.connect(_on_health_changed)
 	_apply_tier(TIERS[tier_index])
 	storage.add_all(starting_resources)
+	_hurtbox.hit_taken.connect(_on_hit_taken)
 
 
 func _physics_process(delta: float) -> void:
@@ -72,6 +79,15 @@ func _apply_tier(tier: FortressTier) -> void:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = tier.color
 	_body_mesh.material_override = material
+
+
+# Thorns: an attacker with a Hurtbox of its own takes a little damage back (bombs have none).
+func _on_hit_taken(_amount: float, source: Node) -> void:
+	if thorns_damage <= 0.0 or not is_instance_valid(source) or source == self:
+		return
+	var attacker_hurtbox := source.get_node_or_null(^"Hurtbox") as Hurtbox
+	if attacker_hurtbox:
+		attacker_hurtbox.take_hit(thorns_damage, self)
 
 
 func _on_health_changed(current: float, maximum: float) -> void:

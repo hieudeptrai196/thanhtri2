@@ -49,10 +49,10 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | Thư mục | Nội dung |
 |---|---|
 | `match/` | `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thắng/thua → tạm dừng cây + màn kết quả, chơi lại = nạp lại scene), `spawner.gd` |
-| `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
+| `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu, **nỏ liên châu** `$Crossbow`, **chông gai** `thorns_damage`), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
 | `player/` | `Warrior` (tự đánh, dash, vác 1 công trình), `PlayerInput` (ý định), `Builder` (chế độ xây cục bộ: phím 1–4 / menu vòng tròn, bóng ma, giữ F thu hồi) |
 | `structures/` | `StructureType` (.tres trong `types/`) + `StructureTypes.ALL`, `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), rào gỗ (`Structure` không cần điện, hút quái), `StructureNetwork` (chứa công trình ở tọa độ thế giới, luật đặt, tiếp sức trong bán kính pháo đài, bản vẽ, dỡ/thu hồi). `Structure` bắt đầu là **bản vẽ**: `add_hammer` mỗi tick, trả dần (túi rồi kho), `add_recover_helper` cộng tiến độ thu hồi chung |
-| `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, bia thử |
+| `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, `AutoShooter` (tự bắn mục tiêu gần nhất — dùng cho tháp nỏ và nỏ liên châu trên thành), bia thử |
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây/đá), `Pickup` |
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/đá/bom/vòng điểm dừng theo đoạn, dọn phía sau), `ground_follow.gd`, `HiddenBomb`, shader nền |

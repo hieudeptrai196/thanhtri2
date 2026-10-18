@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://resources/inventory.gd" id="5_inventory"]
 [ext_resource type="Script" path="res://fortress/service_zone.gd" id="6_zone"]
 [ext_resource type="Resource" path="res://resources/types/wood.tres" id="7_wood"]
+[ext_resource type="PackedScene" path="res://combat/auto_shooter.tscn" id="8_shooter"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(10, 5, 10)
@@ -30,6 +31,13 @@ size = Vector3(11, 5.5, 11)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_zone"]
 size = Vector3(17, 6, 17)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crossbow"]
+albedo_color = Color(0.75, 0.55, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_crossbow"]
+material = SubResource("StandardMaterial3D_crossbow")
+size = Vector3(2.2, 0.4, 1.2)
 
 [node name="Fortress" type="AnimatableBody3D"]
 script = ExtResource("2_fortress")
@@ -77,3 +85,13 @@ script = ExtResource("6_zone")
 [node name="Collision" type="CollisionShape3D" parent="ServiceZone"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 shape = SubResource("BoxShape3D_zone")
+
+[node name="CrossbowMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.3, 0)
+mesh = SubResource("BoxMesh_crossbow")
+
+[node name="Crossbow" parent="." instance=ExtResource("8_shooter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.6, 0)
+damage = 6.0
+interval = 1.2
+range_radius = 10.5
