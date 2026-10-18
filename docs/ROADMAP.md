@@ -9,6 +9,7 @@ Cập nhật: 2026-10-18. Ký hiệu: **[Chốt]** đã xác nhận · **[Đề 
 - **[Chốt]** Model/asset làm tử tế (họa sĩ làm theo tài liệu tiêu chuẩn asset), giao diện có chất game.
 - **[Chốt]** Đa ngôn ngữ (i18n) từ đầu; lần đầu vào game chọn ngôn ngữ.
 - **[Chốt]** Solo + multiplayer (kiến trúc giữ đường; làm networking sau).
+- **[Chốt]** **Làm xong bản PC (Steam) trước**, rồi mới port di động. Renderer: **Forward+ trên PC, Mobile trên điện thoại** (Godot đã tự chuyển: `rendering_method.mobile = mobile`).
 
 ## 2. Hiện trạng (prototype, giai đoạn 0–8 xong)
 
@@ -21,7 +22,7 @@ Toàn bộ là hình khối placeholder. 39 test tự động (`tests/run.sh`), 
 - Mỗi bước nhỏ, có test tự động + chơi thử; không bước nào làm hỏng bước trước.
 - **Chữ người chơi thấy luôn qua `tr()`**; không ghép chuỗi kiểu phụ thuộc trật tự từ tiếng Việt.
 - **Mọi input đi qua `PlayerInput`** để thêm cảm ứng / tay cầm mà không sửa gameplay.
-- Mỗi tính năng phải chạy được trên **máy yếu nhất mục tiêu (điện thoại)**, không chỉ trên Mac.
+- Ưu tiên PC, nhưng **không khóa đường di động**: input qua `PlayerInput`, chữ qua `tr()`, UI co giãn; hiệu ứng chỉ có ở Forward+ phải có phương án thay thế khi chạy Mobile (game vẫn đọc rõ, chỉ kém đẹp hơn).
 - Asset thay được không cần sửa code (xem "Điểm gắn asset" trong `CLAUDE.md`).
 - Không plugin / API key / tài khoản / deploy nếu chưa được duyệt riêng.
 
@@ -51,7 +52,7 @@ Toàn bộ là hình khối placeholder. 39 test tự động (`tests/run.sh`), 
 
 | # | Nội dung |
 |---|---|
-| C1 | **Renderer & hiệu năng di động** [Mở]: hiện dùng Forward+ (nặng cho điện thoại). Cân nhắc chuyển sang **Mobile** renderer sớm để hướng mỹ thuật khớp ngay từ đầu; chốt thiết bị yếu nhất cần hỗ trợ và mục tiêu FPS (vd 60 trên máy tầm trung, 30 trên máy yếu); benchmark trên thiết bị thật |
+| C1 | **Renderer & hiệu năng**: **[Chốt]** Forward+ trên PC, Mobile trên điện thoại. **[Mở]** cấu hình PC tối thiểu và mục tiêu FPS (đề xuất 60 FPS ở 1080p trên GPU tích hợp tầm trung); khi port: thiết bị di động yếu nhất + mục tiêu FPS, kiểm tra hình ảnh dưới renderer Mobile |
 | C2 | **Điều khiển**: cảm ứng (joystick ảo trái di chuyển, joystick/vùng phải ngắm-đánh, nút dash/chiêu/E/sẵn sàng), tay cầm (đã có cơ bản), chuột-bàn phím; chỉ sửa `PlayerInput` + lớp UI cảm ứng |
 | C3 | **i18n**: bật TranslationServer, file dịch (đề xuất gettext `.po` để giao cho người dịch; Godot sinh `.pot`), **màn chọn ngôn ngữ lần đầu**, tự nhận ngôn ngữ máy làm mặc định, đổi ngôn ngữ trong cài đặt, font dự phòng cho ngôn ngữ khác (CJK…), kiểm tra chữ dài không tràn khung. Bắt đầu: **Tiếng Việt + English** [Đề xuất], thêm ngôn ngữ sau |
 | C4 | **Lưu game & cài đặt**: kỷ lục, tiến trình, ngôn ngữ, âm lượng, điều khiển (`user://`); cloud save theo nền tảng sau |
@@ -67,20 +68,29 @@ Co-op online (host-authoritative), đồng bộ ý định từ `PlayerInput`, �
 
 ## 5. Cột mốc đề xuất
 
+**Giai đoạn PC (Steam) — làm trước**
+
 | Mốc | Gồm | Kết quả |
 |---|---|---|
-| **M1 — Endless chơi được** | A1, A2, A3, C1 (chốt renderer), C3 (hạ tầng i18n + chọn ngôn ngữ), C4 (lưu kỷ lục) | Endless bằng placeholder, chơi trên Mac, đo trên ít nhất 1 điện thoại |
-| **M2 — Vertical slice** | B1, B2, 1 biome + batch asset đầu, C2 (cảm ứng), C6 | 1 lát cắt "trông như game thật" trên Mac + điện thoại |
+| **M1 — Endless chơi được** | A1, A2, A3, C3 (hạ tầng i18n + chọn ngôn ngữ), C4 (lưu kỷ lục + cài đặt) | Endless bằng placeholder trên PC |
+| **M2 — Vertical slice PC** | B1, B2, 1 biome + batch asset đầu | 1 lát cắt "trông như game thật" |
 | **M3 — Nội dung** | A4, B3, B4 | Đủ quái/boss/class/biome cho trải nghiệm dài |
-| **M4 — Beta nền tảng** | A5, A6, C5, C7, C8, C9 | TestFlight, Play internal test, Steam Playtest |
-| **M5 — Phát hành** | Sửa lỗi beta, store listing đa ngôn ngữ | Lên store |
+| **M4 — Steam beta** | A5, A6, C5 (Steamworks), C7 (Windows/macOS/Linux), C8 (Steam), C9 (PC) | Steam Playtest |
+| **M5 — Phát hành Steam** | Sửa lỗi beta, store listing đa ngôn ngữ | Lên Steam |
 
-Song song từ M1: B1 (tài liệu cho họa sĩ) để asset kịp về ở M2–M3.
+**Giai đoạn di động — sau khi PC xong**
+
+| Mốc | Gồm | Kết quả |
+|---|---|---|
+| **M6 — Port di động** | C1 (Mobile renderer, thiết bị yếu nhất), C2 (cảm ứng), C6 (safe area, cỡ nút), tối ưu | Chơi tốt trên điện thoại thật |
+| **M7 — Phát hành Google Play + App Store** | C5 (Google Play Games, Game Center), C7 (Android/iOS), C8, C9 (thiết bị) | Lên 2 store |
+
+Song song từ M1: B1 (tài liệu cho họa sĩ) để asset kịp về ở M2–M3. Ngân sách asset vẫn tính tới di động để không phải làm lại khi port.
 
 ## 6. Quyết định đang mở
 
-1. **Renderer** cho đa nền tảng (C1) — ảnh hưởng hướng mỹ thuật, nên chốt đầu tiên.
-2. Thiết bị yếu nhất cần hỗ trợ + mục tiêu FPS.
+1. Cấu hình PC tối thiểu + mục tiêu FPS (di động chốt khi tới M6).
+2. Nền tảng PC: Windows + macOS + Linux (Steam Deck)?
 3. Phong cách mỹ thuật (B1).
 4. Tên, cơ chế quái/boss/class; danh sách biome.
 5. Ngôn ngữ ngoài Việt/Anh, thứ tự ưu tiên.

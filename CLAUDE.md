@@ -2,7 +2,7 @@
 
 Game roguelite hành động 3D isometric, cảm hứng dân gian Việt Nam. Godot **4.7.2**, **GDScript**, Forward Plus, Jolt Physics. Máy dev: MacBook Pro 14" **M1 Pro** (8 nhân, 32 GB, màn 120 Hz, macOS). Trả lời người dùng bằng **tiếng Việt**.
 
-**Mục tiêu:** game nghiêm túc, phát hành **Steam + Google Play + App Store**, chế độ chính **endless** (so ai đi xa hơn), asset tử tế, **i18n bắt buộc**. Kế hoạch đầy đủ: [`docs/ROADMAP.md`](docs/ROADMAP.md). Mọi tính năng phải tính tới **di động** (cảm ứng qua `PlayerInput`, hiệu năng điện thoại, UI co giãn).
+**Mục tiêu:** game nghiêm túc, phát hành **Steam + Google Play + App Store**, chế độ chính **endless** (so ai đi xa hơn), asset tử tế, **i18n bắt buộc**. Kế hoạch đầy đủ: [`docs/ROADMAP.md`](docs/ROADMAP.md). **Làm xong bản PC trước**, port di động sau (Forward+ trên PC, Mobile trên điện thoại); nhưng không khóa đường di động (input qua `PlayerInput`, chữ qua `tr()`, UI co giãn, hiệu ứng Forward+ phải có phương án thay thế).
 
 ## Cách làm việc (bắt buộc)
 
