@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://world/endless_route.gd" id="15_route"]
 [ext_resource type="Script" path="res://world/route_content.gd" id="16_content"]
 [ext_resource type="Script" path="res://world/ground_follow.gd" id="17_ground"]
+[ext_resource type="Resource" path="res://match/difficulty_default.tres" id="18_difficulty"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -71,6 +72,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 [node name="Spawner" type="Node3D" parent="."]
 script = ExtResource("6_spawner")
 enemy_scene = ExtResource("7_enemy")
+difficulty = ExtResource("18_difficulty")
 
 [node name="Pickups" type="Node3D" parent="."]
 

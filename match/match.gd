@@ -64,7 +64,7 @@ func _ready() -> void:
 	_route.setup(_seeded_rng("route"))
 
 	var players: Array[Node3D] = [_warrior]
-	_spawner.setup(rng, _fortress, players)
+	_spawner.setup(rng, _fortress, _follower, players)
 	_spawner.active = true
 	_follower.start(_route)
 	_hud.setup(_fortress, _warrior)

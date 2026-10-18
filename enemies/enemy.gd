@@ -10,7 +10,7 @@ signal dropped(contents: Dictionary, at: Vector3)
 @export var move_speed: float = 3.5
 ## A living player closer than this becomes the target instead of the fortress.
 @export var aggro_radius: float = 8.0
-@export var damage: float = 10.0
+@export var damage: float = 5.0
 ## Seconds between hits.
 @export var attack_interval: float = 1.0
 ## Resources left behind on death, keyed by ResourceType.id.
@@ -30,6 +30,13 @@ var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 func setup(fortress: Node3D, players: Array[Node3D]) -> void:
 	_fortress = fortress
 	_players = players
+
+
+## Makes this enemy tougher for the current difficulty. Call right after it enters the tree.
+func apply_scaling(health_multiplier: float, damage_multiplier: float) -> void:
+	_health.set_max_health(_health.max_health * health_multiplier)
+	_health.reset()
+	damage *= damage_multiplier
 
 
 func _ready() -> void:

@@ -25,7 +25,7 @@ func take_errors() -> PackedStringArray:
 func _log_error(function: String, file: String, line: int, code: String, rationale: String,
 		_editor_notify: bool, _error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
 	for pattern in IGNORED:
-		if rationale.contains(pattern):
+		if rationale.contains(pattern) or code.contains(pattern):
 			_mutex.lock()
 			ignored_count += 1
 			_mutex.unlock()

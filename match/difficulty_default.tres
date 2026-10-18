@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="Difficulty" format=3]
+
+[ext_resource type="Script" path="res://match/difficulty.gd" id="1_difficulty"]
+
+[resource]
+script = ExtResource("1_difficulty")

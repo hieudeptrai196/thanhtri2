@@ -7,7 +7,7 @@ func test_spawner_spawns_on_ring_around_fortress() -> void:
 	fortress.follower.base_speed = 0.0
 	var spawner: Spawner = m.get_node("Spawner")
 	m.get_node("Warrior").global_position = Vector3(150, 0.1, 60)
-	await seconds(spawner.interval + 0.2)
+	await seconds(spawner.difficulty.spawn_interval(0.0) + 0.2)
 	check(spawner.alive_count() == 1, "one enemy after one interval, got %d" % spawner.alive_count())
 	if spawner.alive_count() > 0:
 		var enemy: Node3D = spawner.get_child(0)
@@ -72,7 +72,7 @@ func test_stop_is_safe_zone() -> void:
 	await frames(5)
 	check(spawner.alive_count() == 0, "enemies are cleared at a stop")
 	check(not spawner.active, "spawning pauses at a stop")
-	await seconds(spawner.interval * 2.0)
+	await seconds(spawner.difficulty.spawn_interval(0.0) * 2.0)
 	check(spawner.alive_count() == 0, "nothing spawns while stopped")
 	follower.depart()
 	check(spawner.active, "spawning resumes on departure")

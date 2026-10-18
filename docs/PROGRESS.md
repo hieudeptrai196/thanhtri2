@@ -11,7 +11,7 @@
 - [x] Spawner sinh theo đợt quanh một hướng, theo Difficulty + quãng đường; `Enemy.apply_scaling`
 - [x] Cân bằng đầu game: sát thương quái 10 → 5, khoảng sinh đầu 3 → 4.5 s (đứng yên: thành trụ ~49 s / ~127 m, trước là 31 s / 80 m)
 - [x] Test `test_difficulty.gd`; ErrorCatcher bỏ qua cảnh báo Jolt ở cả `code` lẫn `rationale`
-- [ ] Người dùng chơi thử → chỉnh số → commit
+- [x] Commit làm nền (cân bằng chi tiết ở M1.5)
 - Ghi chú: bot đánh tự động (scratchpad) bị kẹt sau pháo đài/cây nên **không dùng để cân bằng**; cần người chơi thật.
 
 ## Tiếp theo (M1, xem ROADMAP)
