@@ -65,7 +65,7 @@ Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duy
 
 ### M3 — Vertical slice đẹp
 
-B1 hướng mỹ thuật + **tài liệu tiêu chuẩn asset** (nền KayKit/Kenney CC0, phần Việt do họa sĩ) · B2 làm đẹp bằng code (ánh sáng, hậu kỳ,
+B1 hướng mỹ thuật + **tài liệu tiêu chuẩn asset** (bản nháp: [`ASSET_SPEC.md`](ASSET_SPEC.md)) (nền KayKit/Kenney CC0, phần Việt do họa sĩ) · B2 làm đẹp bằng code (ánh sáng, hậu kỳ,
 stylized, hạt, juice, font tiếng Việt, làm mờ pháo đài khi che) · 1 biome hoàn chỉnh · âm thanh cơ bản · đo lại hiệu năng.
 
 ### M4 — Nội dung
