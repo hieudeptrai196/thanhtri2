@@ -5,7 +5,17 @@
 
 ## Đang làm
 
-(không có — **M1 xong** với M1.10; tiếp theo M2 co-op & vai trò, bắt đầu từ M2.1 mạng co-op nền)
+**M2.1 — Mạng co-op nền** (bắt đầu 2026-10-18; người dùng bảo "tiếp đi" — chưa chơi thử M1, cân bằng để sau)
+
+Chia nhỏ: **M2.1a** lớp mạng (ENet, host-authoritative) + phòng chờ (Tạo phòng / Vào phòng bằng IP, cổng 24690) + mỗi người
+một chiến binh + ý định gửi lên máy chủ + đồng bộ chiến binh & trạng thái thành · M2.1b quái · M2.1c công trình / túi đồ /
+cây-than bị khai thác · M2.1d điểm dừng chung (bảng, chọn tuyến, tất cả sẵn sàng mới đi), kết quả.
+Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đường + nội dung không gửi qua mạng (sinh từ seed).
+
+- [ ] Match nhiều chiến binh (solo không đổi, test cũ xanh)
+- [ ] `net/` lớp mạng + phòng chờ trong màn bắt đầu
+- [ ] Ý định client → máy chủ; đồng bộ chiến binh + thành → client; client không tự mô phỏng
+- [ ] Test trong cùng process (2 nhánh multiplayer) + thử 2 cửa sổ thật
 
 ## Tiếp theo (M2, xem ROADMAP)
 
