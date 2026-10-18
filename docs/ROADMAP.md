@@ -18,7 +18,7 @@ Tiến độ hằng ngày: [`PROGRESS.md`](PROGRESS.md) · Game tham khảo: [`R
 - Pháo đài tự đi. Người chơi **đặt công trình ngoài thực địa** phía trước; công trình được **tiếp sức khi ở gần pháo đài**,
   ra xa thì chạy bằng bộ đệm; **thu về mang lên trước** ("nhảy cóc") hoặc **bỏ lại kèm đòn cuối**.
 - **Đòn thường tự đánh**; **kỹ năng class bấm chủ động và ngắm**; dash.
-- Tài nguyên: **Gỗ** (xây, sửa) · **Than** (nhiên liệu, tăng tốc; hết than bò chậm) · **Đồng** (vũ khí, kỹ năng, module).
+- Tài nguyên: **Gỗ** (xây, sửa) · **Than** (nhiên liệu, tăng tốc; hết than bò chậm) · **Đồng** (vũ khí, kỹ năng). Nâng cấp pháo đài, kể cả **vũ khí của thành**, trả bằng **giá trộn** các nguyên liệu này.
 - Độ khó: **quãng đường** (nền) + **tiếng ồn** (tăng tốc, khai thác, bắn…; đầy → truy đuổi; điểm dừng làm dịu).
 - Điểm dừng an toàn: **chọn 1/2 tuyến** (thưởng/rủi ro), nâng cấp, chuẩn bị, khởi hành.
 - Chết: hồi sinh / được đồng đội đỡ dậy, rơi đồ đang mang. Thua khi pháo đài bị phá.
@@ -47,7 +47,7 @@ Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duy
 | M1.3 | **Đòn thường tự đánh** (stick phải/chuột ưu tiên hướng) + **dash**; phần ngắm hiện có giữ cho kỹ năng sau |
 | M1.4 | **Công trình ngoài thực địa**: chế độ xây (chọn công trình, bóng ma xanh/vàng/đỏ), **tháp gập mang theo** (mang 1 cái), **chướng ngại cố định**; **bộ đệm tiếp sức** trong bán kính pháo đài; thu hồi; **đòn cuối** khi bỏ. Tháp gắn pháo đài cũ → bỏ (sau thành module) |
 | M1.5 | **Tự vệ cơ bản của pháo đài**: nỏ liên châu yếu (tầm ngắn, quái sát thân) + chông gai phản sát thương · **chơi thử câu hỏi cốt lõi** + cân bằng |
-| M1.6 | **Tài nguyên mới**: Gỗ / **Than** (tiêu hao theo tốc độ, tăng tốc, hết than bò chậm) / Đồng; bỏ Đá · **Module pháo đài** (ô module hiện trên thân, mua ở điểm dừng bằng Đồng): thân vật liệu, nâng nỏ liên châu, **dầu sôi**, **lò lửa đốt Than**, **khiên tự hồi** |
+| M1.6 | **Tài nguyên mới**: Gỗ / **Than** (tiêu hao theo tốc độ, tăng tốc, hết than bò chậm) / Đồng; bỏ Đá · **Nâng cấp pháo đài** (ô module hiện trên thân, mua ở điểm dừng, **trả bằng nguyên liệu kiếm được — giá trộn Gỗ/Than/Đồng**): thân vật liệu, cấp nỏ liên châu, **dầu sôi**, **lò lửa đốt Than**, **khiên tự hồi**; sau này cả nâng cấp Nỏ thần |
 | M1.7 | **Tiếng ồn + truy đuổi** chồng lên độ khó quãng đường · **Nỏ thần**: thanh năng lượng (hạ quái, nộp đồ, xây) → một người kích hoạt loạt tên quét quanh thành (cứu nguy khi truy đuổi / boss) |
 | M1.8 | **Chọn 1/2 tuyến** ở điểm dừng (tham số đoạn đường: thưởng/rủi ro), theo seed |
 | M1.9 | **Điểm số = quãng đường**, kỷ lục, lưu cài đặt (`user://`); **seed hằng ngày/tuần** chơi được offline (10) |

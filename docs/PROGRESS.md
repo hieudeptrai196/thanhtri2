@@ -20,7 +20,7 @@
 ## Tiếp theo (M1, xem ROADMAP)
 
 - M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.6 Tài nguyên Gỗ/Than/Đồng + module pháo đài (thân, nâng nỏ, dầu sôi, lò lửa Than, khiên)
+- M1.6 Tài nguyên Gỗ/Than/Đồng + nâng cấp pháo đài trả giá trộn nguyên liệu (thân, cấp nỏ, dầu sôi, lò lửa Than, khiên)
 - M1.7 Tiếng ồn/truy đuổi + Nỏ thần · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
@@ -48,6 +48,7 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Vũ khí của thành là một phần nâng cấp pháo đài ở điểm dừng, trả bằng nguyên liệu kiếm được (giá trộn Gỗ/Than/Đồng).**
 - 2026-10-18 · **Pháo đài tự phòng thủ (khác spec gốc), lấy cả 6 ý:** nỏ liên châu yếu + chông gai (M1.5), module nâng nỏ / dầu sôi / lò lửa Than / khiên tự hồi (M1.6), Nỏ thần (M1.7), ụ nỏ có người điều khiển (M2.3). Thành chỉ xử lý quái sát thân; tuyến chính vẫn là công trình + người chơi.
 - 2026-10-18 · **Xây chung**: bản vẽ + cả đội cùng gõ (nhiều người nhanh hơn), góp Gỗ trực tiếp, thu hồi chung nhanh hơn. Ý 2–4 (đa vật liệu, gia cố, liên kết) để M2.
 - 2026-10-18 · Điều khiển xây: phím 1–4 + chuột trên PC, menu vòng tròn (LB) cho tay cầm; xây thời gian thực, không slow-mo.
