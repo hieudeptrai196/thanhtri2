@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://combat/melee_weapon.gd" id="3_weapon"]
 [ext_resource type="Script" path="res://combat/health_component.gd" id="4_health"]
 [ext_resource type="Script" path="res://combat/hurtbox.gd" id="5_hurtbox"]
+[ext_resource type="Script" path="res://resources/inventory.gd" id="6_inventory"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.5
@@ -63,6 +64,10 @@ script = ExtResource("2_input")
 [node name="Health" type="Node" parent="."]
 script = ExtResource("4_health")
 
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("6_inventory")
+capacity = 20
+
 [node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
 collision_layer = 16
 collision_mask = 0
@@ -76,7 +81,7 @@ shape = SubResource("CapsuleShape3D_hurt")
 
 [node name="Weapon" type="Area3D" parent="."]
 collision_layer = 0
-collision_mask = 4
+collision_mask = 68
 monitorable = false
 script = ExtResource("3_weapon")
 

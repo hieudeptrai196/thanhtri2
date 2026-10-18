@@ -3,6 +3,9 @@ extends CharacterBody3D
 ## Basic melee monster. Walks toward the fortress, switches to a living player who comes close,
 ## and hits its current target once that target's Hurtbox is inside the attack area.
 
+## Emitted on death with what it leaves behind; whoever owns the world spawns the pickup.
+signal dropped(contents: Dictionary, at: Vector3)
+
 ## Metres per second.
 @export var move_speed: float = 3.5
 ## A living player closer than this becomes the target instead of the fortress.
@@ -10,6 +13,8 @@ extends CharacterBody3D
 @export var damage: float = 10.0
 ## Seconds between hits.
 @export var attack_interval: float = 1.0
+## Resources left behind on death, keyed by ResourceType.id.
+@export var drops: Dictionary = {&"bronze": 1}
 
 @onready var _health: HealthComponent = $Health
 @onready var _attack_area: Area3D = $AttackArea
@@ -30,7 +35,7 @@ func setup(fortress: Node3D, players: Array[Node3D]) -> void:
 func _ready() -> void:
 	_base_color = _material.albedo_color
 	_health.health_changed.connect(_on_health_changed)
-	_health.died.connect(queue_free)
+	_health.died.connect(_on_died)
 
 
 func _physics_process(delta: float) -> void:
@@ -77,6 +82,11 @@ func _hurtbox_in_reach(target: Node3D) -> Hurtbox:
 		if area is Hurtbox and area.owner == target:
 			return area
 	return null
+
+
+func _on_died() -> void:
+	dropped.emit(drops.duplicate(), global_position)
+	queue_free()
 
 
 func _on_health_changed(_current: float, _maximum: float) -> void:

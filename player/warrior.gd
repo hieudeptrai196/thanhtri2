@@ -9,18 +9,18 @@ extends CharacterBody3D
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var health: HealthComponent = $Health
+@onready var inventory: Inventory = $Inventory
 @onready var _hurtbox: Hurtbox = $Hurtbox
+@onready var _collision: CollisionShape3D = $Collision
 @onready var _weapon: MeleeWeapon = $Weapon
 @onready var _swing_fx: Node3D = $SwingFx
 
 var is_alive: bool = true
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
-var _body_layer: int
 
 
 func _ready() -> void:
-	_body_layer = collision_layer
 	_weapon.swung.connect(_on_swung)
 	health.died.connect(_on_died)
 
@@ -58,7 +58,7 @@ func _on_died() -> void:
 func _set_alive(alive: bool) -> void:
 	is_alive = alive
 	visible = alive
-	collision_layer = _body_layer if alive else 0
+	_collision.set_deferred("disabled", not alive)
 	_hurtbox.set_deferred("monitorable", alive)
 	set_physics_process(alive)
 

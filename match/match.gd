@@ -6,14 +6,21 @@ extends Node3D
 ## Seconds before a fallen warrior returns next to the fortress.
 @export var respawn_delay: float = 3.0
 
+const PICKUP_SCENE := preload("res://resources/pickup.tscn")
+## Colour for piles holding more than one resource type.
+const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
+
 @onready var _route: Path3D = $Route
 @onready var _fortress: Fortress = $Fortress
 @onready var _follower: RouteFollower = $Fortress/RouteFollower
 @onready var _warrior: Warrior = $Warrior
 @onready var _spawner: Spawner = $Spawner
+@onready var _pickups: Node3D = $Pickups
 @onready var _status: Label = $DebugUI/Status
 @onready var _fortress_info: Label = $DebugUI/FortressInfo
 @onready var _player_info: Label = $DebugUI/PlayerInfo
+@onready var _carry_info: Label = $DebugUI/CarryInfo
+@onready var _storage_info: Label = $DebugUI/StorageInfo
 
 var rng := RandomNumberGenerator.new()
 
@@ -27,6 +34,7 @@ func _ready() -> void:
 	_fortress.health.health_changed.connect(_on_fortress_health_changed)
 	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_warrior.health.died.connect(_on_warrior_died)
+	_spawner.enemy_dropped.connect(_spawn_pickup, CONNECT_DEFERRED)
 
 	var players: Array[Node3D] = [_warrior]
 	_spawner.setup(rng, _fortress, players)
@@ -42,6 +50,9 @@ func _process(_delta: float) -> void:
 	if not _warrior.is_alive:
 		warrior_text = "Chiến binh đã ngã — đang hồi sinh"
 	_player_info.text = "%s   |   Quái: %d" % [warrior_text, _spawner.alive_count()]
+	_carry_info.text = "Đang mang (%d/%d): %s" % [
+		_warrior.inventory.total(), _warrior.inventory.capacity, _format_amounts(_warrior.inventory)]
+	_storage_info.text = "Kho pháo đài: %s   [giữ E cạnh pháo đài: sửa bằng Gỗ]" % _format_amounts(_fortress.storage)
 
 
 # TODO(giai đoạn 7): bỏ phím debug này khi đã có quái gây sát thương thật.
@@ -57,8 +68,28 @@ func _on_ready_requested() -> void:
 
 
 func _on_warrior_died() -> void:
+	var carried := _warrior.inventory.take_all()
+	if not carried.is_empty():
+		_spawn_pickup.call_deferred(carried, _warrior.global_position)
 	await get_tree().create_timer(respawn_delay).timeout
 	_warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
+
+
+# Deferred by callers: deaths happen inside physics callbacks, where adding areas is not allowed.
+func _spawn_pickup(contents: Dictionary, at: Vector3) -> void:
+	var pickup: Pickup = PICKUP_SCENE.instantiate()
+	pickup.contents = contents
+	_pickups.add_child(pickup)
+	pickup.global_position = Vector3(at.x, 0.0, at.z)
+	var type: ResourceType = ResourceTypes.find(contents.keys()[0]) if contents.size() == 1 else null
+	pickup.set_color(type.color if type else MIXED_PILE_COLOR)
+
+
+func _format_amounts(inventory: Inventory) -> String:
+	var parts: PackedStringArray = []
+	for type in ResourceTypes.ALL:
+		parts.append("%s %d" % [tr(type.display_name), inventory.get_amount(type.id)])
+	return "  ".join(parts)
 
 
 func _on_fortress_health_changed(current: float, maximum: float) -> void:

@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://fortress/fortress.gd" id="2_fortress"]
 [ext_resource type="Script" path="res://combat/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://combat/hurtbox.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://resources/inventory.gd" id="5_inventory"]
+[ext_resource type="Script" path="res://fortress/service_zone.gd" id="6_zone"]
+[ext_resource type="Resource" path="res://resources/types/wood.tres" id="7_wood"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(10, 5, 10)
@@ -25,8 +28,12 @@ size = Vector3(3, 2, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_hurt"]
 size = Vector3(11, 5.5, 11)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_zone"]
+size = Vector3(17, 6, 17)
+
 [node name="Fortress" type="AnimatableBody3D"]
 script = ExtResource("2_fortress")
+repair_resource = ExtResource("7_wood")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
@@ -57,3 +64,16 @@ health = NodePath("../Health")
 [node name="Collision" type="CollisionShape3D" parent="Hurtbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
 shape = SubResource("BoxShape3D_hurt")
+
+[node name="Storage" type="Node" parent="."]
+script = ExtResource("5_inventory")
+
+[node name="ServiceZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("6_zone")
+
+[node name="Collision" type="CollisionShape3D" parent="ServiceZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+shape = SubResource("BoxShape3D_zone")

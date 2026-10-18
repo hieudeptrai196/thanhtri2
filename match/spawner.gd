@@ -3,6 +3,8 @@ extends Node3D
 ## Spawns enemies at a fixed interval on a ring around the fortress while active.
 ## Spawned enemies are children of this node.
 
+signal enemy_dropped(contents: Dictionary, at: Vector3)
+
 @export var enemy_scene: PackedScene
 ## Seconds between spawns.
 @export var interval: float = 3.0
@@ -46,6 +48,7 @@ func spawn_one() -> Enemy:
 	add_child(enemy)
 	enemy.global_position = spawn_position
 	enemy.setup(_fortress, _players)
+	enemy.dropped.connect(enemy_dropped.emit)
 	return enemy
 
 

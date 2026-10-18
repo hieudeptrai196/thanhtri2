@@ -10,6 +10,7 @@ var move_direction: Vector3 = Vector3.ZERO
 ## World-space unit direction on the ground plane the player aims at.
 var aim_direction: Vector3 = Vector3.FORWARD
 var attack_held: bool = false
+var interact_held: bool = false
 
 # Mouse aims while the player uses mouse/keyboard; with a gamepad the right stick aims.
 var _using_gamepad: bool = false
@@ -26,6 +27,7 @@ func _physics_process(_delta: float) -> void:
 	move_direction = _to_world(Input.get_vector("move_left", "move_right", "move_up", "move_down"))
 	aim_direction = _read_aim()
 	attack_held = Input.is_action_pressed("attack")
+	interact_held = Input.is_action_pressed("interact")
 	if Input.is_action_just_pressed("ready"):
 		ready_requested.emit()
 

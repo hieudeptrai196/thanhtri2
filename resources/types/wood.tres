@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ResourceType" format=3]
+
+[ext_resource type="Script" path="res://resources/resource_type.gd" id="1_type"]
+
+[resource]
+script = ExtResource("1_type")
+id = &"wood"
+display_name = "Gỗ"
+color = Color(0.6, 0.4, 0.2, 1)

@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" path="res://player/warrior.tscn" id="5_warrior"]
 [ext_resource type="Script" path="res://match/spawner.gd" id="6_spawner"]
 [ext_resource type="PackedScene" path="res://enemies/enemy.tscn" id="7_enemy"]
+[ext_resource type="PackedScene" path="res://resources/tree.tscn" id="8_tree"]
+[ext_resource type="PackedScene" path="res://resources/rock.tscn" id="9_rock"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -109,6 +111,55 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 script = ExtResource("6_spawner")
 enemy_scene = ExtResource("7_enemy")
 
+[node name="Resources" type="Node3D" parent="."]
+
+[node name="Tree1" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -10)
+
+[node name="Tree2" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -25)
+
+[node name="Tree3" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -30)
+
+[node name="Tree4" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -50)
+
+[node name="Tree5" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -70)
+
+[node name="Tree6" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -100)
+
+[node name="Tree7" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -115)
+
+[node name="Tree8" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -150)
+
+[node name="Tree9" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 0, -160)
+
+[node name="Tree10" parent="Resources" instance=ExtResource("8_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -190)
+
+[node name="Rock1" parent="Resources" instance=ExtResource("9_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, -20)
+
+[node name="Rock2" parent="Resources" instance=ExtResource("9_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, -40)
+
+[node name="Rock3" parent="Resources" instance=ExtResource("9_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0, -120)
+
+[node name="Rock4" parent="Resources" instance=ExtResource("9_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85, 0, -140)
+
+[node name="Rock5" parent="Resources" instance=ExtResource("9_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -200)
+
+[node name="Pickups" type="Node3D" parent="."]
+
 [node name="IsoCamera" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
 size = 26.0
 script = ExtResource("4_camera")
@@ -135,4 +186,18 @@ offset_left = 16.0
 offset_top = 84.0
 offset_right = 716.0
 offset_bottom = 116.0
+theme_override_font_sizes/font_size = 22
+
+[node name="CarryInfo" type="Label" parent="DebugUI"]
+offset_left = 16.0
+offset_top = 118.0
+offset_right = 916.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 22
+
+[node name="StorageInfo" type="Label" parent="DebugUI"]
+offset_left = 16.0
+offset_top = 152.0
+offset_right = 916.0
+offset_bottom = 184.0
 theme_override_font_sizes/font_size = 22
