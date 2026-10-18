@@ -11,9 +11,16 @@ var move_direction: Vector3 = Vector3.ZERO
 var aim_direction: Vector3 = Vector3.FORWARD
 var attack_held: bool = false
 var interact_held: bool = false
+## True only on the tick the dash button goes down.
+var dash_pressed: bool = false
 
 # Mouse aims while the player uses mouse/keyboard; with a gamepad the right stick aims.
 var _using_gamepad: bool = false
+
+
+# Read input before the body that consumes it, so intent is never a tick late.
+func _ready() -> void:
+	process_physics_priority = -10
 
 
 func _input(event: InputEvent) -> void:
@@ -29,6 +36,7 @@ func _physics_process(_delta: float) -> void:
 	# Clicking on UI (e.g. the stop panel) must not swing the weapon.
 	attack_held = Input.is_action_pressed("attack") and get_viewport().gui_get_hovered_control() == null
 	interact_held = Input.is_action_pressed("interact")
+	dash_pressed = Input.is_action_just_pressed("dash")
 	if Input.is_action_just_pressed("ready"):
 		ready_requested.emit()
 

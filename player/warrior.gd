@@ -1,23 +1,34 @@
 class_name Warrior
 extends CharacterBody3D
-## On-foot warrior. Moves, faces and attacks according to its PlayerInput intent.
+## On-foot warrior. Moves and dashes according to its PlayerInput intent; the basic attack is
+## automatic (enemies first, then trees/rocks), with the aim direction only prioritising targets.
 
 ## Metres per second.
 @export var move_speed: float = 7.0
 ## Higher turns faster.
 @export var turn_speed: float = 18.0
+@export var dash_distance: float = 4.5
+@export var dash_duration: float = 0.15
+@export var dash_cooldown: float = 1.2
+## Seconds the warrior keeps facing what it just hit before turning back to its movement.
+@export var attack_facing_time: float = 0.35
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var health: HealthComponent = $Health
 @onready var inventory: Inventory = $Inventory
+@onready var weapon: MeleeWeapon = $Weapon
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _collision: CollisionShape3D = $Collision
-@onready var weapon: MeleeWeapon = $Weapon
 @onready var _swing_fx: Node3D = $SwingFx
 
 var is_alive: bool = true
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var _dash_time_left: float = 0.0
+var _dash_cooldown_left: float = 0.0
+var _dash_direction: Vector3 = Vector3.ZERO
+var _facing: Vector3 = Vector3.FORWARD
+var _attack_facing_left: float = 0.0
 
 
 func _ready() -> void:
@@ -32,23 +43,56 @@ func respawn_at(spawn_position: Vector3) -> void:
 	_set_alive(true)
 
 
+func is_dashing() -> bool:
+	return _dash_time_left > 0.0
+
+
 func _physics_process(delta: float) -> void:
+	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
+	_attack_facing_left = maxf(_attack_facing_left - delta, 0.0)
+	if input.dash_pressed and _dash_cooldown_left == 0.0 and not is_dashing():
+		_start_dash()
+
 	var direction := input.move_direction
-	velocity.x = direction.x * move_speed
-	velocity.z = direction.z * move_speed
-	if is_on_floor():
-		velocity.y = 0.0
+	if is_dashing():
+		_dash_time_left -= delta
+		var dash_speed := dash_distance / dash_duration
+		velocity.x = _dash_direction.x * dash_speed
+		velocity.z = _dash_direction.z * dash_speed
+		if not is_dashing():
+			_hurtbox.set_deferred("monitorable", true)
 	else:
-		velocity.y -= _gravity * delta
+		velocity.x = direction.x * move_speed
+		velocity.z = direction.z * move_speed
+		_auto_attack()
+	velocity.y = 0.0 if is_on_floor() else velocity.y - _gravity * delta
 
-	var aim := input.aim_direction
-	var target_yaw := atan2(-aim.x, -aim.z)
-	rotation.y = lerp_angle(rotation.y, target_yaw, 1.0 - exp(-turn_speed * delta))
-
-	if input.attack_held:
-		weapon.try_attack(aim)
-
+	if _attack_facing_left == 0.0 and direction != Vector3.ZERO:
+		_facing = direction.normalized()
+	rotation.y = lerp_angle(rotation.y, atan2(-_facing.x, -_facing.z), 1.0 - exp(-turn_speed * delta))
 	move_and_slide()
+
+
+func _auto_attack() -> void:
+	if not weapon.is_ready():
+		return
+	var target := weapon.pick_target(input.aim_direction)
+	if target == null:
+		return
+	var to_target := target.global_position - global_position
+	to_target.y = 0.0
+	if to_target.length() > 0.01:
+		_facing = to_target.normalized()
+	_attack_facing_left = attack_facing_time
+	weapon.try_attack(_facing)
+
+
+# Short burst along the movement (or facing) direction; the warrior cannot be hit meanwhile.
+func _start_dash() -> void:
+	_dash_direction = input.move_direction.normalized() if input.move_direction != Vector3.ZERO else _facing
+	_dash_time_left = dash_duration
+	_dash_cooldown_left = dash_cooldown
+	_hurtbox.set_deferred("monitorable", false)
 
 
 func _on_died() -> void:
@@ -58,6 +102,7 @@ func _on_died() -> void:
 func _set_alive(alive: bool) -> void:
 	is_alive = alive
 	visible = alive
+	_dash_time_left = 0.0
 	_collision.set_deferred("disabled", not alive)
 	_hurtbox.set_deferred("monitorable", alive)
 	set_physics_process(alive)

@@ -2,6 +2,7 @@ class_name MeleeWeapon
 extends Area3D
 ## Swings in an arc toward a direction and hits every Hurtbox inside it.
 ## The area's shape sets the reach; its collision mask decides what counts as a target.
+## `pick_target` chooses what an auto-attacking wielder should swing at.
 
 signal swung(direction: Vector3, hit_count: int)
 
@@ -10,6 +11,10 @@ signal swung(direction: Vector3, hit_count: int)
 @export var cooldown: float = 0.5
 ## Full width of the swing arc.
 @export_range(10.0, 360.0) var arc_degrees: float = 120.0
+## Hurtboxes on these layers are always preferred over others (enemies over trees and rocks).
+@export_flags_3d_physics var priority_layers: int = 4
+## How strongly the preferred direction outweighs distance when picking a target.
+@export var aim_weight: float = 3.0
 
 var _cooldown_left: float = 0.0
 var _reach_shape: SphereShape3D
@@ -35,6 +40,34 @@ func apply_upgrade(upgrade: WeaponUpgrade) -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown_left = maxf(_cooldown_left - delta, 0.0)
+
+
+func is_ready() -> bool:
+	return _cooldown_left == 0.0
+
+
+## Best Hurtbox in reach: priority layers first, then by distance plus how far it is from
+## `preferred_direction` (ZERO = nearest). Returns null when nothing is in reach.
+func pick_target(preferred_direction: Vector3) -> Hurtbox:
+	var best: Hurtbox = null
+	var best_score := INF
+	var best_priority := false
+	for area in get_overlapping_areas():
+		if not area is Hurtbox:
+			continue
+		var priority: bool = area.collision_layer & priority_layers != 0
+		if best_priority and not priority:
+			continue
+		var to_target: Vector3 = area.global_position - global_position
+		to_target.y = 0.0
+		var score := to_target.length()
+		if preferred_direction != Vector3.ZERO and to_target.length() > 0.01:
+			score += aim_weight * (1.0 - to_target.normalized().dot(preferred_direction))
+		if (priority and not best_priority) or score < best_score:
+			best = area
+			best_score = score
+			best_priority = priority
+	return best
 
 
 func try_attack(direction: Vector3) -> bool:

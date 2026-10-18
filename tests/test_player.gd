@@ -57,25 +57,69 @@ func test_mouse_aim_points_at_cursor() -> void:
 	check(aim.dot(expected) > 0.999, "aim %s should match %s" % [aim, expected])
 
 
-func test_attack_needs_input_and_hits_only_in_aim_arc() -> void:
+func test_attacks_automatically_and_prefers_aim_direction() -> void:
 	var m := await start_match()
 	m.get_node("Fortress").follower.base_speed = 0.0
 	var warrior: Warrior = m.get_node("Warrior")
 	warrior.global_position = Vector3(30, 0.1, 30)
-	var dummy := spawn_dummy(m, Vector3(31.5, 0, 30))
-	var dummy_health: HealthComponent = dummy.get_node("Health")
+	var behind := spawn_dummy(m, Vector3(28.6, 0, 30))   # nearer, opposite the aim
+	var ahead := spawn_dummy(m, Vector3(32.0, 0, 30))    # farther, in the aim direction
+	aim_at(warrior, Vector3(40, 0, 30))
+	await frames(3)
+	check(ahead.get_node("Health").current < 50.0, "first swing goes to the dummy in the aim direction")
+	check(behind.get_node("Health").current == 50.0, "the nearer dummy behind is not chosen first")
+	await seconds(6.0)  # 2 dummies × 5 hits × 0.5 s
+	check(not is_instance_valid(ahead) and not is_instance_valid(behind), "keeps attacking on its own until both are gone")
 
-	aim_at(warrior, dummy.global_position)
-	await seconds(1.0)
-	check(dummy_health.current == 50.0, "no damage without pressing attack")
 
-	aim_at(warrior, warrior.global_position - Vector3(1.5, 0, 0))
-	Input.action_press(&"attack")
-	await seconds(1.0)
-	Input.action_release(&"attack")
-	check(dummy_health.current == 50.0, "swinging away from the dummy misses it")
+func test_auto_attack_prefers_enemies_over_trees() -> void:
+	var m := await start_match()
+	m.get_node("Fortress").follower.base_speed = 0.0
+	var warrior: Warrior = m.get_node("Warrior")
+	warrior.global_position = Vector3(30, 0.1, 30)
+	var tree_node := spawn_resource(m, TREE_SCENE, Vector3(31.5, 0, 30))
+	var enemy: Enemy = m.get_node("Spawner").spawn_one()
+	enemy.global_position = Vector3(28.0, 0, 30)
+	await frames(2)
+	for action in AIM_ACTIONS:
+		Input.action_release(action)
+	await seconds(1.6)
+	check(warrior.inventory.get_amount(&"wood") == 0, "no chopping while an enemy is in reach")
+	await seconds(3.0)
+	check(not is_instance_valid(enemy), "the enemy goes down first")
+	check(warrior.inventory.get_amount(&"wood") > 0, "then it chops the tree on its own")
 
-	check(await attack_until_freed(warrior, dummy), "attacking toward the dummy destroys it")
+
+func test_dash_moves_fast_has_cooldown_and_dodges() -> void:
+	var m := await start_match()
+	m.get_node("Fortress").follower.base_speed = 0.0
+	var warrior: Warrior = m.get_node("Warrior")
+	warrior.global_position = Vector3(40, 0.1, 40)
+	await frames(2)
+	var start := warrior.global_position
+	Input.action_press(&"move_up")
+	Input.action_press(&"dash")
+	await frames(2)
+	Input.action_release(&"dash")
+	check(warrior.is_dashing(), "dash starts")
+	check(not warrior.get_node("Hurtbox").monitorable, "cannot be hit while dashing")
+	await seconds(warrior.dash_duration + 0.05)
+	Input.action_release(&"move_up")
+	var moved := warrior.global_position - start
+	moved.y = 0.0
+	check(moved.length() > warrior.dash_distance, "dash covers its distance quickly (%.1f m)" % moved.length())
+	check(warrior.get_node("Hurtbox").monitorable, "can be hit again after the dash")
+
+	var before := warrior.global_position
+	Input.action_press(&"dash")
+	await frames(2)
+	Input.action_release(&"dash")
+	check(not warrior.is_dashing(), "no second dash during the cooldown")
+	await seconds(warrior.dash_cooldown)
+	Input.action_press(&"dash")
+	await frames(2)
+	Input.action_release(&"dash")
+	check(warrior.is_dashing(), "dash is available again after the cooldown")
 
 
 func test_dies_and_respawns_next_to_fortress() -> void:

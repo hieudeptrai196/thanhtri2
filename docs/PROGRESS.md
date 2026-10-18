@@ -5,18 +5,18 @@
 
 ## Đang làm
 
-**M1.2 — Độ khó tăng theo quãng đường** (2026-10-18) — **code xong, test 47/47, chờ người dùng chơi thử để cân bằng rồi commit**
+**M1.3 — Đòn thường tự đánh + dash** (2026-10-18) — **code xong, test 49/49, chờ người dùng chơi thử rồi commit**
 
-- [x] `match/difficulty.gd` + `difficulty_default.tres`: khoảng sinh quái (4.5 s, ×0.7/km, tối thiểu 0.6 s), quái tối đa (30 +30/km, trần 200), máu quái +40%/km, sát thương +25%/km, cỡ đàn 1 +0.75/km (trần 6) [Đề xuất]
-- [x] Spawner sinh theo đợt quanh một hướng, theo Difficulty + quãng đường; `Enemy.apply_scaling`
-- [x] Cân bằng đầu game: sát thương quái 10 → 5, khoảng sinh đầu 3 → 4.5 s (đứng yên: thành trụ ~49 s / ~127 m, trước là 31 s / 80 m)
-- [x] Test `test_difficulty.gd`; ErrorCatcher bỏ qua cảnh báo Jolt ở cả `code` lẫn `rationale`
-- [x] Commit làm nền (cân bằng chi tiết ở M1.5)
-- Ghi chú: bot đánh tự động (scratchpad) bị kẹt sau pháo đài/cây nên **không dùng để cân bằng**; cần người chơi thật.
+- [x] `project.godot`: thêm action `dash` (Shift / B), `build` (Q / LB), `recover` (F / Y), `cancel` (chuột phải / B) cho M1.3–M1.4; đặt tên layer 5–8
+- [x] `MeleeWeapon.pick_target`: ưu tiên quái (layer 4) hơn cây/đá, rồi theo khoảng cách + hướng ngắm (`aim_weight`)
+- [x] `Warrior`: tự đánh (chuột/stick phải chỉ ưu tiên hướng), quay mặt theo mục tiêu rồi theo hướng chạy; dash 4.5 m / 0.15 s, hồi 1.2 s, không bị đánh khi đang lướt
+- [x] `PlayerInput` chạy trước chiến binh mỗi nhịp (`process_physics_priority = -10`); `dash_pressed`
+- [x] Test: tự đánh + ưu tiên hướng ngắm, ưu tiên quái hơn cây, dash (quãng, hồi chiêu, né đòn)
+- [x] Người dùng chơi thử → commit
+- Ghi chú: action `attack` (click) tạm không dùng — để dành cho kỹ năng class (M2).
 
 ## Tiếp theo (M1, xem ROADMAP)
 
-- M1.3 Đòn thường tự đánh + dash
 - M1.4 Công trình ngoài thực địa (nhảy cóc, bộ đệm, đòn cuối)
 - M1.5 Chơi thử câu hỏi cốt lõi
 - M1.6 Tài nguyên Gỗ/Than/Đồng · M1.7 Tiếng ồn · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
@@ -40,6 +40,7 @@
 | — | `a254fbd` | Roadmap: PC trước, di động sau |
 | — | `ef650ec` | `docs/PROGRESS.md` |
 | M1.1 | `ab03fb0` | Lộ trình vô tận, nội dung theo đoạn, harness timeout |
+| M1.2 | `c85f80e` | Độ khó theo quãng đường |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
@@ -61,7 +62,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). Đã chọn ý tưởng + co-op 4 người; roadmap viết lại. **Chờ:** duyệt roadmap mới, commit M1.2, bắt đầu M1.3.
+- Đã chốt vòng nhảy cóc (phương án 1). Chốt cách điều khiển chế độ xây cho M1.4.
 
 ## Ghi chú cho phiên sau
 
