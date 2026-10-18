@@ -5,15 +5,18 @@
 
 ## Đang làm
 
-**M1.3 — Đòn thường tự đánh + dash** (2026-10-18) — **code xong, test 49/49, chờ người dùng chơi thử rồi commit**
+**M1.4 — Công trình ngoài thực địa** (bắt đầu 2026-10-18). Thông số đã duyệt: tháp nỏ gập (15 Gỗ, 120 máu), rào gỗ cố định
+(5 Gỗ, 150 máu, hút quái); tiếp sức trong 12 m quanh pháo đài, ngoài đó bộ đệm 30 s; vác 1 tháp (chạy 5 m/s, không đánh,
+đặt lại miễn phí); hết bộ đệm → đòn cuối (bắn ×3 trong 4 s rồi nổ 6 m); xây trong 6 m quanh chiến binh, không trên đường/không
+chồng vật cản; trả từ kho chung; kho bắt đầu 30 Gỗ; quái gần công trình (6 m) quay sang đánh; bỏ 4 ô tháp trên pháo đài.
 
-- [x] `project.godot`: thêm action `dash` (Shift / B), `build` (Q / LB), `recover` (F / Y), `cancel` (chuột phải / B) cho M1.3–M1.4; đặt tên layer 5–8
-- [x] `MeleeWeapon.pick_target`: ưu tiên quái (layer 4) hơn cây/đá, rồi theo khoảng cách + hướng ngắm (`aim_weight`)
-- [x] `Warrior`: tự đánh (chuột/stick phải chỉ ưu tiên hướng), quay mặt theo mục tiêu rồi theo hướng chạy; dash 4.5 m / 0.15 s, hồi 1.2 s, không bị đánh khi đang lướt
-- [x] `PlayerInput` chạy trước chiến binh mỗi nhịp (`process_physics_priority = -10`); `dash_pressed`
-- [x] Test: tự đánh + ưu tiên hướng ngắm, ưu tiên quái hơn cây, dash (quãng, hồi chiêu, né đòn)
-- [x] Người dùng chơi thử → commit
-- Ghi chú: action `attack` (click) tạm không dùng — để dành cho kỹ năng class (M2).
+- [ ] Dữ liệu: `StructureType` + `StructureTypes`, 2 file `.tres`
+- [ ] `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), `Barricade`
+- [ ] `StructureNetwork` (chứa công trình, luật đặt, tiếp sức, thu hồi) + quyền ở `Match`
+- [ ] `Builder` (phím 1–4, menu vòng tròn LB, bóng ma xanh/vàng/đỏ, giữ F thu hồi) + `PlayerInput` intent mới
+- [ ] Chiến binh vác tháp (chậm, không đánh, rơi tháp khi ngã); quái nhắm công trình
+- [ ] HUD: thanh công trình, trạng thái vác, gợi ý thu hồi, menu vòng tròn; bỏ ô tháp + nút "Xây tháp"
+- [ ] Test + chụp màn hình + người dùng chơi thử → commit
 
 ## Tiếp theo (M1, xem ROADMAP)
 
@@ -64,7 +67,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). Duyệt bộ thông số đề xuất cho M1.4 (công trình).
+- Đã chốt vòng nhảy cóc (phương án 1). (không có — đang làm M1.4)
 
 ## Ghi chú cho phiên sau
 
