@@ -64,6 +64,32 @@ static func apply_card(card: Button) -> void:
 	card.add_theme_stylebox_override("disabled", card_frame(MUTED.darkened(0.3), 2, Color(0.6, 0.6, 0.6)))
 
 
+## Lighter, semi-transparent panel for the always-on HUD.
+static func hud_panel() -> StyleBoxFlat:
+	var style := box(Color(WOOD_DARK, 0.78), BRONZE.darkened(0.3), 2, 10)
+	style.set_content_margin_all(10.0)
+	return style
+
+
+## Styles a ProgressBar as a rounded bar with the given fill colour.
+static func apply_bar(bar: ProgressBar, fill: Color) -> void:
+	bar.show_percentage = false
+	var background := box(Color(0, 0, 0, 0.55), Color(0, 0, 0, 0.8), 1, 5)
+	background.set_content_margin_all(0.0)
+	background.shadow_size = 0
+	var foreground := box(fill, fill.lightened(0.25), 1, 5)
+	foreground.set_content_margin_all(0.0)
+	foreground.shadow_size = 0
+	bar.add_theme_stylebox_override("background", background)
+	bar.add_theme_stylebox_override("fill", foreground)
+
+
+## Text readable over the 3D world.
+static func outline(target: Label, size: int = 6) -> void:
+	target.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	target.add_theme_constant_override("outline_size", size)
+
+
 static func label(text: String, size: int, color: Color = PARCHMENT) -> Label:
 	var result := Label.new()
 	result.text = text

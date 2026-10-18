@@ -28,6 +28,7 @@ func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
 
 
 func cleanup() -> void:
+	tree.paused = false
 	for action in InputMap.get_actions():
 		if not String(action).begins_with("ui_"):
 			Input.action_release(action)

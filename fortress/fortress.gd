@@ -23,6 +23,7 @@ const TOWER_SCENE := preload("res://fortress/tower.tscn")
 @onready var health: HealthComponent = $Health
 @onready var follower: RouteFollower = $RouteFollower
 @onready var storage: Inventory = $Storage
+@onready var service_zone: ServiceZone = $ServiceZone
 @onready var _body_mesh: MeshInstance3D = $Body
 @onready var _tower_slots: Node3D = $TowerSlots
 

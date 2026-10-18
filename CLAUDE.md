@@ -22,6 +22,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 
 - Test nằm ở `tests/test_*.gd`, kế thừa `GameTest` (`tests/game_test.gd`): `start_match()`, `frames()`, `seconds()`, `check()`, `check_near()`, `aim_at()`, `attack_until_freed()`, `spawn_dummy()`.
 - Mỗi giai đoạn mới **phải thêm test** cho hành vi mới và chạy lại toàn bộ trước khi báo xong.
+- Khi có kết quả trận, cây scene bị tạm dừng; `GameTest.cleanup()` tự bỏ tạm dừng. Nút Chơi lại gọi `reload_current_scene()`, harness không có current scene nên test phải ngắt `m.restart` trước khi bấm.
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
 
@@ -29,14 +30,14 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 
 | Thư mục | Nội dung |
 |---|---|
-| `match/` | `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh), `spawner.gd` |
+| `match/` | `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thắng/thua → tạm dừng cây + màn kết quả, chơi lại = nạp lại scene), `spawner.gd` |
 | `fortress/` | `Fortress` (máu → tốc độ, kho, sửa), `RouteFollower` (chạy theo `Path3D`, dừng tại `Marker3D`), `ServiceZone` (nộp đồ, giữ interact để sửa) |
 | `player/` | `Warrior`, `PlayerInput` |
 | `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, bia thử |
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây/đá), `Pickup` |
 | `camera/`, `world/` | Camera isometric orthographic, shader nền |
-| `ui/` | `UiStyle` (style chung), `UpgradePanel` (bảng ở điểm dừng), `WeaponCard` (thẻ vũ khí) |
+| `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `tests/` | Test harness |
 
 Nguyên tắc:
@@ -50,9 +51,10 @@ Nguyên tắc:
 - Không xây hệ thống cho tính năng chưa được xác nhận.
 
 Điểm gắn asset (thay placeholder không cần sửa code):
+- Biểu tượng tài nguyên trên HUD: gán `icon` trong `resources/types/*.tres`; không có thì vẽ ô màu.
 - Ảnh minh họa thẻ vũ khí: gán `art` (Texture2D) trong `combat/upgrades/*.tres`; thẻ tự thay ô placeholder.
 - Khung thẻ: thả ảnh 9-slice vào `ui/art/card_frame.png` (viền không giãn 24 px, xem `UiStyle.CARD_FRAME_SLICE`).
-- Bố cục thẻ: sửa `ui/weapon_card.tscn` trong editor. Màu/style chung: `ui/ui_style.gd`.
+- Bố cục HUD / màn kết quả / thẻ: sửa `ui/hud.tscn`, `ui/result_screen.tscn`, `ui/weapon_card.tscn` trong editor. Màu/style chung: `ui/ui_style.gd`.
 - Khi thêm UI mới: tách thành scene riêng và chừa chỗ cho ảnh như trên.
 
 Collision layer:
@@ -84,5 +86,5 @@ Collision layer:
 
 ## Lộ trình prototype
 
-0–5 đã xong: khung project → pháo đài + camera → di chuyển → máu/đánh → quái + spawner → tài nguyên/sửa/rơi đồ.
-Tiếp theo: **6** điểm dừng nâng cấp (pháo đài + vũ khí) + bom ẩn · **7** vòng trận thắng/thua + HUD (bỏ phím debug K) · **8** đo hiệu năng trên M1 + chơi thử.
+0–7 đã xong: khung project → pháo đài + camera → di chuyển → máu/đánh → quái + spawner → tài nguyên/sửa/rơi đồ → điểm dừng nâng cấp (6a thân + tháp, 6b thẻ vũ khí, 6c bom ẩn) → vòng trận thắng/thua/chơi lại + HUD.
+Tiếp theo: **8** đo hiệu năng trên M1 + chơi thử · **9** làm đẹp: ánh sáng/hậu kỳ, vật liệu stylized, nền đất, juice (rung camera, hit-stop, số sát thương), hiệu ứng hạt, font tiếng Việt (cần người dùng đồng ý tải font OFL).

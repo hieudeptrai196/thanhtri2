@@ -1,0 +1,136 @@
+class_name Hud
+extends Control
+## In-match HUD: fortress health + route progress (top), warrior health over its head,
+## carried/stored resources (bottom left), toasts and hints. Layout lives in hud.tscn.
+
+const TOAST_SECONDS := 2.5
+## Height above the warrior's feet where its health bar floats.
+const WARRIOR_BAR_HEIGHT := 2.4
+
+var _fortress: Fortress
+var _warrior: Warrior
+var _carried_label: Label
+var _carried: Array[ResourceCounter] = []
+var _stored: Array[ResourceCounter] = []
+var _toast_tween: Tween
+
+@onready var _fortress_label: Label = %FortressLabel
+@onready var _fortress_bar: ProgressBar = %FortressBar
+@onready var _speed_label: Label = %SpeedLabel
+@onready var _route_progress: RouteProgress = %RouteProgress
+@onready var _toast: Label = %Toast
+@onready var _center_message: Label = %CenterMessage
+@onready var _repair_hint: Label = %RepairHint
+@onready var _grid: GridContainer = %Grid
+@onready var _warrior_bar: ProgressBar = %WarriorBar
+
+
+func _ready() -> void:
+	$TopPanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
+	$ResourcePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
+	UiStyle.apply_bar(_fortress_bar, Color(0.75, 0.3, 0.2))
+	UiStyle.apply_bar(_warrior_bar, Color(0.3, 0.7, 0.35))
+	for label in [_fortress_label, _speed_label, _toast, _center_message, _repair_hint]:
+		label.add_theme_color_override("font_color", UiStyle.PARCHMENT)
+		UiStyle.outline(label)
+	_toast.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT)
+	_toast.modulate.a = 0.0
+
+
+func setup(fortress: Fortress, warrior: Warrior) -> void:
+	_fortress = fortress
+	_warrior = warrior
+	_route_progress.follower = fortress.follower
+
+	_carried_label = UiStyle.label("", 18, UiStyle.MUTED)
+	_grid.add_child(_carried_label)
+	_grid.add_child(_make_counter_row(_carried))
+	_grid.add_child(UiStyle.label(tr("Kho"), 18, UiStyle.MUTED))
+	_grid.add_child(_make_counter_row(_stored))
+
+	fortress.health.health_changed.connect(_on_fortress_health_changed)
+	warrior.health.health_changed.connect(_on_warrior_health_changed)
+	warrior.inventory.changed.connect(_refresh_resources)
+	fortress.storage.changed.connect(_refresh_resources)
+	fortress.service_zone.deposited.connect(_on_deposited)
+	_on_fortress_health_changed(fortress.health.current, fortress.health.max_health)
+	_on_warrior_health_changed(warrior.health.current, warrior.health.max_health)
+	_refresh_resources()
+
+
+func show_toast(text: String) -> void:
+	_toast.text = text
+	if _toast_tween:
+		_toast_tween.kill()
+	_toast.modulate.a = 1.0
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(TOAST_SECONDS)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.5)
+
+
+## Shows a centred message (e.g. a respawn countdown); empty text hides it.
+func set_center_message(text: String) -> void:
+	_center_message.text = text
+	_center_message.visible = text != ""
+
+
+func _process(_delta: float) -> void:
+	if _fortress == null:
+		return
+	_speed_label.text = tr("Tốc độ %d%%") % roundi(_fortress.follower.speed_multiplier * 100.0)
+	_update_warrior_bar()
+	_update_repair_hint()
+
+
+func _update_warrior_bar() -> void:
+	var camera := get_viewport().get_camera_3d()
+	_warrior_bar.visible = _warrior.is_alive and camera != null
+	if _warrior_bar.visible:
+		var head := camera.unproject_position(_warrior.global_position + Vector3(0.0, WARRIOR_BAR_HEIGHT, 0.0))
+		_warrior_bar.position = head - _warrior_bar.size * 0.5
+
+
+func _update_repair_hint() -> void:
+	var damaged := _fortress.health.current < _fortress.health.max_health
+	_repair_hint.visible = _warrior.is_alive and damaged and _fortress.service_zone.overlaps_body(_warrior)
+	if not _repair_hint.visible:
+		return
+	if _fortress.storage.get_amount(_fortress.repair_resource.id) > 0:
+		_repair_hint.text = tr("Giữ E để sửa pháo đài")
+	else:
+		_repair_hint.text = tr("Kho hết %s — cần mang về để sửa") % tr(_fortress.repair_resource.display_name)
+
+
+func _make_counter_row(counters: Array[ResourceCounter]) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for type in ResourceTypes.ALL:
+		var counter := ResourceCounter.new()
+		counter.setup(type)
+		row.add_child(counter)
+		counters.append(counter)
+	return row
+
+
+func _refresh_resources() -> void:
+	_carried_label.text = tr("Mang %d/%d") % [_warrior.inventory.total(), _warrior.inventory.capacity]
+	for counter in _carried:
+		counter.set_amount(_warrior.inventory.get_amount(counter.type.id))
+	for counter in _stored:
+		counter.set_amount(_fortress.storage.get_amount(counter.type.id))
+
+
+func _on_fortress_health_changed(current: float, maximum: float) -> void:
+	_fortress_bar.max_value = maximum
+	_fortress_bar.value = current
+	_fortress_label.text = tr("Pháo đài %s %d/%d") % [tr(_fortress.get_tier().display_name), current, maximum]
+
+
+func _on_warrior_health_changed(current: float, maximum: float) -> void:
+	_warrior_bar.max_value = maximum
+	_warrior_bar.value = current
+
+
+func _on_deposited(contents: Dictionary) -> void:
+	show_toast(tr("Nộp vào kho: %s") % ResourceTypes.format_amounts(contents))

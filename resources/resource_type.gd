@@ -6,3 +6,5 @@ extends Resource
 ## Shown to players through tr(), so it doubles as the translation key.
 @export var display_name: String
 @export var color: Color = Color.WHITE
+## HUD icon. Optional: a coloured tile is drawn until art exists.
+@export var icon: Texture2D

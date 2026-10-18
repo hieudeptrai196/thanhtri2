@@ -1,5 +1,8 @@
 extends Node3D
-## Root of one run: wires the route, fortress, players and spawner together and owns the match flow.
+## Root of one run: wires the route, fortress, players and spawner together and owns the match flow:
+## stops, purchases, respawns and the final result.
+
+enum Result { NONE, WON, LOST }
 
 ## 0 picks a random seed each run.
 @export var rng_seed: int = 0
@@ -16,18 +19,20 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _warrior: Warrior = $Warrior
 @onready var _spawner: Spawner = $Spawner
 @onready var _pickups: Node3D = $Pickups
-@onready var _status: Label = $DebugUI/Status
-@onready var _fortress_info: Label = $DebugUI/FortressInfo
-@onready var _player_info: Label = $DebugUI/PlayerInfo
-@onready var _carry_info: Label = $DebugUI/CarryInfo
-@onready var _storage_info: Label = $DebugUI/StorageInfo
+@onready var _hud: Hud = $UI/HUD
 @onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
+@onready var _result_screen: ResultScreen = $UI/ResultScreen
 
 var rng := RandomNumberGenerator.new()
+var result: Result = Result.NONE
+var elapsed: float = 0.0
+var kills: int = 0
 
 ## Weapon cards offered at the current stop, and which one was bought (-1 = none yet).
 var weapon_offers: Array[WeaponUpgrade] = []
 var weapon_choice: int = -1
+
+var _respawn_left: float = 0.0
 
 
 func _ready() -> void:
@@ -35,17 +40,18 @@ func _ready() -> void:
 		rng.seed = rng_seed
 	_follower.reached_stop.connect(_on_reached_stop)
 	_follower.departed.connect(_on_departed)
-	_follower.reached_end.connect(_on_reached_end)
-	_fortress.health.health_changed.connect(_on_fortress_health_changed)
+	_follower.reached_end.connect(_finish.bind(true))
+	_fortress.health.died.connect(_finish.bind(false))
 	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_warrior.health.died.connect(_on_warrior_died)
-	_spawner.enemy_dropped.connect(_spawn_pickup, CONNECT_DEFERRED)
+	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
 	_upgrade_panel.tower_requested.connect(request_build_tower)
 	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
+	_result_screen.restart_requested.connect(restart)
 	for bomb: HiddenBomb in $Bombs.get_children():
 		bomb.exploded.connect(_on_bomb_exploded)
 
@@ -53,30 +59,26 @@ func _ready() -> void:
 	_spawner.setup(rng, _fortress, players)
 	_spawner.active = true
 	_follower.start(_route)
-
-	_status.text = "Đang chạy"
-	_on_fortress_health_changed(_fortress.health.current, _fortress.health.max_health)
-
-
-func _process(_delta: float) -> void:
-	var warrior_text := "Chiến binh: %d / %d" % [_warrior.health.current, _warrior.health.max_health]
-	if not _warrior.is_alive:
-		warrior_text = "Chiến binh đã ngã — đang hồi sinh"
-	_player_info.text = "%s   |   Quái: %d" % [warrior_text, _spawner.alive_count()]
-	_carry_info.text = "Đang mang (%d/%d): %s" % [
-		_warrior.inventory.total(), _warrior.inventory.capacity, _format_amounts(_warrior.inventory)]
-	_storage_info.text = "Kho pháo đài: %s   [giữ E cạnh pháo đài: sửa bằng Gỗ]" % _format_amounts(_fortress.storage)
+	_hud.setup(_fortress, _warrior)
+	_hud.show_toast(tr("Bảo vệ thành trì tới đích!"))
 
 
-# TODO(giai đoạn 7): bỏ phím debug này khi đã có quái gây sát thương thật.
-func _unhandled_key_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_K:
-		_fortress.health.apply_damage(50.0, self)
+func _physics_process(delta: float) -> void:
+	if result != Result.NONE:
+		return
+	elapsed += delta
+	if _respawn_left > 0.0:
+		_respawn_left -= delta
+		if _respawn_left <= 0.0:
+			_warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
+			_hud.set_center_message("")
+		else:
+			_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(_respawn_left))
 
 
 # Solo: one player's ready is enough. Multiplayer will wait for every player here.
 func _on_ready_requested() -> void:
-	if _follower.is_stopped:
+	if _follower.is_stopped and result == Result.NONE:
 		_follower.depart()
 
 
@@ -105,12 +107,33 @@ func request_weapon_upgrade(index: int) -> bool:
 	return true
 
 
+func restart() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _finish(won: bool) -> void:
+	if result != Result.NONE:
+		return
+	result = Result.WON if won else Result.LOST
+	print("Match: %s" % ("thắng" if won else "thua"))
+	_spawner.active = false
+	_upgrade_panel.hide()
+	_hud.set_center_message("")
+	_result_screen.show_result(won, elapsed, kills, _fortress.health.current, _fortress.health.max_health)
+	get_tree().paused = true
+
+
 func _on_warrior_died() -> void:
 	var carried := _warrior.inventory.take_all()
 	if not carried.is_empty():
 		_spawn_pickup.call_deferred(carried, _warrior.global_position)
-	await get_tree().create_timer(respawn_delay).timeout
-	_warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
+	_respawn_left = respawn_delay
+
+
+func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:
+	kills += 1
+	_spawn_pickup(contents, at)
 
 
 # Deferred by callers: deaths happen inside physics callbacks, where adding areas is not allowed.
@@ -123,44 +146,22 @@ func _spawn_pickup(contents: Dictionary, at: Vector3) -> void:
 	pickup.set_color(type.color if type else MIXED_PILE_COLOR)
 
 
-func _format_amounts(inventory: Inventory) -> String:
-	var parts: PackedStringArray = []
-	for type in ResourceTypes.ALL:
-		parts.append("%s %d" % [tr(type.display_name), inventory.get_amount(type.id)])
-	return "  ".join(parts)
-
-
 func _on_bomb_exploded(_at: Vector3) -> void:
-	print("Match: pháo đài dẫm phải bom")
-	_status.text = "Pháo đài dẫm phải bom! Giữ E cạnh pháo đài để sửa"
-
-
-func _on_fortress_health_changed(current: float, maximum: float) -> void:
-	_fortress_info.text = "Pháo đài: %d / %d — tốc độ %d%%  [K: -50 máu]" % [
-		current, maximum, roundi(_follower.speed_multiplier * 100.0)]
+	_hud.show_toast(tr("Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"))
 
 
 # Stops are safe zones: no spawning and no monsters left around.
-func _on_reached_stop(index: int) -> void:
-	print("Match: tới điểm dừng %d" % index)
+func _on_reached_stop(_index: int) -> void:
 	_spawner.active = false
 	_spawner.clear()
-	_status.text = "Điểm dừng %d — bấm Space / Start để khởi hành" % (index + 1)
 	weapon_offers = WeaponUpgrades.draw(rng, 3)
 	weapon_choice = -1
 	_upgrade_panel.show()
 	_upgrade_panel.set_weapon_offers(weapon_offers)
+	_hud.show_toast(tr("Điểm dừng — nâng cấp rồi khởi hành"))
 
 
 func _on_departed() -> void:
-	print("Match: khởi hành")
 	_spawner.active = true
 	_upgrade_panel.hide()
-	_status.text = "Đang chạy"
-
-
-func _on_reached_end() -> void:
-	print("Match: tới đích")
-	_spawner.active = false
-	_spawner.clear()
-	_status.text = "Tới đích!"
+	_hud.show_toast(tr("Khởi hành!"))

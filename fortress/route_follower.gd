@@ -32,6 +32,15 @@ func start(route: Path3D) -> void:
 	_apply_transform()
 
 
+func get_length() -> float:
+	return _route.curve.get_baked_length() if _route else 0.0
+
+
+## Distances along the route where the fortress stops.
+func get_stop_offsets() -> Array[float]:
+	return _stop_offsets.duplicate()
+
+
 func depart() -> void:
 	if is_stopped:
 		is_stopped = false
