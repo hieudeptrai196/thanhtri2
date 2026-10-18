@@ -21,7 +21,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 
 **M2.2 — 5 class = vai trò** (bắt đầu 2026-10-18; bảng class đã duyệt, co-op nâng lên 5 người)
 
-- [x] **M2.2a** Khung class (`classes/`: `PlayerClass` .tres + `PlayerClasses`), điểm mạnh thụ động: Công binh (búa ×1.5, sửa ×1.5, vác 2), Tiều phu (túi ×2, chạy ×1.25 khi rỗng), Võ tướng (máu ×1.5, sát thương ×1.3), Thầy pháp (công trình trong 8 m bắn ×1.3), Thợ máy (cả đội: tăng tốc tốn Than ×0.6, nâng cấp thành ×0.85). Chọn vai trò ở màn bắt đầu + phòng chờ (lưu trong SaveManager), gửi lên host qua `client_ready`, đồng bộ màu/class cho mọi máy. 8 test mới, 119 xanh; ảnh 1280×720 Việt + Anh vừa (đã thu gọn màn bắt đầu). **Chưa commit — chờ duyệt.** Số liệu = Đề xuất.
+- [x] **M2.2a** Khung class (`classes/`: `PlayerClass` .tres + `PlayerClasses`), điểm mạnh thụ động: Công binh (búa ×1.5, sửa ×1.5, vác 2), Tiều phu (túi ×2, chạy ×1.25 khi rỗng), Võ tướng (máu ×1.5, sát thương ×1.3), Thầy pháp (công trình trong 8 m bắn ×1.3), Thợ máy (cả đội: tăng tốc tốn Than ×0.6, nâng cấp thành ×0.85). Chọn vai trò ở màn bắt đầu + phòng chờ (lưu trong SaveManager), gửi lên host qua `client_ready`, đồng bộ màu/class cho mọi máy. 8 test mới, 119 xanh; ảnh 1280×720 Việt + Anh vừa (đã thu gọn màn bắt đầu). Commit `04d6704`. Số liệu = Đề xuất.
 - [ ] **M2.2b** 5 kỹ năng chủ động (phím R / LT, ngắm theo hướng chuột/stick, hồi chiêu, ô kỹ năng trên HUD)
 
 ## Tiếp theo (M2, xem ROADMAP)
@@ -64,6 +64,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 | M2.1b | `5bf0337` | Đồng bộ quái host → client |
 | M2.1c | `6a54ec5` | Đồng bộ công trình, đồ rơi, cây/than, bom, hiệu ứng |
 | M2.1d | `8e3d23e` | Điểm dừng chung, tất cả sẵn sàng mới khởi hành, thẻ vũ khí theo người — M2.1 xong |
+| M2.2a | `04d6704` | 5 class = vai trò, điểm mạnh thụ động, chọn vai trò |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
