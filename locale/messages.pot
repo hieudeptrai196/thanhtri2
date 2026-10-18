@@ -5,83 +5,83 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: match/match.gd:144
+#: match/match.gd:156
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:212
+#: match/match.gd:224
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:224
+#: match/match.gd:236
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:240
+#: match/match.gd:252
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:316
+#: match/match.gd:328
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:316
+#: match/match.gd:328
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:324
+#: match/match.gd:336
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:330
+#: match/match.gd:343
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:434
+#: match/match.gd:447
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:443
+#: match/match.gd:456
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:446
+#: match/match.gd:460
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:448
+#: match/match.gd:466
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:451
+#: match/match.gd:471
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:483
+#: match/match.gd:510
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:484
+#: match/match.gd:511
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:583
+#: match/match.gd:710
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr ""
 
-#: match/match.gd:597
+#: match/match.gd:724
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr ""
 
-#: match/match.gd:605
+#: match/match.gd:732
 msgid "Khởi hành — tuyến %s"
 msgstr ""
 
-#: match/match.gd:607
+#: match/match.gd:734
 msgid "Khởi hành!"
 msgstr ""
 
-#: structures/structure.gd:163
+#: structures/structure.gd:198
 msgid "Thiếu %s"
 msgstr ""
 

@@ -7,6 +7,8 @@ extends Node3D
 enum Placement { VALID, UNPOWERED, BLOCKED }
 
 signal structure_built(structure: Structure)
+## A structure's shooter fired (the host shows it to clients).
+signal shot_fired(from: Vector3, to: Vector3)
 
 ## Structures this close to the fortress (XZ) are supplied.
 @export var service_radius: float = 12.0
@@ -18,6 +20,9 @@ signal structure_built(structure: Structure)
 var _fortress: Node3D
 var _route: EndlessRoute
 var _storage: Inventory
+## Host: id for the next structure. Client: structures shown, by id.
+var _next_net_id: int = 1
+var _by_net_id: Dictionary = {}
 
 
 func setup(fortress: Node3D, route: EndlessRoute, storage: Inventory) -> void:
@@ -83,10 +88,14 @@ func dismantle(structure: Structure) -> void:
 func _spawn(type: StructureType, point: Vector3, health_value: float, as_blueprint: bool) -> Structure:
 	var structure: Structure = type.scene.instantiate()
 	structure.type = type
+	structure.net_id = _next_net_id
+	_next_net_id += 1
 	if as_blueprint:
 		structure.start_as_blueprint()
 		structure.built_finished.connect(structure_built.emit)
 	add_child(structure)
+	for shooter: AutoShooter in structure.find_children("*", "AutoShooter", true, false):
+		shooter.fired.connect(shot_fired.emit)
 	structure.global_position = Vector3(point.x, 0.0, point.z)
 	if health_value >= 0.0:
 		structure.health.apply_damage(structure.health.max_health - health_value)
@@ -111,6 +120,46 @@ func recover(structure: Structure) -> Dictionary:
 	remove_child(structure)
 	structure.queue_free()
 	return data
+
+
+## Host: every structure's state for clients.
+func net_state() -> Array:
+	var states := []
+	for structure in structures():
+		var state := structure.net_state()
+		state[1] = StructureTypes.ALL.find(structure.type)
+		states.append(state)
+	return states
+
+
+## Client: shows exactly the host's structures (new ones appear, missing ones are removed).
+func apply_net_state(states: Array) -> void:
+	var seen := {}
+	for state: Array in states:
+		var id: int = state[0]
+		seen[id] = true
+		var structure: Structure = _by_net_id.get(id)
+		if structure == null:
+			var type := StructureTypes.ALL[state[1]]
+			structure = type.scene.instantiate()
+			structure.type = type
+			structure.net_id = id
+			if not state[4]:
+				structure.start_as_blueprint()
+			add_child(structure)
+			structure.global_position = state[2]
+			structure.rotation.y = state[3]
+			structure.set_simulated(false)
+			_by_net_id[id] = structure
+		structure.apply_net_state(state)
+	for id: int in _by_net_id.keys():
+		if not seen.has(id):
+			var gone: Structure = _by_net_id[id]
+			_by_net_id.erase(id)
+			if is_instance_valid(gone):
+				gone.on_net_removed()
+				remove_child(gone)
+				gone.queue_free()
 
 
 func _distance_to_road(point: Vector3) -> float:

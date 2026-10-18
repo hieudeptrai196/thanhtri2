@@ -7,11 +7,15 @@ extends Area3D
 const MAX_REACH: float = 2.0
 
 var contents: Dictionary = {}
+## Identifies this pile between host and clients (given by the host's match).
+var net_id: int = 0
+var color: Color = Color.WHITE
 
 @onready var _mesh: MeshInstance3D = $Mesh
 
 
-func set_color(color: Color) -> void:
+func set_color(new_color: Color) -> void:
+	color = new_color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	_mesh.material_override = material

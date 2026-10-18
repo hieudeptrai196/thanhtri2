@@ -4,6 +4,9 @@ extends Node3D
 ## Which hurtboxes count as targets is decided by the Range area's collision mask.
 ## Used by field turrets and the fortress's own crossbow.
 
+## Every shot, so the host can show it to clients.
+signal fired(from: Vector3, to: Vector3)
+
 @export var damage: float = 10.0
 ## Seconds between shots.
 @export var interval: float = 1.0
@@ -39,7 +42,9 @@ func _physics_process(delta: float) -> void:
 	if target == null:
 		return
 	_cooldown = interval / rate_multiplier
-	_show_tracer(target.global_position + Vector3(0.0, 1.0, 0.0))
+	var aim := target.global_position + Vector3(0.0, 1.0, 0.0)
+	show_tracer(_muzzle.global_position, aim)
+	fired.emit(_muzzle.global_position, aim)
 	target.take_hit(damage, owner)
 
 
@@ -55,9 +60,9 @@ func _nearest_target() -> Hurtbox:
 	return best
 
 
-# Placeholder shot: a thin bar from the muzzle to the target, visible for a moment.
-func _show_tracer(to: Vector3) -> void:
-	var from := _muzzle.global_position
+## Placeholder shot: a thin bar from the muzzle to the target, visible for a moment.
+## Clients call it with the shots the host reports.
+func show_tracer(from: Vector3, to: Vector3) -> void:
 	var length := from.distance_to(to)
 	if length < 0.01:
 		return

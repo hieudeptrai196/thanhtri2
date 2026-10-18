@@ -40,6 +40,8 @@ var powered: bool = false
 var recover_progress: float = 0.0
 ## Hammers / recover helpers counted this tick (for HUD).
 var helpers: int = 0
+## Identifies this structure between host and clients (given by the host's StructureNetwork).
+var net_id: int = 0
 
 var _hammer_purses: Array[Inventory] = []
 var _recover_helpers: int = 0
@@ -69,6 +71,39 @@ func add_hammer(purse: Inventory) -> void:
 ## A player holds recover on this structure this tick.
 func add_recover_helper() -> void:
 	_recover_helpers += 1
+
+
+## Off on clients: the host runs the structure; this one only shows its state.
+func set_simulated(on: bool) -> void:
+	set_physics_process(on)
+	for shooter in find_children("*", "AutoShooter", true, false):
+		shooter.set_physics_process(on)
+
+
+## What clients need to draw this structure and the build / recover prompts. Index 1 is the type,
+## filled in by the StructureNetwork (StructureTypes would be a cyclic reference from here).
+func net_state() -> Array:
+	return [net_id, -1, global_position, rotation.y, built, build_progress,
+		health.current, health.max_health, buffer, powered, starved, starved_resource, recover_progress, helpers]
+
+
+func apply_net_state(state: Array) -> void:
+	build_progress = state[5]
+	health.set_net_state(state[6], state[7], 0.0, 0.0)
+	buffer = state[8]
+	powered = state[9]
+	starved = state[10]
+	starved_resource = state[11]
+	recover_progress = state[12]
+	helpers = state[13]
+	if state[4] and not built:
+		built = true
+		_on_built()
+
+
+## Client: the host no longer has this structure (recovered, destroyed...). Subclasses may show why.
+func on_net_removed() -> void:
+	pass
 
 
 func build_fraction() -> float:

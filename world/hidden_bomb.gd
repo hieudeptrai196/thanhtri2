@@ -28,6 +28,15 @@ func _on_area_entered(area: Area3D) -> void:
 	_play_blast()
 
 
+## Client: the host's copy of this bomb went off (damage comes with the host's snapshots).
+func explode_from_host() -> void:
+	if _spent:
+		return
+	_spent = true
+	exploded.emit(global_position)
+	_play_blast()
+
+
 # Placeholder blast: a flash sphere that grows and fades, then the bomb is gone.
 func _play_blast() -> void:
 	_blast.visible = true

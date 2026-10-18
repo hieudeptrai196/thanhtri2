@@ -36,6 +36,9 @@ var peer_id: int = 1
 ## False on clients: the host simulates and this warrior only shows what the host sends.
 var simulated: bool = true
 var _net_position: Variant = null
+## Swings so far and the last one's direction, so clients can show other warriors attacking.
+var _swing_count: int = 0
+var _swing_yaw: float = 0.0
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _dash_time_left: float = 0.0
@@ -76,7 +79,7 @@ func set_simulated(on: bool) -> void:
 ## What clients need to draw this warrior and the HUD of its owner.
 func net_state() -> Array:
 	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
-		StructureTypes.ALL.find(carried_type)]
+		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw]
 
 
 func apply_net_state(state: Array) -> void:
@@ -95,6 +98,9 @@ func apply_net_state(state: Array) -> void:
 		clear_carried()
 	elif carried >= 0 and carried_type != StructureTypes.ALL[carried]:
 		carry(StructureTypes.ALL[carried], 0.0)
+	if state[7] != _swing_count:
+		_swing_count = state[7]
+		_flash_swing(state[8])
 
 
 func _process(delta: float) -> void:
@@ -173,6 +179,12 @@ func _set_alive(alive: bool) -> void:
 
 # Placeholder swing flash until there are real attack animations.
 func _on_swung(direction: Vector3, _hit_count: int) -> void:
-	_swing_fx.global_rotation.y = atan2(-direction.x, -direction.z)
+	_swing_count += 1
+	_swing_yaw = atan2(-direction.x, -direction.z)
+	_flash_swing(_swing_yaw)
+
+
+func _flash_swing(yaw: float) -> void:
+	_swing_fx.global_rotation.y = yaw
 	_swing_fx.visible = true
 	get_tree().create_timer(0.1).timeout.connect(_swing_fx.hide)

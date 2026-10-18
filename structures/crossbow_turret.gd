@@ -39,6 +39,25 @@ func _physics_process(delta: float) -> void:
 	_shooter.rate_multiplier = last_shot_rate_multiplier if is_overloading() else 1.0
 
 
+func net_state() -> Array:
+	var state := super()
+	state.append(_last_shot_left)
+	return state
+
+
+func apply_net_state(state: Array) -> void:
+	super(state)
+	_last_shot_left = state[14]
+	if built:
+		_update_status()
+
+
+# Gone while overloading means it blew up on the host.
+func on_net_removed() -> void:
+	if is_overloading():
+		_play_blast()
+
+
 func _on_buffer_empty() -> void:
 	if not is_overloading():
 		_last_shot_left = last_shot_duration
@@ -48,11 +67,15 @@ func _explode() -> void:
 	for area in _blast_area.get_overlapping_areas():
 		if area is Hurtbox:
 			area.take_hit(blast_damage, self)
+	_play_blast()
+	destroyed.emit(self)
+	queue_free()
+
+
+func _play_blast() -> void:
 	var blast: Node3D = BLAST_SCENE.instantiate()
 	get_parent().add_child(blast)
 	blast.global_position = global_position
-	destroyed.emit(self)
-	queue_free()
 
 
 # Placeholder status: seconds of buffer left while unpowered, warning while overloading.

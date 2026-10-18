@@ -20,6 +20,8 @@ enum Mode { RANDOM, DAILY }
 
 const PICKUP_SCENE := preload("res://resources/pickup.tscn")
 const WARRIOR_SCENE := preload("res://player/warrior.tscn")
+const BLAST_SCENE := preload("res://world/blast_fx.tscn")
+const TRACER_COLOR := Color(1.0, 0.9, 0.5)
 ## Colour for piles holding more than one resource type.
 const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 
@@ -78,6 +80,11 @@ var _net: NetSync
 ## True while the start menu (and the co-op lobby) is up and the run has not begun.
 var _in_lobby: bool = false
 var _join_address: String = ""
+## Host: shots fired since the last snapshot (pairs of from / to), and the next pickup id.
+var _net_shots := PackedVector3Array()
+var _next_pickup_id: int = 1
+## Client: piles shown, by id.
+var _pickups_by_id: Dictionary = {}
 
 
 func _ready() -> void:
@@ -111,6 +118,10 @@ func _ready() -> void:
 	_upgrade_panel.hide()
 	_result_screen.restart_requested.connect(restart)
 	_content.bomb_exploded.connect(_on_bomb_exploded)
+	_content.resource_gathered.connect(func(left: int, id: int) -> void: _send_fx(&"resource", [id, left]))
+	_content.bomb_triggered.connect(func(_at: Vector3, id: int) -> void: _send_fx(&"bomb", [id]))
+	_structures.shot_fired.connect(_on_shot_fired)
+	$Fortress/Crossbow.fired.connect(_on_shot_fired)
 	_content.setup(_route, _seeded_rng("content"))
 	# Roadside content past the first stop waits until a route is picked there.
 	_content.set_content_limit(_route.stop_distance(0))
@@ -314,7 +325,7 @@ func request_overdrive() -> void:
 	if not _is_host() or result != Result.NONE:
 		return
 	_fortress.overdrive = not _fortress.overdrive
-	_hud.show_toast(tr("Tăng tốc! Tốn Than gấp nhiều lần") if _fortress.overdrive else tr("Chạy bình thường"))
+	_toast_all("Tăng tốc! Tốn Than gấp nhiều lần" if _fortress.overdrive else "Chạy bình thường")  # i18n
 
 
 ## Any player may fire the Nỏ thần once it is fully charged.
@@ -322,7 +333,8 @@ func request_divine_crossbow() -> bool:
 	if not _is_host() or result != Result.NONE or not _fortress.divine_crossbow.is_ready():
 		return false
 	var hits := _fortress.divine_crossbow.fire()
-	_hud.show_toast(tr("NỎ THẦN! Trúng %d quái") % hits)
+	_toast_all("NỎ THẦN! Trúng %d quái", [hits])  # i18n
+	_send_fx(&"blast", [_fortress.divine_crossbow.global_position, 25.0])
 	return true
 
 
@@ -513,7 +525,8 @@ func net_snapshot() -> Dictionary:
 		warriors[warrior.peer_id] = state
 	return {"fortress": _fortress.net_state(), "noise": [noise.value, noise.pursuit_time], "warriors": warriors,
 		"enemies": _spawner.net_state(),
-		"route": RouteTypes.ALL.find(current_route), "kills": kills, "elapsed": elapsed}
+		"route": RouteTypes.ALL.find(current_route), "kills": kills, "elapsed": elapsed,
+		"structures": _structures.net_state(), "pickups": _pickups_net_state(), "shots": _take_net_shots()}
 
 
 ## Client: shows the host's world.
@@ -521,6 +534,11 @@ func apply_net_snapshot(snapshot: Dictionary) -> void:
 	_fortress.apply_net_state(snapshot.fortress)
 	noise.set_net_state(snapshot.noise[0], snapshot.noise[1])
 	_spawner.apply_net_state(snapshot.enemies)
+	_structures.apply_net_state(snapshot.structures)
+	_apply_pickups(snapshot.pickups)
+	var shots: PackedVector3Array = snapshot.shots
+	for i in range(0, shots.size() - 1, 2):
+		_draw_tracer(shots[i], shots[i + 1])
 	kills = snapshot.kills
 	elapsed = snapshot.elapsed
 	var route: int = snapshot.route
@@ -534,8 +552,98 @@ func apply_net_snapshot(snapshot: Dictionary) -> void:
 		if not warriors.has(warrior.peer_id):
 			remove_player(warrior.peer_id)
 	if local_warrior:
-		var respawn_left: float = warriors[local_warrior.peer_id][7]
+		var respawn_left: float = warriors[local_warrior.peer_id].back()
 		_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(respawn_left) if respawn_left > 0.0 else "")
+
+
+## Shows a toast here and on every client, each in its own language (pass the untranslated text).
+func _toast_all(text: String, args: Array = []) -> void:
+	_hud.show_toast(tr(text) % args if not args.is_empty() else tr(text))
+	_send_fx(&"toast", [text, args])
+
+
+func _send_fx(kind: StringName, args: Array) -> void:
+	if _net and _is_host() and Net.is_online(multiplayer):
+		_net.send_fx(kind, args)
+
+
+## Client: a one-off happening on the host (see NetSync.fx).
+func play_fx(kind: StringName, args: Array) -> void:
+	match kind:
+		&"toast":
+			var text: String = args[0]
+			var values: Array = args[1]
+			_hud.show_toast(tr(text) % values if not values.is_empty() else tr(text))
+		&"resource":
+			_content.apply_resource_amount(args[0], args[1])
+		&"bomb":
+			_content.explode_bomb(args[0])
+		&"blast":
+			var blast: Node3D = BLAST_SCENE.instantiate()
+			blast.max_scale = args[1]
+			add_child(blast)
+			blast.global_position = args[0]
+
+
+func _on_shot_fired(from: Vector3, to: Vector3) -> void:
+	if _net and _is_host():
+		_net_shots.append(from)
+		_net_shots.append(to)
+
+
+func _take_net_shots() -> PackedVector3Array:
+	var shots := _net_shots
+	_net_shots = PackedVector3Array()
+	return shots
+
+
+# Client: the host's shots as brief bars, like AutoShooter's own tracer.
+func _draw_tracer(from: Vector3, to: Vector3) -> void:
+	var length := from.distance_to(to)
+	if length < 0.01:
+		return
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.06, 0.06, 1.0)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = TRACER_COLOR
+	mesh.material = material
+	var tracer := MeshInstance3D.new()
+	tracer.mesh = mesh
+	add_child(tracer)
+	tracer.global_transform = Transform3D(Basis.looking_at(to - from).scaled(Vector3(1.0, 1.0, length)), (from + to) * 0.5)
+	get_tree().create_timer(0.08).timeout.connect(tracer.queue_free)
+
+
+func _pickups_net_state() -> Array:
+	var states := []
+	for pickup: Pickup in _pickups.get_children():
+		if not pickup.is_queued_for_deletion():
+			states.append([pickup.net_id, pickup.global_position, pickup.color])
+	return states
+
+
+# Client: shows exactly the host's piles; they cannot be collected here.
+func _apply_pickups(states: Array) -> void:
+	var seen := {}
+	for state: Array in states:
+		var id: int = state[0]
+		seen[id] = true
+		if _pickups_by_id.has(id):
+			continue
+		var pickup: Pickup = PICKUP_SCENE.instantiate()
+		pickup.net_id = id
+		pickup.monitoring = false
+		_pickups.add_child(pickup)
+		pickup.set_physics_process(false)
+		pickup.global_position = state[1]
+		pickup.set_color(state[2])
+		_pickups_by_id[id] = pickup
+	for id: int in _pickups_by_id.keys():
+		if not seen.has(id):
+			if is_instance_valid(_pickups_by_id[id]):
+				_pickups_by_id[id].queue_free()
+			_pickups_by_id.erase(id)
 
 
 ## Client: the host says the run is over.
@@ -590,6 +698,8 @@ func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:
 func _spawn_pickup(contents: Dictionary, at: Vector3) -> void:
 	var pickup: Pickup = PICKUP_SCENE.instantiate()
 	pickup.contents = contents
+	pickup.net_id = _next_pickup_id
+	_next_pickup_id += 1
 	_pickups.add_child(pickup)
 	pickup.global_position = Vector3(at.x, 0.0, at.z)
 	var type: ResourceType = ResourceTypes.find(contents.keys()[0]) if contents.size() == 1 else null

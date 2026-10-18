@@ -5,7 +5,8 @@ extends Node
 ##   client → host: `client_input` every tick (unreliable, the next one replaces it) and
 ##                  `client_events` for one-off presses (reliable, carries the input of that tick).
 ##   host → client: `server_snapshot` 20 times a second (fortress, noise, route, warriors),
-##                  `begin_run` to load the same road, `run_finished` when the fortress falls.
+##                  `begin_run` to load the same road, `run_finished` when the fortress falls,
+##                  `fx` for one-off happenings (toasts, blasts, a tree losing wood, a bomb going off).
 ## The road and its content are generated from the shared seed on every machine, so only what
 ## changes during play travels.
 
@@ -102,6 +103,17 @@ func client_events(events: Array, state: Dictionary) -> void:
 @rpc("authority", "call_remote", "unreliable_ordered")
 func server_snapshot(snapshot: Dictionary) -> void:
 	_match.apply_net_snapshot(snapshot)
+
+
+## Host: sends a one-off happening to every client in the run.
+func send_fx(kind: StringName, args: Array) -> void:
+	for id: int in _ready_peers:
+		fx.rpc_id(id, kind, args)
+
+
+@rpc("authority", "call_remote", "reliable")
+func fx(kind: StringName, args: Array) -> void:
+	_match.play_fx(kind, args)
 
 
 @rpc("authority", "call_remote", "reliable")

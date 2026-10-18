@@ -5,6 +5,10 @@ extends Node3D
 ## gives the same layout, independent of gameplay timing.
 
 signal bomb_exploded(at: Vector3)
+## Host side, for clients: a tree / deposit lost a unit, a bomb went off. Content is identified by
+## the order it was placed in, which is the same on every machine for the same seed and routes.
+signal resource_gathered(amount_left: int, content_id: int)
+signal bomb_triggered(at: Vector3, content_id: int)
 
 const TREE_SCENE := preload("res://resources/tree.tscn")
 const COAL_SCENE := preload("res://resources/coal_deposit.tscn")
@@ -42,6 +46,8 @@ var content_limit: float = INF
 var route_type: RouteType = null
 ## [from, to] segments waiting for `content_limit` to move past them, in order.
 var _pending: Array = []
+var _next_content_id: int = 1
+var _by_content_id: Dictionary = {}
 
 
 func setup(route: EndlessRoute, rng: RandomNumberGenerator) -> void:
@@ -57,9 +63,10 @@ func setup(route: EndlessRoute, rng: RandomNumberGenerator) -> void:
 func despawn_before(distance: float) -> void:
 	while not _spawned.is_empty() and _spawned[0][1] < distance - despawn_behind:
 		# Entries may already be gone (exploded bomb, chopped tree), so check before typing.
-		var node: Variant = _spawned.pop_front()[0]
-		if is_instance_valid(node):
-			node.queue_free()
+		var entry: Array = _spawned.pop_front()
+		_by_content_id.erase(entry[2])
+		if is_instance_valid(entry[0]):
+			entry[0].queue_free()
 
 
 ## Puts a hidden bomb in the middle of the road at `distance`.
@@ -76,6 +83,20 @@ func set_content_limit(limit: float) -> void:
 	while not _pending.is_empty() and _pending[0][0] < content_limit:
 		var segment: Array = _pending.pop_front()
 		_place_random_content(segment[0], segment[1])
+
+
+## Client: a tree / deposit on the host has `amount` left.
+func apply_resource_amount(content_id: int, amount: int) -> void:
+	var node: Variant = _by_content_id.get(content_id)
+	if is_instance_valid(node) and node is ResourceNode:
+		node.set_net_amount(amount)
+
+
+## Client: the host's copy of this bomb exploded.
+func explode_bomb(content_id: int) -> void:
+	var node: Variant = _by_content_id.get(content_id)
+	if is_instance_valid(node) and node is HiddenBomb:
+		node.explode_from_host()
 
 
 func bombs() -> Array[HiddenBomb]:
@@ -142,7 +163,7 @@ func _add_road_strip(from_distance: float, to_distance: float) -> void:
 	strip.material_override = _road_material
 	strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(strip)
-	_spawned.append([strip, to_distance])
+	_spawned.append([strip, to_distance, 0])
 
 
 func _random_side(band: Vector2) -> float:
@@ -161,5 +182,12 @@ func _place(node: Node3D, distance: float, lateral: float) -> void:
 	add_child(node)
 	node.global_position = road.origin + road.basis.x.normalized() * lateral
 	node.rotation.y = _rng.randf() * TAU if node is ResourceNode else road.basis.get_euler().y
-	_spawned.append([node, distance])
+	var id := _next_content_id
+	_next_content_id += 1
+	_by_content_id[id] = node
+	if node is ResourceNode:
+		node.gathered.connect(resource_gathered.emit.bind(id))
+	elif node is HiddenBomb:
+		node.exploded.connect(bomb_triggered.emit.bind(id))
+	_spawned.append([node, distance, id])
 	_spawned.sort_custom(func(a: Array, b: Array) -> bool: return a[1] < b[1])
