@@ -5,19 +5,16 @@
 
 ## Đang làm
 
-**M1.4 — Công trình ngoài thực địa** (2026-10-18) — **code xong, test 56/56, chờ chơi thử rồi commit**. Thông số đã duyệt: tháp nỏ gập (15 Gỗ, 120 máu), rào gỗ cố định
-(5 Gỗ, 150 máu, hút quái); tiếp sức trong 12 m quanh pháo đài, ngoài đó bộ đệm 30 s; vác 1 tháp (chạy 5 m/s, không đánh,
-đặt lại miễn phí); hết bộ đệm → đòn cuối (bắn ×3 trong 4 s rồi nổ 6 m); xây trong 6 m quanh chiến binh, không trên đường/không
-chồng vật cản; trả từ kho chung; kho bắt đầu 30 Gỗ; quái gần công trình (6 m) quay sang đánh; bỏ 4 ô tháp trên pháo đài.
+**M1.4b — Xây chung** (bắt đầu 2026-10-18; ý 1 + ý 5 trong phản hồi của người dùng, ý 2–4 sang M2)
 
-- [x] Dữ liệu: `StructureType` + `StructureTypes`, 2 file `.tres`
-- [x] `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), `Barricade`
-- [x] `StructureNetwork` (chứa công trình, luật đặt, tiếp sức, thu hồi) + quyền ở `Match`
-- [x] `Builder` (phím 1–4, menu vòng tròn LB, bóng ma xanh/vàng/đỏ, giữ F thu hồi) + `PlayerInput` intent mới
-- [x] Chiến binh vác tháp (chậm, không đánh, rơi tháp khi ngã); quái nhắm công trình
-- [x] HUD: thanh công trình, trạng thái vác, gợi ý thu hồi, menu vòng tròn; bỏ ô tháp + nút "Xây tháp"
-- [x] Test `test_structures.gd` (9 bài) + chụp màn hình — tổng 56/56
-- [x] Commit làm nền (người dùng muốn thêm xây chung → M1.4b)
+- Đặt **bản vẽ** miễn phí (ai cũng đặt); đặt tháp đang vác thì xong ngay (giữ nhịp nhảy cóc)
+- **Gõ**: giữ E cạnh bản vẽ (khi không ở chế độ xây); tháp nỏ 4 s, rào 2 s một người; nhiều người: tốc độ × n^0.85; không tự đánh khi gõ
+- **Trả Gỗ dần**: túi người gõ trước, rồi kho; thiếu thì dừng + báo "thiếu Gỗ"
+- Bản vẽ: mờ, không bắn, quái không đánh/không hút; giữ F trên bản vẽ = dỡ, hoàn Gỗ đã góp về kho
+- **Thu hồi chung**: tiến độ giữ F tính trên công trình (2 người = nhanh gấp đôi)
+
+- [ ] Code (`Structure` trạng thái xây, `StructureNetwork`, `Builder`, `Match`, HUD)
+- [ ] Test + chụp màn hình + người dùng chơi thử → commit
 
 ## Tiếp theo (M1, xem ROADMAP)
 
@@ -46,9 +43,11 @@ chồng vật cản; trả từ kho chung; kho bắt đầu 30 Gỗ; quái gần
 | M1.1 | `ab03fb0` | Lộ trình vô tận, nội dung theo đoạn, harness timeout |
 | M1.2 | `c85f80e` | Độ khó theo quãng đường |
 | M1.3 | `5e07fb1` | Tự đánh + dash |
+| M1.4 | `46b4449` | Công trình ngoài thực địa, nhảy cóc |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Xây chung**: bản vẽ + cả đội cùng gõ (nhiều người nhanh hơn), góp Gỗ trực tiếp, thu hồi chung nhanh hơn. Ý 2–4 (đa vật liệu, gia cố, liên kết) để M2.
 - 2026-10-18 · Điều khiển xây: phím 1–4 + chuột trên PC, menu vòng tròn (LB) cho tay cầm; xây thời gian thực, không slow-mo.
 - 2026-10-18 · Chọn ý tưởng 1,2,4,5,7–18 (19 ưu tiên thấp); co-op tối đa 4; roadmap viết lại (M1 vòng cốt lõi → M2 co-op…).
 - 2026-10-18 · **Endless + chọn 1/2 tuyến ở mỗi điểm dừng** (thay quyết định "một đường, ngã rẽ để M3").
@@ -67,8 +66,7 @@ chồng vật cản; trả từ kho chung; kho bắt đầu 30 Gỗ; quái gần
 
 ## Câu hỏi đang chờ người dùng
 
-- Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). (không có — đang làm M1.4)
+- (không có — đang làm M1.4b)
 
 ## Ghi chú cho phiên sau
 
