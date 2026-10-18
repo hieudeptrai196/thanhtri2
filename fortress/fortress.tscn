@@ -1,6 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://fortress/route_follower.gd" id="1_follower"]
+[ext_resource type="Script" path="res://fortress/fortress.gd" id="2_fortress"]
+[ext_resource type="Script" path="res://combat/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://combat/hurtbox.gd" id="4_hurtbox"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(10, 5, 10)
@@ -19,7 +22,11 @@ albedo_color = Color(0.75, 0.15, 0.1, 1)
 material = SubResource("StandardMaterial3D_front")
 size = Vector3(3, 2, 1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_hurt"]
+size = Vector3(11, 5.5, 11)
+
 [node name="Fortress" type="AnimatableBody3D"]
+script = ExtResource("2_fortress")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
@@ -35,3 +42,18 @@ mesh = SubResource("BoxMesh_front")
 
 [node name="RouteFollower" type="Node" parent="."]
 script = ExtResource("1_follower")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+max_health = 500.0
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_hurtbox")
+health = NodePath("../Health")
+
+[node name="Collision" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
+shape = SubResource("BoxShape3D_hurt")
