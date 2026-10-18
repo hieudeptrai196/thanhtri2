@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://world/ground_follow.gd" id="17_ground"]
 [ext_resource type="Resource" path="res://match/difficulty_default.tres" id="18_difficulty"]
 [ext_resource type="Script" path="res://structures/structure_network.gd" id="19_structures"]
+[ext_resource type="Script" path="res://match/noise_meter.gd" id="20_noise"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -74,6 +75,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 script = ExtResource("6_spawner")
 enemy_scene = ExtResource("7_enemy")
 difficulty = ExtResource("18_difficulty")
+
+[node name="NoiseMeter" type="Node" parent="."]
+script = ExtResource("20_noise")
 
 [node name="Structures" type="Node3D" parent="."]
 script = ExtResource("19_structures")

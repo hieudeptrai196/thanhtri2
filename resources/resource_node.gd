@@ -4,6 +4,8 @@ extends StaticBody3D
 
 @export var resource_type: ResourceType
 @export var amount: int = 5
+## Noise made by each successful hit (chopping, digging).
+@export var noise_per_hit: float = 0.3
 
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _visual: Node3D = $Visual
@@ -19,6 +21,7 @@ func _on_hit_taken(_amount: float, source: Node) -> void:
 	if inventory == null or inventory.add(resource_type.id, 1) == 0:
 		return
 	amount -= 1
+	get_tree().call_group(&"noise", &"add", noise_per_hit)
 	_visual.scale = Vector3.ONE * 1.12
 	create_tween().tween_property(_visual, "scale", Vector3.ONE, 0.12)
 	if amount <= 0:

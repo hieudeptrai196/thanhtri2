@@ -6,6 +6,7 @@ extends Area3D
 signal exploded(at: Vector3)
 
 @export var damage: float = 80.0
+@export var noise: float = 8.0
 
 @onready var _blast: MeshInstance3D = $Blast
 
@@ -21,6 +22,7 @@ func _on_area_entered(area: Area3D) -> void:
 		return
 	_spent = true
 	area.take_hit(damage, self)
+	get_tree().call_group(&"noise", &"add", noise)
 	exploded.emit(global_position)
 	_play_blast()
 

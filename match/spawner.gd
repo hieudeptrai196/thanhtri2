@@ -1,7 +1,8 @@
 class_name Spawner
 extends Node3D
 ## Spawns waves of enemies on a ring around the fortress while active. Wave timing, size, cap and
-## enemy strength follow a Difficulty resource and the fortress's route distance.
+## enemy strength follow a Difficulty resource and the fortress's route distance; noise makes waves
+## denser and bigger, and in pursuit they come from behind the fortress, faster and faster.
 ## Spawned enemies are children of this node.
 
 signal enemy_dropped(contents: Dictionary, at: Vector3)
@@ -11,6 +12,11 @@ signal enemy_dropped(contents: Dictionary, at: Vector3)
 @export var ring_radius: float = 35.0
 ## Angle spread of one wave around its centre direction.
 @export var pack_spread_degrees: float = 25.0
+## In pursuit, wave centres fall within this angle of straight behind the fortress.
+@export var pursuit_rear_degrees: float = 60.0
+
+## Optional; without it noise has no effect.
+var noise: NoiseMeter
 
 var active: bool = false
 
@@ -40,13 +46,16 @@ func _physics_process(delta: float) -> void:
 	if _time_left > 0.0:
 		return
 	var at := distance()
-	_time_left = difficulty.spawn_interval(at)
-	spawn_wave(difficulty.pack_size(at))
+	_time_left = difficulty.spawn_interval(at) / (noise.spawn_rate_multiplier() if noise else 1.0)
+	spawn_wave(difficulty.pack_size(at) + (noise.extra_pack_size() if noise else 0))
 
 
 ## Spawns up to `size` enemies around one random direction, respecting the alive cap.
 func spawn_wave(size: int) -> void:
 	var centre := _rng.randf() * TAU
+	if noise and noise.level() == NoiseMeter.Level.PURSUIT:
+		var behind := _fortress.global_basis.z
+		centre = atan2(behind.z, behind.x) + deg_to_rad(_rng.randf_range(-pursuit_rear_degrees, pursuit_rear_degrees))
 	for i in size:
 		if alive_count() >= difficulty.max_alive(distance()):
 			return
@@ -62,7 +71,8 @@ func spawn_one(angle: float = NAN) -> Enemy:
 	add_child(enemy)
 	enemy.global_position = spawn_position
 	enemy.setup(_fortress, _players)
-	enemy.apply_scaling(difficulty.health_multiplier(distance()), difficulty.damage_multiplier(distance()))
+	enemy.apply_scaling(difficulty.health_multiplier(distance()), difficulty.damage_multiplier(distance()),
+		noise.enemy_speed_multiplier() if noise else 1.0)
 	enemy.dropped.connect(enemy_dropped.emit)
 	return enemy
 

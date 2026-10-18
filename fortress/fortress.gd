@@ -44,6 +44,7 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @export var oil_step: float = 0.2
 @export var furnace_damage: float = 15.0
 @export var furnace_interval: float = 2.0
+@export var furnace_noise: float = 2.0
 @export var shield_levels: Array[float] = [0.0, 100.0, 200.0]
 @export var shield_regen_per_second: float = 15.0
 @export var shield_regen_delay: float = 4.0
@@ -53,6 +54,7 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @onready var storage: Inventory = $Storage
 @onready var service_zone: ServiceZone = $ServiceZone
 @onready var crossbow: AutoShooter = $Crossbow
+@onready var divine_crossbow: DivineCrossbow = $DivineCrossbow
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _defense_area: Area3D = $DefenseArea
 @onready var _modules: Node3D = $Modules
@@ -219,6 +221,7 @@ func _tick_furnace(delta: float) -> void:
 	if storage.spend({fuel_resource.id: 1}):
 		_furnace_cooldown = furnace_interval
 		_damage_around(furnace_damage)
+		get_tree().call_group(&"noise", &"add", furnace_noise)
 
 
 func _tick_shield(delta: float) -> void:

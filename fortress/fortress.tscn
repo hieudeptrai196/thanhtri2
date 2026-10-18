@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://resources/types/wood.tres" id="7_wood"]
 [ext_resource type="PackedScene" path="res://combat/auto_shooter.tscn" id="8_shooter"]
 [ext_resource type="Resource" path="res://resources/types/coal.tres" id="9_coal"]
+[ext_resource type="Script" path="res://fortress/divine_crossbow.gd" id="10_divine"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(10, 5, 10)
@@ -70,6 +71,9 @@ albedo_color = Color(0.4, 0.7, 1, 0.18)
 material = SubResource("StandardMaterial3D_shield")
 radius = 7.5
 height = 9.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_divine"]
+radius = 25.0
 
 [node name="Fortress" type="AnimatableBody3D"]
 script = ExtResource("2_fortress")
@@ -154,3 +158,13 @@ mesh = SubResource("BoxMesh_furnace")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
 visible = false
 mesh = SubResource("SphereMesh_shield")
+
+[node name="DivineCrossbow" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("10_divine")
+
+[node name="Collision" type="CollisionShape3D" parent="DivineCrossbow"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("SphereShape3D_divine")

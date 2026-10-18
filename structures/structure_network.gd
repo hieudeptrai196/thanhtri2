@@ -6,6 +6,8 @@ extends Node3D
 
 enum Placement { VALID, UNPOWERED, BLOCKED }
 
+signal structure_built(structure: Structure)
+
 ## Structures this close to the fortress (XZ) are supplied.
 @export var service_radius: float = 12.0
 ## Structures must keep this far from the road centre (the fortress needs the road).
@@ -83,6 +85,7 @@ func _spawn(type: StructureType, point: Vector3, health_value: float, as_bluepri
 	structure.type = type
 	if as_blueprint:
 		structure.start_as_blueprint()
+		structure.built_finished.connect(structure_built.emit)
 	add_child(structure)
 	structure.global_position = Vector3(point.x, 0.0, point.z)
 	if health_value >= 0.0:

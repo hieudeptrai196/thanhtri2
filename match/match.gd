@@ -25,6 +25,7 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _spawner: Spawner = $Spawner
 @onready var _pickups: Node3D = $Pickups
 @onready var _structures: StructureNetwork = $Structures
+@onready var noise: NoiseMeter = $NoiseMeter
 @onready var _hud: Hud = $UI/HUD
 @onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
 @onready var _result_screen: ResultScreen = $UI/ResultScreen
@@ -52,6 +53,7 @@ func _ready() -> void:
 	_fortress.health.died.connect(_finish)
 	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_warrior.input.overdrive_requested.connect(request_overdrive)
+	_warrior.input.divine_requested.connect(request_divine_crossbow)
 	_warrior.health.died.connect(_on_warrior_died)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
@@ -67,6 +69,14 @@ func _ready() -> void:
 
 	var players: Array[Node3D] = [_warrior]
 	_spawner.setup(rng, _fortress, _follower, players)
+	noise.setup(_fortress)
+	_spawner.noise = noise
+	noise.level_changed.connect(_on_noise_level_changed)
+	var divine := _fortress.divine_crossbow
+	_fortress.service_zone.deposited.connect(func(contents: Dictionary) -> void:
+		for id in contents:
+			divine.add_charge(divine.charge_per_deposited_unit * contents[id]))
+	_structures.structure_built.connect(func(_structure: Structure) -> void: divine.add_charge(divine.charge_per_structure_built))
 	_spawner.active = true
 	_follower.start(_route)
 	_structures.setup(_fortress, _route, _fortress.storage)
@@ -74,7 +84,7 @@ func _ready() -> void:
 	_warrior.builder.storage = _fortress.storage
 	_warrior.builder.place_requested.connect(request_place.bind(_warrior))
 	_warrior.builder.recover_requested.connect(request_recover.bind(_warrior))
-	_hud.setup(_fortress, _warrior)
+	_hud.setup(_fortress, _warrior, noise)
 	_hud.show_toast(tr("Bảo vệ thành trì — đi càng xa càng tốt!"))
 
 
@@ -169,6 +179,20 @@ func request_overdrive() -> void:
 	_hud.show_toast(tr("Tăng tốc! Tốn Than gấp nhiều lần") if _fortress.overdrive else tr("Chạy bình thường"))
 
 
+## Any player may fire the Nỏ thần once it is fully charged.
+func request_divine_crossbow() -> bool:
+	if result != Result.NONE or not _fortress.divine_crossbow.is_ready():
+		return false
+	var hits := _fortress.divine_crossbow.fire()
+	_hud.show_toast(tr("NỎ THẦN! Trúng %d quái") % hits)
+	return true
+
+
+func _on_noise_level_changed(level: NoiseMeter.Level) -> void:
+	if level == NoiseMeter.Level.PURSUIT:
+		_hud.show_toast(tr("TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"))
+
+
 func restart() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
@@ -218,6 +242,7 @@ func _on_warrior_died() -> void:
 
 func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:
 	kills += 1
+	_fortress.divine_crossbow.add_charge(_fortress.divine_crossbow.charge_per_kill)
 	_spawn_pickup(contents, at)
 
 

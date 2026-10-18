@@ -34,7 +34,8 @@ func setup(fortress: Node3D, players: Array[Node3D]) -> void:
 
 
 ## Makes this enemy tougher for the current difficulty. Call right after it enters the tree.
-func apply_scaling(health_multiplier: float, damage_multiplier: float) -> void:
+func apply_scaling(health_multiplier: float, damage_multiplier: float, speed_multiplier: float = 1.0) -> void:
+	move_speed *= speed_multiplier
 	_health.set_max_health(_health.max_health * health_multiplier)
 	_health.reset()
 	damage *= damage_multiplier

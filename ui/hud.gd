@@ -25,6 +25,13 @@ var _toast_tween: Tween
 @onready var _warrior_bar: ProgressBar = %WarriorBar
 @onready var _build_bar: BuildBar = %BuildBar
 @onready var _radial_menu: RadialMenu = %RadialMenu
+@onready var _noise_label: Label = %NoiseLabel
+@onready var _noise_bar: ProgressBar = %NoiseBar
+@onready var _divine_label: Label = %DivineLabel
+@onready var _divine_bar: ProgressBar = %DivineBar
+
+const NOISE_LEVEL_NAMES: Array[String] = ["Yên tĩnh", "Dò xét", "Bầy đàn", "Dữ dội", "TRUY ĐUỔI"]
+var _noise: NoiseMeter
 
 
 func _ready() -> void:
@@ -32,16 +39,21 @@ func _ready() -> void:
 	$ResourcePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
 	UiStyle.apply_bar(_fortress_bar, Color(0.75, 0.3, 0.2))
 	UiStyle.apply_bar(_warrior_bar, Color(0.3, 0.7, 0.35))
-	for label in [_fortress_label, _speed_label, _toast, _center_message, _repair_hint]:
+	UiStyle.apply_bar(_noise_bar, Color(0.75, 0.6, 0.25))
+	UiStyle.apply_bar(_divine_bar, Color(0.45, 0.75, 1.0))
+	for label in [_fortress_label, _speed_label, _toast, _center_message, _repair_hint, _noise_label, _divine_label]:
 		label.add_theme_color_override("font_color", UiStyle.PARCHMENT)
 		UiStyle.outline(label)
 	_toast.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT)
 	_toast.modulate.a = 0.0
 
 
-func setup(fortress: Fortress, warrior: Warrior) -> void:
+func setup(fortress: Fortress, warrior: Warrior, noise: NoiseMeter = null) -> void:
 	_fortress = fortress
 	_warrior = warrior
+	_noise = noise
+	_noise_bar.max_value = NoiseMeter.MAX
+	_divine_bar.max_value = fortress.divine_crossbow.max_charge
 	_route_progress.follower = fortress.follower
 	_build_bar.setup(warrior.builder, fortress.storage)
 	_radial_menu.setup(warrior.builder)
@@ -91,6 +103,20 @@ func _process(_delta: float) -> void:
 	_speed_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.3) if _fortress.speed_mode == Fortress.SpeedMode.OUT_OF_FUEL else (UiStyle.BRONZE_BRIGHT if _fortress.overdrive else UiStyle.PARCHMENT))
 	_update_warrior_bar()
 	_update_prompt()
+	_update_noise_and_divine()
+
+
+func _update_noise_and_divine() -> void:
+	_noise_bar.get_parent().visible = _noise != null
+	if _noise:
+		var level := _noise.level()
+		_noise_bar.value = _noise.value
+		_noise_label.text = tr("Tiếng ồn: %s") % tr(NOISE_LEVEL_NAMES[level])
+		_noise_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.3) if level == NoiseMeter.Level.PURSUIT else UiStyle.PARCHMENT)
+	var divine := _fortress.divine_crossbow
+	_divine_bar.value = divine.charge
+	_divine_label.text = tr("Nỏ thần — sẵn sàng (G)") if divine.is_ready() else tr("Nỏ thần %d%%") % roundi(divine.charge / divine.max_charge * 100.0)
+	_divine_label.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT if divine.is_ready() else UiStyle.PARCHMENT)
 
 
 func _update_warrior_bar() -> void:
