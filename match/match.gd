@@ -3,6 +3,7 @@ extends Node3D
 
 @onready var _route: Path3D = $Route
 @onready var _follower: RouteFollower = $Fortress/RouteFollower
+@onready var _warrior: Warrior = $Warrior
 @onready var _status: Label = $DebugUI/Status
 
 
@@ -10,13 +11,14 @@ func _ready() -> void:
 	_follower.reached_stop.connect(_on_reached_stop)
 	_follower.departed.connect(_on_departed)
 	_follower.reached_end.connect(_on_reached_end)
+	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_follower.start(_route)
 	_status.text = "Đang chạy"
 
 
-# TODO(giai đoạn 2): đọc "ready" qua PlayerInput thay vì Input trực tiếp.
-func _unhandled_input(event: InputEvent) -> void:
-	if _follower.is_stopped and event.is_action_pressed("ready"):
+# Solo: one player's ready is enough. Multiplayer will wait for every player here.
+func _on_ready_requested() -> void:
+	if _follower.is_stopped:
 		_follower.depart()
 
 

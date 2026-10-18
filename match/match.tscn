@@ -4,6 +4,7 @@
 [ext_resource type="Shader" path="res://world/ground_checker.gdshader" id="2_ground"]
 [ext_resource type="PackedScene" path="res://fortress/fortress.tscn" id="3_fortress"]
 [ext_resource type="Script" path="res://camera/iso_camera.gd" id="4_camera"]
+[ext_resource type="PackedScene" path="res://player/warrior.tscn" id="5_warrior"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -42,6 +43,12 @@ top_radius = 8.0
 bottom_radius = 8.0
 height = 0.1
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_x"]
+size = Vector3(400, 10, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_z"]
+size = Vector3(2, 10, 400)
+
 [node name="Match" type="Node3D"]
 script = ExtResource("1_match")
 
@@ -62,6 +69,25 @@ mesh = SubResource("PlaneMesh_ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_ground")
 
+[node name="Bounds" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -110)
+
+[node name="North" type="CollisionShape3D" parent="Bounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -200)
+shape = SubResource("BoxShape3D_wall_x")
+
+[node name="South" type="CollisionShape3D" parent="Bounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 200)
+shape = SubResource("BoxShape3D_wall_x")
+
+[node name="West" type="CollisionShape3D" parent="Bounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200, 5, 0)
+shape = SubResource("BoxShape3D_wall_z")
+
+[node name="East" type="CollisionShape3D" parent="Bounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 5, 0)
+shape = SubResource("BoxShape3D_wall_z")
+
 [node name="Route" type="Path3D" parent="."]
 curve = SubResource("Curve3D_route")
 
@@ -74,10 +100,13 @@ mesh = SubResource("CylinderMesh_stop")
 
 [node name="Fortress" parent="." instance=ExtResource("3_fortress")]
 
+[node name="Warrior" parent="." instance=ExtResource("5_warrior")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
 [node name="IsoCamera" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
-size = 40.0
+size = 26.0
 script = ExtResource("4_camera")
-target = NodePath("../Fortress")
+target = NodePath("../Warrior")
 
 [node name="DebugUI" type="CanvasLayer" parent="."]
 
