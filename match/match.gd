@@ -62,9 +62,16 @@ var route_offers: Array[RouteType] = []
 var route_choice: int = -1
 var current_route: RouteType = null
 
-## Weapon cards offered at the current stop, and which one was bought (-1 = none yet).
+## Weapon cards offered at the current stop (the same three for everyone); each player may buy one
+## for their own weapon. Card bought by each peer this stop.
 var weapon_offers: Array[WeaponUpgrade] = []
-var weapon_choice: int = -1
+var _weapon_choices: Dictionary = {}
+## Card this machine's player bought at this stop (-1 = none yet).
+var weapon_choice: int:
+	get:
+		return _weapon_choices.get(local_warrior.peer_id if local_warrior else 1, -1)
+## Players who pressed ready at this stop (the fortress leaves when all have).
+var _ready_players: Dictionary = {}
 
 ## Every warrior in the run (index 0 is the host's, the scene's own $Warrior).
 var players: Array[Warrior] = []
@@ -110,11 +117,12 @@ func _ready() -> void:
 	_fortress.health.died.connect(_finish)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
-	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
-	_upgrade_panel.fortress_upgrade_requested.connect(request_fortress_upgrade)
-	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
-	_upgrade_panel.route_requested.connect(request_route)
-	_upgrade_panel.depart_requested.connect(_on_ready_requested)
+	_upgrade_panel.tier_upgrade_requested.connect(_panel_request.bind(&"tier", -1))
+	_upgrade_panel.fortress_upgrade_requested.connect(func(upgrade: FortressUpgrade) -> void:
+		_panel_request(&"fortress", FortressUpgrades.ALL.find(upgrade)))
+	_upgrade_panel.weapon_upgrade_requested.connect(func(index: int) -> void: _panel_request(&"weapon", index))
+	_upgrade_panel.route_requested.connect(func(index: int) -> void: _panel_request(&"route", index))
+	_upgrade_panel.depart_requested.connect(_panel_request.bind(&"ready", -1))
 	_upgrade_panel.hide()
 	_result_screen.restart_requested.connect(restart)
 	_content.bomb_exploded.connect(_on_bomb_exploded)
@@ -184,7 +192,7 @@ func _physics_process(delta: float) -> void:
 func add_player(warrior: Warrior) -> void:
 	players.append(warrior)
 	_player_targets.append(warrior)
-	warrior.input.ready_requested.connect(_on_ready_requested)
+	warrior.input.ready_requested.connect(request_departure.bind(warrior))
 	warrior.input.overdrive_requested.connect(request_overdrive)
 	warrior.input.divine_requested.connect(request_divine_crossbow)
 	warrior.health.died.connect(_on_player_died.bind(warrior))
@@ -221,7 +229,8 @@ func spawn_player(id: int) -> Warrior:
 	add_player(warrior)
 	if is_mine:
 		_set_local_warrior(warrior)
-	_hud.show_toast(tr("Người chơi %d đã vào") % players.size())
+	else:
+		_hud.show_toast(tr("Người chơi %d đã vào") % players.size())
 	return warrior
 
 
@@ -232,7 +241,9 @@ func remove_player(id: int) -> void:
 	players.erase(warrior)
 	_player_targets.erase(warrior)
 	_respawns.erase(warrior)
+	_ready_players.erase(warrior)
 	warrior.queue_free()
+	_check_all_ready()  # the one who left may have been the last not ready
 	_hud.show_toast(tr("Một người chơi đã rời đi"))
 
 
@@ -252,10 +263,44 @@ func _tick_respawns(delta: float) -> void:
 	_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(local_left) if local_left > 0.0 else "")
 
 
-# Solo: one player's ready is enough. Multiplayer will wait for every player here (M2.1d).
-func _on_ready_requested() -> void:
-	if _is_host() and _follower.is_stopped and result == Result.NONE:
+## `player` is ready to leave the stop; the fortress departs once every player is (solo: at once).
+func request_departure(player: Warrior) -> void:
+	if not _is_host() or not _follower.is_stopped or result != Result.NONE or _ready_players.has(player):
+		return
+	_ready_players[player] = true
+	_check_all_ready()
+
+
+func _check_all_ready() -> void:
+	if not _is_host() or not _follower.is_stopped or result != Result.NONE:
+		return
+	_upgrade_panel.set_ready_count(_ready_players.size(), players.size(), _ready_players.has(local_warrior))
+	if _ready_players.size() >= players.size():
 		_follower.depart()
+
+
+# Stop panel presses: the host acts for its own player; a client asks the host.
+func _panel_request(kind: StringName, index: int) -> void:
+	if _is_host():
+		handle_request(kind, index, local_warrior)
+	elif _net and local_warrior:
+		_net.send_request(kind, index)
+
+
+## Host: a stop-panel action by `player` (from this machine's panel or a client's NetSync request).
+func handle_request(kind: StringName, index: int, player: Warrior) -> void:
+	match kind:
+		&"tier":
+			request_tier_upgrade()
+		&"fortress":
+			if index >= 0 and index < FortressUpgrades.ALL.size():
+				request_fortress_upgrade(FortressUpgrades.ALL[index])
+		&"weapon":
+			request_weapon_upgrade(index, player)
+		&"route":
+			request_route(index)
+		&"ready":
+			request_departure(player)
 
 
 ## Purchases are only allowed while stopped; in multiplayer this check runs on the server.
@@ -271,16 +316,18 @@ func request_tier_upgrade() -> bool:
 	return done
 
 
-## One card per stop; the buyer's weapon gets it (default: this machine's warrior).
+## One card per player per stop; the buyer's weapon gets it (default: this machine's warrior).
 ## Paid from the shared fortress storage.
 func request_weapon_upgrade(index: int, buyer: Warrior = null) -> bool:
-	if not _is_host() or not _follower.is_stopped or weapon_choice != -1 or index < 0 or index >= weapon_offers.size():
+	buyer = buyer if buyer else local_warrior
+	if not _is_host() or not _follower.is_stopped or _weapon_choices.has(buyer.peer_id) or index < 0 or index >= weapon_offers.size():
 		return false
 	if not _fortress.storage.spend(weapon_offers[index].cost):
 		return false
-	(buyer if buyer else local_warrior).weapon.apply_upgrade(weapon_offers[index])
-	weapon_choice = index
-	_upgrade_panel.set_weapon_choice(index)
+	buyer.weapon.apply_upgrade(weapon_offers[index])
+	_weapon_choices[buyer.peer_id] = index
+	if buyer == local_warrior:
+		_upgrade_panel.set_weapon_choice(index)
 	return true
 
 
@@ -526,7 +573,8 @@ func net_snapshot() -> Dictionary:
 	return {"fortress": _fortress.net_state(), "noise": [noise.value, noise.pursuit_time], "warriors": warriors,
 		"enemies": _spawner.net_state(),
 		"route": RouteTypes.ALL.find(current_route), "kills": kills, "elapsed": elapsed,
-		"structures": _structures.net_state(), "pickups": _pickups_net_state(), "shots": _take_net_shots()}
+		"structures": _structures.net_state(), "pickups": _pickups_net_state(), "shots": _take_net_shots(),
+		"stop": _stop_net_state()}
 
 
 ## Client: shows the host's world.
@@ -536,6 +584,7 @@ func apply_net_snapshot(snapshot: Dictionary) -> void:
 	_spawner.apply_net_state(snapshot.enemies)
 	_structures.apply_net_state(snapshot.structures)
 	_apply_pickups(snapshot.pickups)
+	_apply_stop(snapshot.stop)
 	var shots: PackedVector3Array = snapshot.shots
 	for i in range(0, shots.size() - 1, 2):
 		_draw_tracer(shots[i], shots[i + 1])
@@ -573,6 +622,8 @@ func play_fx(kind: StringName, args: Array) -> void:
 		&"toast":
 			var text: String = args[0]
 			var values: Array = args[1]
+			# String arguments are untranslated names (e.g. a route), translated here too.
+			values = values.map(func(value: Variant) -> Variant: return tr(value) if value is String else value)
 			_hud.show_toast(tr(text) % values if not values.is_empty() else tr(text))
 		&"resource":
 			_content.apply_resource_amount(args[0], args[1])
@@ -613,6 +664,40 @@ func _draw_tracer(from: Vector3, to: Vector3) -> void:
 	add_child(tracer)
 	tracer.global_transform = Transform3D(Basis.looking_at(to - from).scaled(Vector3(1.0, 1.0, length)), (from + to) * 0.5)
 	get_tree().create_timer(0.08).timeout.connect(tracer.queue_free)
+
+
+# The stop panel's state (empty while driving): offers by index, choices, who is ready.
+func _stop_net_state() -> Dictionary:
+	if not _follower.is_stopped or weapon_offers.is_empty():
+		return {}
+	var ready_ids := PackedInt32Array()
+	for player: Warrior in _ready_players:
+		ready_ids.append(player.peer_id)
+	return {"weapons": weapon_offers.map(func(offer: WeaponUpgrade) -> int: return WeaponUpgrades.ALL.find(offer)),
+		"routes": route_offers.map(func(offer: RouteType) -> int: return RouteTypes.ALL.find(offer)),
+		"route_choice": route_choice, "weapon_choices": _weapon_choices, "ready": ready_ids, "players": players.size()}
+
+
+# Client: opens / updates / closes the stop panel as the host's stop goes.
+func _apply_stop(stop: Dictionary) -> void:
+	if stop.is_empty():
+		if _upgrade_panel.visible:
+			_upgrade_panel.hide()
+			weapon_offers.clear()
+		return
+	if not _upgrade_panel.visible:
+		weapon_offers.assign(stop.weapons.map(func(i: int) -> WeaponUpgrade: return WeaponUpgrades.ALL[i]))
+		route_offers.assign(stop.routes.map(func(i: int) -> RouteType: return RouteTypes.ALL[i]))
+		route_choice = -1
+		_open_stop_panel()
+	if stop.route_choice != route_choice:
+		route_choice = stop.route_choice
+		_upgrade_panel.set_route_choice(route_choice)
+	_weapon_choices = stop.weapon_choices
+	_upgrade_panel.set_weapon_choice(weapon_choice)
+	var ready_ids: PackedInt32Array = stop.ready
+	_upgrade_panel.set_ready_count(ready_ids.size(), stop.players, local_warrior != null and ready_ids.has(local_warrior.peer_id))
+	_upgrade_panel.refresh()  # storage and upgrade levels come with the same snapshot
 
 
 func _pickups_net_state() -> Array:
@@ -715,13 +800,19 @@ func _on_reached_stop(_index: int) -> void:
 	_spawner.active = false
 	_spawner.clear()
 	weapon_offers = WeaponUpgrades.draw(rng, 3)
-	weapon_choice = -1
+	_weapon_choices.clear()
+	_ready_players.clear()
 	route_offers = RouteTypes.draw(_route_rng, 2)
 	route_choice = -1
+	_open_stop_panel()
+	_upgrade_panel.set_ready_count(0, players.size(), false)
+	_toast_all("Điểm dừng — nâng cấp rồi khởi hành")  # i18n
+
+
+func _open_stop_panel() -> void:
 	_upgrade_panel.show()
 	_upgrade_panel.set_weapon_offers(weapon_offers)
 	_upgrade_panel.set_route_offers(route_offers)
-	_hud.show_toast(tr("Điểm dừng — nâng cấp rồi khởi hành"))
 
 
 func _on_departed() -> void:
@@ -729,6 +820,6 @@ func _on_departed() -> void:
 	_upgrade_panel.hide()
 	if not route_offers.is_empty():
 		_apply_route(route_offers[maxi(route_choice, 0)])
-		_hud.show_toast(tr("Khởi hành — tuyến %s") % tr(current_route.display_name))
+		_toast_all("Khởi hành — tuyến %s", [current_route.display_name])  # i18n
 	else:
-		_hud.show_toast(tr("Khởi hành!"))
+		_toast_all("Khởi hành!")  # i18n

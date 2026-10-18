@@ -21,6 +21,7 @@ var _chosen: int = -1
 var _routes_row: HBoxContainer
 var _route_cards: Array[Button] = []
 var _route_choice: int = -1
+var _depart: Button
 
 
 func setup(fortress: Fortress) -> void:
@@ -66,9 +67,8 @@ func _ready() -> void:
 	_cards_row.add_theme_constant_override("separation", 12)
 	weapon_column.add_child(_cards_row)
 
-	var depart := _add_button(box, depart_requested)
-	depart.text = tr("Khởi hành  ▶  (Space)")
-	UiStyle.apply_button(depart, UiStyle.BRONZE_BRIGHT)
+	_depart = _add_button(box, depart_requested)
+	set_ready_count(0, 1, false)
 
 
 func set_weapon_offers(offers: Array[WeaponUpgrade]) -> void:
@@ -109,6 +109,18 @@ func set_route_choice(index: int) -> void:
 func set_weapon_choice(index: int) -> void:
 	_chosen = index
 	refresh()
+
+
+## Co-op: the fortress leaves once everyone is ready. Solo shows the plain depart button.
+func set_ready_count(ready: int, total: int, me_ready: bool) -> void:
+	if total <= 1:
+		_depart.text = tr("Khởi hành  ▶  (Space)")
+	elif me_ready:
+		_depart.text = tr("Đã sẵn sàng — chờ đồng đội (%d/%d)") % [ready, total]
+	else:
+		_depart.text = tr("Sẵn sàng khởi hành  ▶  (Space) — %d/%d") % [ready, total]
+	_depart.disabled = me_ready
+	UiStyle.apply_button(_depart, UiStyle.BRONZE_BRIGHT)
 
 
 func refresh() -> void:

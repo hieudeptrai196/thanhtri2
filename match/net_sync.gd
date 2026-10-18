@@ -11,6 +11,8 @@ extends Node
 ## changes during play travels.
 
 const SNAPSHOT_INTERVAL := 0.05
+## Stop-panel actions a client may ask for (see Match.handle_request).
+const ALLOWED_REQUESTS: Array[StringName] = [&"tier", &"fortress", &"weapon", &"route", &"ready"]
 ## Events a client may send; anything else is dropped.
 const ALLOWED_EVENTS: Array[StringName] = [&"dash", &"place", &"cancel", &"select", &"ready", &"overdrive", &"divine"]
 
@@ -103,6 +105,18 @@ func client_events(events: Array, state: Dictionary) -> void:
 @rpc("authority", "call_remote", "unreliable_ordered")
 func server_snapshot(snapshot: Dictionary) -> void:
 	_match.apply_net_snapshot(snapshot)
+
+
+## Client: asks the host for a stop-panel action for this player.
+func send_request(kind: StringName, index: int) -> void:
+	client_request.rpc_id(1, kind, index)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func client_request(kind: StringName, index: int) -> void:
+	var warrior := _sender_warrior()
+	if warrior and ALLOWED_REQUESTS.has(kind):
+		_match.handle_request(kind, index, warrior)
 
 
 ## Host: sends a one-off happening to every client in the run.

@@ -5,79 +5,79 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: match/match.gd:156
+#: match/match.gd:164
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:224
+#: match/match.gd:233
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:236
+#: match/match.gd:247
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:252
+#: match/match.gd:263
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:328
+#: match/match.gd:375
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:328
+#: match/match.gd:375
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:336
+#: match/match.gd:383
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:343
+#: match/match.gd:390
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:447
+#: match/match.gd:494
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:456
+#: match/match.gd:503
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:460
+#: match/match.gd:507
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:466
+#: match/match.gd:513
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:471
+#: match/match.gd:518
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:510
+#: match/match.gd:557
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:511
+#: match/match.gd:558
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:710
+#: match/match.gd:795
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr ""
 
-#: match/match.gd:724
+#: match/match.gd:809
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr ""
 
-#: match/match.gd:732
+#: match/match.gd:823
 msgid "Khởi hành — tuyến %s"
 msgstr ""
 
-#: match/match.gd:734
+#: match/match.gd:825
 msgid "Khởi hành!"
 msgstr ""
 
@@ -261,39 +261,47 @@ msgstr ""
 msgid "Tối đa %d người. Cùng mạng LAN, hoặc mở cổng %d."
 msgstr ""
 
-#: ui/upgrade_panel.gd:36
+#: ui/upgrade_panel.gd:37
 msgid "Điểm dừng — nâng cấp"
 msgstr ""
 
-#: ui/upgrade_panel.gd:37
+#: ui/upgrade_panel.gd:38
 msgid "Chọn tuyến tiếp theo"
 msgstr ""
 
-#: ui/upgrade_panel.gd:55
+#: ui/upgrade_panel.gd:56
 msgid "Pháo đài"
 msgstr ""
 
-#: ui/upgrade_panel.gd:64
+#: ui/upgrade_panel.gd:65
 msgid "Vũ khí — chọn 1 thẻ"
 msgstr ""
 
-#: ui/upgrade_panel.gd:70
+#: ui/upgrade_panel.gd:117
 msgid "Khởi hành  ▶  (Space)"
 msgstr ""
 
 #: ui/upgrade_panel.gd:119
+msgid "Đã sẵn sàng — chờ đồng đội (%d/%d)"
+msgstr ""
+
+#: ui/upgrade_panel.gd:121
+msgid "Sẵn sàng khởi hành  ▶  (Space) — %d/%d"
+msgstr ""
+
+#: ui/upgrade_panel.gd:131
 msgid "Nâng thân pháo đài lên %s (%d máu) — %s"
 msgstr ""
 
-#: ui/upgrade_panel.gd:123
+#: ui/upgrade_panel.gd:135
 msgid "Thân pháo đài đã ở cấp cao nhất"
 msgstr ""
 
-#: ui/upgrade_panel.gd:132
+#: ui/upgrade_panel.gd:144
 msgid "%s — cấp tối đa"
 msgstr ""
 
-#: ui/upgrade_panel.gd:135
+#: ui/upgrade_panel.gd:147
 msgid "%s cấp %d — %s"
 msgstr ""
 

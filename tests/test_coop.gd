@@ -266,7 +266,7 @@ func test_client_sees_trees_depleting_and_bombs_exploding() -> void:
 	check(client_content._by_content_id.get(bomb_id) == client_bomb, "bombs line up by id")
 	bomb._on_area_entered(host.get_node("Fortress/Hurtbox"))
 	check(await wait_until(func() -> bool: return client_bomb._spent), "client bomb explodes too")
-	check(client.get_node("UI/HUD/%Toast").text.contains(tr("bom")), "client is warned")
+	check(client.get_node("UI/HUD/%Toast").text.contains(tr("bom")), "client is warned, toast: " + client.get_node("UI/HUD/%Toast").text)
 
 
 func test_client_sees_pickups_and_toasts() -> void:
@@ -285,3 +285,71 @@ func test_client_sees_pickups_and_toasts() -> void:
 	host.request_overdrive()
 	var toast: Label = client.get_node("UI/HUD/%Toast")
 	check(await wait_until(func() -> bool: return toast.text == tr("Tăng tốc! Tốn Than gấp nhiều lần")), "client gets the host's toast")
+
+
+## Drives the host's fortress to its first stop and waits for the client to show the panel.
+func _reach_stop(host: Match, client: Match) -> bool:
+	var follower: RouteFollower = host.get_node("Fortress/RouteFollower")
+	follower.base_speed = 300.0
+	await wait_until(func() -> bool: return follower.is_stopped, 600)
+	follower.base_speed = 0.0
+	return await wait_until(func() -> bool: return client.get_node("UI/UpgradePanel").visible)
+
+
+func test_stop_panel_opens_on_every_machine() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	check(await _reach_stop(host, client), "client shows the stop panel")
+	check(client.weapon_offers == host.weapon_offers, "same weapon cards offered")
+	check(client.route_offers == host.route_offers, "same routes offered")
+	client.get_node("UI/UpgradePanel").route_requested.emit(1)
+	check(await wait_until(func() -> bool: return host.route_choice == 1), "client picks the route on the host")
+	check(await wait_until(func() -> bool: return client.route_choice == 1), "and sees the pick")
+
+
+func test_fortress_leaves_only_when_everyone_is_ready() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	await _reach_stop(host, client)
+	var follower: RouteFollower = host.get_node("Fortress/RouteFollower")
+	host.get_node("UI/UpgradePanel").depart_requested.emit()
+	await seconds(0.5)
+	check(follower.is_stopped, "the host alone is not enough")
+	var client_panel: UpgradePanel = client.get_node("UI/UpgradePanel")
+	check(await wait_until(func() -> bool: return client_panel._depart.text.contains("1/2")), "client sees 1/2 ready: " + client_panel._depart.text)
+	client_panel.depart_requested.emit()
+	check(await wait_until(func() -> bool: return not follower.is_stopped), "everyone ready: the fortress departs")
+	check(await wait_until(func() -> bool: return not client_panel.visible), "client panel closes")
+	check(client.current_route == host.current_route, "client drives the chosen route")
+
+
+func test_a_leaving_player_does_not_block_departure() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	await _reach_stop(host, client)
+	var follower: RouteFollower = host.get_node("Fortress/RouteFollower")
+	host.get_node("UI/UpgradePanel").depart_requested.emit()
+	await seconds(0.3)
+	Net.leave(client.multiplayer)
+	check(await wait_until(func() -> bool: return not follower.is_stopped, 300), "departs once the waiting player is gone")
+
+
+func test_each_player_buys_their_own_weapon_card() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	await _reach_stop(host, client)
+	var storage: Inventory = host.get_node("Fortress").storage
+	storage.add_all({&"bronze": 100})
+	check(host.request_weapon_upgrade(0), "host buys a card")
+	var client_warrior := host.player_by_peer(client.multiplayer.get_unique_id())
+	var weapon_before := [client_warrior.weapon.damage, client_warrior.weapon.cooldown, client_warrior.weapon.arc_degrees, client_warrior.weapon._reach_shape.radius]
+	client.get_node("UI/UpgradePanel").weapon_upgrade_requested.emit(0)
+	check(await wait_until(func() -> bool: return host._weapon_choices.has(client_warrior.peer_id)), "the client buys its own card")
+	check(await wait_until(func() -> bool: return client.weapon_choice == 0), "client sees its card as bought")
+	check([client_warrior.weapon.damage, client_warrior.weapon.cooldown, client_warrior.weapon.arc_degrees, client_warrior.weapon._reach_shape.radius] != weapon_before,
+		"the card changes the client's own weapon")
+	check(not host.request_weapon_upgrade(1, client_warrior), "still one card per player")

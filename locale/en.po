@@ -6,79 +6,79 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en\n"
 
-#: match/match.gd:156
+#: match/match.gd:164
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr "Protect the citadel — go as far as you can!"
 
-#: match/match.gd:224
+#: match/match.gd:233
 msgid "Người chơi %d đã vào"
 msgstr "Player %d joined"
 
-#: match/match.gd:236
+#: match/match.gd:247
 msgid "Một người chơi đã rời đi"
 msgstr "A player left"
 
-#: match/match.gd:252
+#: match/match.gd:263
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:328
+#: match/match.gd:375
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:328
+#: match/match.gd:375
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:336
+#: match/match.gd:383
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:343
+#: match/match.gd:390
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:447
+#: match/match.gd:494
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr "Could not open the room (is port %d in use?)"
 
-#: match/match.gd:456
+#: match/match.gd:503
 msgid "Địa chỉ không hợp lệ"
 msgstr "Invalid address"
 
-#: match/match.gd:460
+#: match/match.gd:507
 msgid "Đang kết nối tới %s…"
 msgstr "Connecting to %s…"
 
-#: match/match.gd:466
+#: match/match.gd:513
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr "In the room — waiting for the host to start"
 
-#: match/match.gd:471
+#: match/match.gd:518
 msgid "Không kết nối được tới %s"
 msgstr "Could not connect to %s"
 
-#: match/match.gd:510
+#: match/match.gd:557
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr "Room open — address: %s"
 
-#: match/match.gd:511
+#: match/match.gd:558
 msgid "Người chơi: %d/%d"
 msgstr "Players: %d/%d"
 
-#: match/match.gd:710
+#: match/match.gd:795
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:724
+#: match/match.gd:809
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:732
+#: match/match.gd:823
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:734
+#: match/match.gd:825
 msgid "Khởi hành!"
 msgstr "Setting off!"
 
@@ -262,39 +262,47 @@ msgstr "Back"
 msgid "Tối đa %d người. Cùng mạng LAN, hoặc mở cổng %d."
 msgstr "Up to %d players. Same LAN, or forward port %d."
 
-#: ui/upgrade_panel.gd:36
+#: ui/upgrade_panel.gd:37
 msgid "Điểm dừng — nâng cấp"
 msgstr "Stop — upgrades"
 
-#: ui/upgrade_panel.gd:37
+#: ui/upgrade_panel.gd:38
 msgid "Chọn tuyến tiếp theo"
 msgstr "Choose the next route"
 
-#: ui/upgrade_panel.gd:55
+#: ui/upgrade_panel.gd:56
 msgid "Pháo đài"
 msgstr "Citadel"
 
-#: ui/upgrade_panel.gd:64
+#: ui/upgrade_panel.gd:65
 msgid "Vũ khí — chọn 1 thẻ"
 msgstr "Weapon — pick 1 card"
 
-#: ui/upgrade_panel.gd:70
+#: ui/upgrade_panel.gd:117
 msgid "Khởi hành  ▶  (Space)"
 msgstr "Set off  ▶  (Space)"
 
 #: ui/upgrade_panel.gd:119
+msgid "Đã sẵn sàng — chờ đồng đội (%d/%d)"
+msgstr "Ready — waiting for teammates (%d/%d)"
+
+#: ui/upgrade_panel.gd:121
+msgid "Sẵn sàng khởi hành  ▶  (Space) — %d/%d"
+msgstr "Ready to depart  ▶  (Space) — %d/%d"
+
+#: ui/upgrade_panel.gd:131
 msgid "Nâng thân pháo đài lên %s (%d máu) — %s"
 msgstr "Rebuild the citadel in %s (%d HP) — %s"
 
-#: ui/upgrade_panel.gd:123
+#: ui/upgrade_panel.gd:135
 msgid "Thân pháo đài đã ở cấp cao nhất"
 msgstr "Citadel body at its highest level"
 
-#: ui/upgrade_panel.gd:132
+#: ui/upgrade_panel.gd:144
 msgid "%s — cấp tối đa"
 msgstr "%s — max level"
 
-#: ui/upgrade_panel.gd:135
+#: ui/upgrade_panel.gd:147
 msgid "%s cấp %d — %s"
 msgstr "%s level %d — %s"
 

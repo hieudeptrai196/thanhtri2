@@ -97,7 +97,7 @@ Mạng co-op (M2.1, host-authoritative):
 - Client không mô phỏng: tắt physics của Spawner/Structures/NoiseMeter/Fortress/ServiceZone/nỏ trên thành; chiến binh `set_simulated(false)` và trượt mượt tới vị trí host gửi. `RouteFollower` client vẫn chạy (dự đoán) và bị snapshot sửa. Đường + nội dung sinh từ seed chung, không gửi.
 - Phòng chờ ở màn bắt đầu (Chơi cùng bạn bè → Tạo phòng / Vào phòng bằng IP → host bấm Bắt đầu). Bắt đầu = mọi máy `reload_current_scene` với `Match._queued_seed`; client báo `client_ready` sau khi nạp xong thì host mới tạo chiến binh và gửi snapshot. Vào giữa trận: host gửi `begin_run` riêng cho người mới.
 - Thêm trạng thái cần đồng bộ: thêm vào `net_state()`/`apply_net_state()` của hệ đó (đổi trên client phải phát lại signal để HUD cập nhật) + `Match.net_snapshot`. Không gửi Resource/Object qua mạng — gửi id/chỉ số (`StructureTypes.ALL.find`, `RouteTypes.ALL.find`).
-- Chưa đồng bộ (M2.1d): bảng điểm dừng + chọn tuyến + sẵn sàng trên client. Chưa có dự đoán cho chiến binh của client (trễ 1 RTT, ổn trong LAN).
+- Điểm dừng: snapshot có `stop` (thẻ, tuyến, ai đã mua, ai sẵn sàng); bảng của client gửi `NetSync.client_request(kind, index)` → `Match.handle_request` (host cũng đi qua đây cho người chơi của mình). Khởi hành khi mọi người trong `players` đã `request_departure` (tránh tên `request_ready` — trùng hàm của Node). Chưa có dự đoán cho chiến binh của client (trễ 1 RTT, ổn trong LAN).
 
 Điểm gắn asset (thay placeholder không cần sửa code):
 - Biểu tượng tài nguyên trên HUD: gán `icon` trong `resources/types/*.tres`; không có thì vẽ ô màu.

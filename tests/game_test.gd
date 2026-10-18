@@ -64,6 +64,8 @@ func start_net_match(clients: int = 1, rng_seed: int = 1, port: int = 24790, wai
 		host.get_node("Spawner").active = false
 		await wait_until(func() -> bool: return host.players.size() == clients + 1, 300)
 		check(host.players.size() == clients + 1, "every client's warrior joins the host")
+		for client: Match in matches.slice(1):
+			await wait_until(func() -> bool: return client.players.size() == clients + 1, 300)
 	return matches
 
 
