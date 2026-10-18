@@ -54,6 +54,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 | M1.8 | `e670fa4` | Chọn 1/2 tuyến ở điểm dừng (4 loại tuyến), hoãn nội dung tới khi chọn |
 | M1.9 | `d897f42` | Điểm = mét, kỷ lục lưu máy, seed ngày, màn bắt đầu, kết quả mới |
 | M1.10 | `695f0a0` | i18n Việt + Anh, chọn ngôn ngữ lần đầu, công cụ trích chuỗi |
+| M2.1a | `7d6f4b3` | Mạng ENet host-authoritative, phòng chờ, mỗi người một chiến binh, đồng bộ thành + chiến binh |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
