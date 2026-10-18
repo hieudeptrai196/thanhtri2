@@ -14,7 +14,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 
 - [x] **M2.1a** Match nhiều chiến binh; `net/` + phòng chờ trong màn bắt đầu; ý định client → host, snapshot thành/tiếng ồn/tuyến/chiến binh → client; client không tự mô phỏng; 9 test co-op trong cùng process + `tools/net_smoke.sh` (2 tiến trình thật: tạo phòng → vào → bắt đầu → cùng seed) — 100 test xanh
 - [x] **M2.1b** Quái: host sinh + mô phỏng, client hiện theo `net_id` (vị trí trượt mượt, máu + chớp khi trúng đòn, biến mất khi chết / dọn ở điểm dừng), quái client không va chạm / không gây sát thương. 2 test mới, 102 xanh, smoke 2 tiến trình OK. Commit `5bf0337`. Snapshot: ~0.6 KB + 28 B/quái (300 quái ≈ 9 KB × 20 Hz ≈ 180 KB/s mỗi client — ổn LAN; chơi qua internet nên nén sau). Rơi đồ → M2.1c. Chưa thấy hiệu ứng bắn của nỏ trên client.
-- [x] **M2.1c** Công trình (bản vẽ → xây xong → thu hồi / nổ đòn cuối, theo `net_id`; client đặt + gõ búa qua ý định), đống đồ rơi, cây/than bị khai thác + bom nổ (theo `content_id` = thứ tự sinh nội dung, giống nhau mọi máy), vệt bắn của nỏ, nhát chém của người khác, thông báo (toast) gửi kèm chữ gốc để mỗi máy dịch theo ngôn ngữ riêng. 4 test mới, 106 xanh, smoke OK. **Chưa commit — chờ duyệt.**
+- [x] **M2.1c** Công trình (bản vẽ → xây xong → thu hồi / nổ đòn cuối, theo `net_id`; client đặt + gõ búa qua ý định), đống đồ rơi, cây/than bị khai thác + bom nổ (theo `content_id` = thứ tự sinh nội dung, giống nhau mọi máy), vệt bắn của nỏ, nhát chém của người khác, thông báo (toast) gửi kèm chữ gốc để mỗi máy dịch theo ngôn ngữ riêng. 4 test mới, 106 xanh, smoke OK. Commit `6a54ec5`.
 - [ ] **M2.1d** Điểm dừng chung: bảng nâng cấp + chọn tuyến trên mọi máy, tất cả sẵn sàng mới đi; thẻ vũ khí theo từng người; kết quả
 - Chưa thử 2 cửa sổ có hình (chỉ headless). Muốn thử: chạy 2 bản Godot, một bên Tạo phòng, bên kia Vào phòng 127.0.0.1.
 
@@ -56,6 +56,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 | M1.10 | `695f0a0` | i18n Việt + Anh, chọn ngôn ngữ lần đầu, công cụ trích chuỗi |
 | M2.1a | `7d6f4b3` | Mạng ENet host-authoritative, phòng chờ, mỗi người một chiến binh, đồng bộ thành + chiến binh |
 | M2.1b | `5bf0337` | Đồng bộ quái host → client |
+| M2.1c | `6a54ec5` | Đồng bộ công trình, đồ rơi, cây/than, bom, hiệu ứng |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
