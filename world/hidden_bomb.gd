@@ -18,7 +18,8 @@ func _ready() -> void:
 
 
 func _on_area_entered(area: Area3D) -> void:
-	if _spent or not area is Hurtbox:
+	# The host decides explosions; client bombs wait to be told (multiplayer sync).
+	if _spent or not area is Hurtbox or not multiplayer.is_server():
 		return
 	_spent = true
 	area.take_hit(damage, self)

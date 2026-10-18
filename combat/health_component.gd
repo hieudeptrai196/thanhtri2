@@ -19,7 +19,8 @@ func _ready() -> void:
 
 
 func apply_damage(amount: float, _source: Node = null) -> void:
-	if current <= 0.0 or amount <= 0.0:
+	# Only the host decides damage; clients get health from snapshots (offline counts as host).
+	if current <= 0.0 or amount <= 0.0 or not multiplayer.is_server():
 		return
 	if shield > 0.0:
 		var absorbed := minf(shield, amount)
@@ -59,6 +60,18 @@ func restore_shield(amount: float) -> void:
 		return
 	shield = minf(shield + amount, max_shield)
 	shield_changed.emit(shield, max_shield)
+
+
+## Client side: takes the host's numbers and notifies listeners (HUD) like a real change.
+func set_net_state(new_current: float, new_max: float, new_shield: float, new_max_shield: float) -> void:
+	if new_current != current or new_max != max_health:
+		current = new_current
+		max_health = new_max
+		health_changed.emit(current, max_health)
+	if new_shield != shield or new_max_shield != max_shield:
+		shield = new_shield
+		max_shield = new_max_shield
+		shield_changed.emit(shield, max_shield)
 
 
 func reset() -> void:

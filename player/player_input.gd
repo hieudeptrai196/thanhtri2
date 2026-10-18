@@ -1,7 +1,8 @@
 class_name PlayerInput
 extends Node
-## Turns local device input into player intent. Gameplay reads only this, never Input directly,
-## so intent can later come from the network instead.
+## Turns local device input into player intent. Gameplay reads only this, never Input directly.
+## A `remote` input (another player's warrior on the server) takes its intent from the network
+## instead; a local one also records what happened this tick so it can be sent to the server.
 
 signal ready_requested
 ## The player toggles the fortress overdrive (T / D-pad up).
@@ -38,6 +39,15 @@ var cancel_pressed: bool = false
 ## Index into StructureTypes.ALL picked by a number key this tick, or -1.
 var build_select: int = -1
 
+## True for a warrior controlled from another machine: no device reading, intent comes from the network.
+var remote: bool = false
+## On a client, the local warrior records its discrete events for sending to the server reliably.
+## Off in solo / on the host, where nothing would ever take them.
+var record_events: bool = false
+var local_events: Array = []
+var _remote_state: Dictionary = {}
+var _remote_events: Array = []
+
 # Mouse aims while the player uses mouse/keyboard; with a gamepad the right stick aims.
 var _using_gamepad: bool = false
 var _pending_select: int = -1
@@ -49,23 +59,27 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if remote:
+		return
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.3):
 		_using_gamepad = true
 		if event is InputEventJoypadButton and event.pressed and event.button_index == OVERDRIVE_BUTTON:
-			overdrive_requested.emit()
+			_emit_local(&"overdrive")
 		if event is InputEventJoypadButton and event.pressed and event.button_index == DIVINE_BUTTON:
-			divine_requested.emit()
+			_emit_local(&"divine")
 	elif event is InputEventMouseMotion or event is InputEventMouseButton or event is InputEventKey:
 		_using_gamepad = false
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if remote:
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.physical_keycode == OVERDRIVE_KEY:
-			overdrive_requested.emit()
+			_emit_local(&"overdrive")
 			return
 		if event.physical_keycode == DIVINE_KEY:
-			divine_requested.emit()
+			_emit_local(&"divine")
 			return
 		var index := BUILD_KEYS.find(event.physical_keycode)
 		if index != -1:
@@ -73,6 +87,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if remote:
+		_consume_remote()
+		return
 	move_direction = _to_world(Input.get_vector("move_left", "move_right", "move_up", "move_down"))
 	aim_stick = Input.get_vector("aim_left", "aim_right", "aim_up", "aim_down")
 	aim_direction = _read_aim()
@@ -88,8 +105,89 @@ func _physics_process(_delta: float) -> void:
 	cancel_pressed = Input.is_action_just_pressed("cancel")
 	build_select = _pending_select
 	_pending_select = -1
+	# Events emitted from input callbacks were recorded already; add this tick's flags.
+	if record_events:
+		_record_tick_flags()
 	if Input.is_action_just_pressed("ready"):
-		ready_requested.emit()
+		_emit_local(&"ready")
+
+
+func _record_tick_flags() -> void:
+	if dash_pressed:
+		local_events.append([&"dash"])
+	if place_pressed:
+		local_events.append([&"place"])
+	if cancel_pressed:
+		local_events.append([&"cancel"])
+	if build_select >= 0:
+		local_events.append([&"select", build_select])
+
+
+## Continuous intent, sent to the server every tick (unreliable is fine: the next tick replaces it).
+func export_state() -> Dictionary:
+	return {"move": move_direction, "aim": aim_direction, "point": aim_point, "stick": aim_stick,
+		"attack": attack_held, "interact": interact_held, "recover": recover_held, "radial": radial_held}
+
+
+## Takes and clears this tick's discrete events (sent reliably).
+func take_local_events() -> Array:
+	var events := local_events
+	local_events = []
+	return events
+
+
+func apply_remote_state(state: Dictionary) -> void:
+	_remote_state = state
+
+
+func apply_remote_events(events: Array) -> void:
+	_remote_events.append_array(events)
+
+
+# Signal-style events fire locally (solo / host) and are recorded for the server (clients).
+func _emit_local(event: StringName) -> void:
+	if record_events:
+		local_events.append([event])
+	_fire(event)
+
+
+func _fire(event: StringName) -> void:
+	match event:
+		&"ready":
+			ready_requested.emit()
+		&"overdrive":
+			overdrive_requested.emit()
+		&"divine":
+			divine_requested.emit()
+
+
+# Remote warriors read the latest network intent; one-tick flags only last for the tick they arrive.
+func _consume_remote() -> void:
+	move_direction = _remote_state.get("move", Vector3.ZERO)
+	aim_direction = _remote_state.get("aim", aim_direction)
+	aim_point = _remote_state.get("point", aim_point)
+	aim_stick = _remote_state.get("stick", Vector2.ZERO)
+	attack_held = _remote_state.get("attack", false)
+	interact_held = _remote_state.get("interact", false)
+	recover_held = _remote_state.get("recover", false)
+	radial_held = _remote_state.get("radial", false)
+	dash_pressed = false
+	place_pressed = false
+	cancel_pressed = false
+	build_select = -1
+	for event: Array in _remote_events:
+		match event[0]:
+			&"dash":
+				dash_pressed = true
+			&"place":
+				place_pressed = true
+			&"cancel":
+				cancel_pressed = true
+			&"select":
+				build_select = event[1]
+			_:
+				_fire(event[0])
+	_remote_events.clear()
 
 
 ## Direction from the owning body to the ground point under a screen position, or ZERO.

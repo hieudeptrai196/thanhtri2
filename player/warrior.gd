@@ -14,6 +14,8 @@ extends CharacterBody3D
 @export var dash_cooldown: float = 1.2
 ## Seconds the warrior keeps facing what it just hit before turning back to its movement.
 @export var attack_facing_time: float = 0.35
+## Online, on clients: how quickly a warrior glides to the position the host last sent.
+@export var net_smoothing: float = 15.0
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var health: HealthComponent = $Health
@@ -29,6 +31,11 @@ var is_alive: bool = true
 ## Folded structure on the warrior's back (null = hands free), and its health when folded.
 var carried_type: StructureType = null
 var carried_health: float = 0.0
+## Multiplayer peer that controls this warrior (1 = the host, also used offline).
+var peer_id: int = 1
+## False on clients: the host simulates and this warrior only shows what the host sends.
+var simulated: bool = true
+var _net_position: Variant = null
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _dash_time_left: float = 0.0
@@ -59,6 +66,40 @@ func carry(type: StructureType, health_value: float) -> void:
 func clear_carried() -> void:
 	carried_type = null
 	_carried_prop.visible = false
+
+
+func set_simulated(on: bool) -> void:
+	simulated = on
+	set_physics_process(on and is_alive)
+
+
+## What clients need to draw this warrior and the HUD of its owner.
+func net_state() -> Array:
+	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
+		StructureTypes.ALL.find(carried_type)]
+
+
+func apply_net_state(state: Array) -> void:
+	var target: Vector3 = state[0]
+	# Respawns and first sightings jump; normal movement glides (see _process).
+	if _net_position == null or global_position.distance_to(target) > 5.0:
+		global_position = target
+	_net_position = target
+	rotation.y = state[1]
+	if state[2] != is_alive:
+		_set_alive(state[2])
+	health.set_net_state(state[3], state[4], 0.0, 0.0)
+	inventory.set_net_amounts(state[5])
+	var carried: int = state[6]
+	if carried < 0 and carried_type:
+		clear_carried()
+	elif carried >= 0 and carried_type != StructureTypes.ALL[carried]:
+		carry(StructureTypes.ALL[carried], 0.0)
+
+
+func _process(delta: float) -> void:
+	if not simulated and _net_position != null:
+		global_position = global_position.lerp(_net_position, 1.0 - exp(-net_smoothing * delta))
 
 
 func is_dashing() -> bool:
@@ -127,7 +168,7 @@ func _set_alive(alive: bool) -> void:
 	_dash_time_left = 0.0
 	_collision.set_deferred("disabled", not alive)
 	_hurtbox.set_deferred("monitorable", alive)
-	set_physics_process(alive)
+	set_physics_process(alive and simulated)
 
 
 # Placeholder swing flash until there are real attack animations.

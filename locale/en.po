@@ -6,43 +6,79 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en\n"
 
-#: match/match.gd:124
+#: match/match.gd:144
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr "Protect the citadel — go as far as you can!"
 
-#: match/match.gd:146
+#: match/match.gd:212
+msgid "Người chơi %d đã vào"
+msgstr "Player %d joined"
+
+#: match/match.gd:224
+msgid "Một người chơi đã rời đi"
+msgstr "A player left"
+
+#: match/match.gd:240
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:221
+#: match/match.gd:316
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:221
+#: match/match.gd:316
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:229
+#: match/match.gd:324
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:235
+#: match/match.gd:330
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:353
+#: match/match.gd:434
+msgid "Không mở được phòng (cổng %d đang bận?)"
+msgstr "Could not open the room (is port %d in use?)"
+
+#: match/match.gd:443
+msgid "Địa chỉ không hợp lệ"
+msgstr "Invalid address"
+
+#: match/match.gd:446
+msgid "Đang kết nối tới %s…"
+msgstr "Connecting to %s…"
+
+#: match/match.gd:448
+msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
+msgstr "In the room — waiting for the host to start"
+
+#: match/match.gd:451
+msgid "Không kết nối được tới %s"
+msgstr "Could not connect to %s"
+
+#: match/match.gd:483
+msgid "Phòng đã mở — địa chỉ: %s"
+msgstr "Room open — address: %s"
+
+#: match/match.gd:484
+msgid "Người chơi: %d/%d"
+msgstr "Players: %d/%d"
+
+#: match/match.gd:583
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:367
+#: match/match.gd:597
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:375
+#: match/match.gd:605
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:377
+#: match/match.gd:607
 msgid "Khởi hành!"
 msgstr "Setting off!"
 
@@ -174,29 +210,57 @@ msgstr "Distance: %s\nRecord: %s\nTime: %d:%02d\nMonsters slain: %d"
 msgid "Điểm dừng: %d m"
 msgstr "Next stop: %d m"
 
-#: ui/start_menu.gd:48
+#: ui/start_menu.gd:68
 msgid "Chọn ngôn ngữ"
 msgstr "Language"
 
-#: ui/start_menu.gd:52
+#: ui/start_menu.gd:72
 msgid "THÀNH TRÌ"
 msgstr "THÀNH TRÌ"
 
-#: ui/start_menu.gd:53
+#: ui/start_menu.gd:73
 msgid "Hộ tống thành trì đi càng xa càng tốt"
 msgstr "Escort the citadel as far as you can"
 
-#: ui/start_menu.gd:54
+#: ui/start_menu.gd:74
 msgid "Chơi"
 msgstr "Play"
 
-#: ui/start_menu.gd:55
+#: ui/start_menu.gd:75
 msgid "Thử thách hôm nay (%s)"
 msgstr "Today's challenge (%s)"
 
-#: ui/start_menu.gd:56
+#: ui/start_menu.gd:76
+msgid "Chơi cùng bạn bè"
+msgstr "Play with friends"
+
+#: ui/start_menu.gd:77
 msgid "Kỷ lục: %s   ·   Hôm nay: %s   ·   Đã chơi %d trận"
 msgstr "Record: %s   ·   Today: %s   ·   %d runs played"
+
+#: ui/start_menu.gd:98
+msgid "Tạo phòng"
+msgstr "Create room"
+
+#: ui/start_menu.gd:99
+msgid "Địa chỉ IP của chủ phòng"
+msgstr "Host's IP address"
+
+#: ui/start_menu.gd:100
+msgid "Vào phòng"
+msgstr "Join"
+
+#: ui/start_menu.gd:101
+msgid "Bắt đầu"
+msgstr "Start"
+
+#: ui/start_menu.gd:102
+msgid "Quay lại"
+msgstr "Back"
+
+#: ui/start_menu.gd:103
+msgid "Tối đa %d người. Cùng mạng LAN, hoặc mở cổng %d."
+msgstr "Up to %d players. Same LAN, or forward port %d."
 
 #: ui/upgrade_panel.gd:36
 msgid "Điểm dừng — nâng cấp"

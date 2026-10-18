@@ -145,6 +145,35 @@ func upgrade_tier() -> bool:
 	return true
 
 
+## What clients need to draw the fortress and its HUD.
+func net_state() -> Dictionary:
+	return {"follow": follower.net_state(), "hp": [health.current, health.max_health, health.shield, health.max_shield],
+		"storage": storage.amounts, "overdrive": overdrive, "mode": speed_mode, "tier": tier_index,
+		"upgrades": upgrade_levels, "divine": divine_crossbow.charge, "speed": follower.speed_multiplier}
+
+
+func apply_net_state(state: Dictionary) -> void:
+	var follow: Array = state.follow
+	follower.set_net_state(follow[0], follow[1], follow[2])
+	follower.speed_multiplier = state.speed
+	var hp: Array = state.hp
+	health.set_net_state(hp[0], hp[1], hp[2], hp[3])
+	storage.set_net_amounts(state.storage)
+	overdrive = state.overdrive
+	speed_mode = state.mode
+	if state.tier != tier_index or state.upgrades != upgrade_levels:
+		tier_index = state.tier
+		upgrade_levels = state.upgrades.duplicate()
+		var material := StandardMaterial3D.new()
+		material.albedo_color = get_tier().color
+		_body_mesh.material_override = material
+		for module in _modules.get_children():
+			module.visible = upgrade_level(StringName(module.name.to_snake_case())) > 0
+	if state.divine != divine_crossbow.charge:
+		divine_crossbow.charge = state.divine
+		divine_crossbow.charge_changed.emit(divine_crossbow.charge, divine_crossbow.max_charge)
+
+
 func upgrade_level(id: StringName) -> int:
 	return upgrade_levels.get(id, 0)
 

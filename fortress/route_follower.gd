@@ -39,6 +39,19 @@ func previous_stop_distance() -> float:
 	return _route.stop_distance(_next_stop - 1) if _next_stop > 0 else 0.0
 
 
+## Client side: places the fortress where the host says it is.
+func set_net_state(new_distance: float, stopped: bool, next_stop: int) -> void:
+	distance = new_distance
+	is_stopped = stopped
+	_next_stop = next_stop
+	if _route:
+		_apply_transform()
+
+
+func net_state() -> Array:
+	return [distance, is_stopped, _next_stop]
+
+
 func _physics_process(delta: float) -> void:
 	if _route == null or is_stopped:
 		return

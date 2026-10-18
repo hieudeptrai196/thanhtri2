@@ -58,6 +58,13 @@ func spend(cost: Dictionary) -> bool:
 	return true
 
 
+## Client side: replaces the amounts with the host's and notifies listeners if they changed.
+func set_net_amounts(new_amounts: Dictionary) -> void:
+	if new_amounts != amounts:
+		amounts = new_amounts.duplicate()
+		changed.emit()
+
+
 func take_all() -> Dictionary:
 	var taken := amounts.duplicate()
 	amounts.clear()

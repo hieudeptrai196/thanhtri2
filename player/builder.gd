@@ -79,7 +79,8 @@ func _physics_process(delta: float) -> void:
 		selected = null
 
 	var type := active_type()
-	_ghost.visible = type != null
+	# Another player's ghost is theirs to see, not the host's.
+	_ghost.visible = type != null and not input.remote
 	if type:
 		var point := ghost_point()
 		placement = network.check_placement(type, point)
@@ -119,7 +120,8 @@ func _update_hammer(input: PlayerInput) -> void:
 	var blueprint := network.nearest_blueprint(_warrior.global_position, recover_range)
 	if blueprint and input.interact_held:
 		hammer_target = blueprint
-		blueprint.add_hammer(_warrior.inventory)
+		if multiplayer.is_server():
+			blueprint.add_hammer(_warrior.inventory)
 
 
 # Recover progress lives on the structure, so helpers holding recover together finish sooner.
@@ -129,7 +131,7 @@ func _update_recover(input: PlayerInput) -> void:
 	if recover_target and recover_target.built and _warrior.carried_type != null:
 		recover_target = null
 	recover_progress = recover_target.recover_progress if recover_target else 0.0
-	if recover_target == null or not input.recover_held:
+	if recover_target == null or not input.recover_held or not multiplayer.is_server():
 		return
 	recover_target.add_recover_helper()
 	if recover_target.recover_progress >= recover_hold_time:

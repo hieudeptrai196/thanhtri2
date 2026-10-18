@@ -19,6 +19,7 @@ enum Mode { RANDOM, DAILY }
 @export var pickup_despawn_radius: float = 150.0
 
 const PICKUP_SCENE := preload("res://resources/pickup.tscn")
+const WARRIOR_SCENE := preload("res://player/warrior.tscn")
 ## Colour for piles holding more than one resource type.
 const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 
@@ -26,7 +27,6 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _content: RouteContent = $RouteContent
 @onready var _fortress: Fortress = $Fortress
 @onready var _follower: RouteFollower = $Fortress/RouteFollower
-@onready var _warrior: Warrior = $Warrior
 @onready var _spawner: Spawner = $Spawner
 @onready var _pickups: Node3D = $Pickups
 @onready var _structures: StructureNetwork = $Structures
@@ -49,6 +49,8 @@ var best_before: float = 0.0
 ## The run picked on the menu / result screen, carried across the scene reload that starts it.
 static var _queued_mode: int = -1
 static var _queued_daily_date: String = ""
+## Online runs: the seed the host picked, so every machine builds the same road (0 = none).
+static var _queued_seed: int = 0
 var result: Result = Result.NONE
 var elapsed: float = 0.0
 var kills: int = 0
@@ -62,8 +64,20 @@ var current_route: RouteType = null
 var weapon_offers: Array[WeaponUpgrade] = []
 var weapon_choice: int = -1
 
-var _respawn_left: float = 0.0
+## Every warrior in the run (index 0 is the host's, the scene's own $Warrior).
+var players: Array[Warrior] = []
+## The warrior played on this machine (HUD and camera follow it).
+var local_warrior: Warrior
+## Same warriors as targets for enemies (shared with the spawner).
+var _player_targets: Array[Node3D] = []
+## Seconds until each fallen warrior respawns.
+var _respawns: Dictionary = {}
 var _route_rng: RandomNumberGenerator
+## Online only (null in solo).
+var _net: NetSync
+## True while the start menu (and the co-op lobby) is up and the run has not begun.
+var _in_lobby: bool = false
+var _join_address: String = ""
 
 
 func _ready() -> void:
@@ -72,7 +86,10 @@ func _ready() -> void:
 		daily_date = _queued_daily_date
 		_queued_mode = -1
 		wait_for_start = false
-	if rng_seed != 0:
+	if _queued_seed != 0:
+		run_seed = _queued_seed
+		_queued_seed = 0
+	elif rng_seed != 0:
 		run_seed = rng_seed
 	elif mode == Mode.DAILY:
 		run_seed = daily_seed(daily_date)
@@ -80,13 +97,10 @@ func _ready() -> void:
 		run_seed = randi()
 	best_before = SaveManager.best_daily(daily_date) if mode == Mode.DAILY else SaveManager.best_distance()
 	rng.seed = run_seed
-	_follower.reached_stop.connect(_on_reached_stop)
-	_follower.departed.connect(_on_departed)
+	if _is_host():
+		_follower.reached_stop.connect(_on_reached_stop)
+		_follower.departed.connect(_on_departed)
 	_fortress.health.died.connect(_finish)
-	_warrior.input.ready_requested.connect(_on_ready_requested)
-	_warrior.input.overdrive_requested.connect(request_overdrive)
-	_warrior.input.divine_requested.connect(request_divine_crossbow)
-	_warrior.health.died.connect(_on_warrior_died)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
@@ -103,8 +117,7 @@ func _ready() -> void:
 	_route_rng = _seeded_rng("routes")
 	_route.setup(_seeded_rng("route"))
 
-	var players: Array[Node3D] = [_warrior]
-	_spawner.setup(rng, _fortress, _follower, players)
+	_spawner.setup(rng, _fortress, _follower, _player_targets)
 	noise.setup(_fortress)
 	_spawner.noise = noise
 	noise.level_changed.connect(_on_noise_level_changed)
@@ -113,19 +126,32 @@ func _ready() -> void:
 		for id in contents:
 			divine.add_charge(divine.charge_per_deposited_unit * contents[id]))
 	_structures.structure_built.connect(func(_structure: Structure) -> void: divine.add_charge(divine.charge_per_structure_built))
-	_spawner.active = true
+	_spawner.active = _is_host()
 	_follower.start(_route)
 	_structures.setup(_fortress, _route, _fortress.storage)
-	_warrior.builder.network = _structures
-	_warrior.builder.storage = _fortress.storage
-	_warrior.builder.place_requested.connect(request_place.bind(_warrior))
-	_warrior.builder.recover_requested.connect(request_recover.bind(_warrior))
-	_hud.setup(_fortress, _warrior, noise, best_before)
+	# The scene's own warrior is always the host's (peer 1).
+	var host_warrior: Warrior = $Warrior
+	add_player(host_warrior)
+	if _is_host():
+		_set_local_warrior(host_warrior)
+	else:
+		# Clients draw what the host simulates; their own warrior arrives with the first snapshot.
+		host_warrior.input.remote = true
+		host_warrior.set_simulated(false)
+		for node: Node in [_spawner, _structures, noise, _fortress, _fortress.service_zone, $Fortress/Crossbow]:
+			node.set_physics_process(false)
+	if Net.is_online(multiplayer):
+		_ensure_net_sync()
 	_hud.show_toast(tr("Bảo vệ thành trì — đi càng xa càng tốt!"))
 	_start_menu.play_requested.connect(func() -> void: start_run(Mode.RANDOM))
 	_start_menu.daily_requested.connect(func() -> void: start_run(Mode.DAILY))
+	_start_menu.host_requested.connect(host_room)
+	_start_menu.join_requested.connect(join_room)
+	_start_menu.online_start_requested.connect(func() -> void: _net.start_shared_run(randi_range(1, 0x7fffffff)))
+	_start_menu.leave_requested.connect(leave_room)
 	_result_screen.menu_requested.connect(back_to_menu)
 	if wait_for_start:
+		_in_lobby = true
 		_start_menu.open()
 		get_tree().paused = true
 
@@ -135,43 +161,113 @@ func _physics_process(delta: float) -> void:
 		return
 	elapsed += delta
 	_content.despawn_before(_follower.distance)
-	_keep_warrior_on_leash()
+	if not _is_host():
+		return
+	for player in players:
+		_keep_on_leash(player)
 	_despawn_far_pickups()
-	if _respawn_left > 0.0:
-		_respawn_left -= delta
-		if _respawn_left <= 0.0:
-			_warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
-			_hud.set_center_message("")
-		else:
-			_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(_respawn_left))
+	_tick_respawns(delta)
 
 
-# Solo: one player's ready is enough. Multiplayer will wait for every player here.
+## Adds a warrior to the run: enemies may target it, its build mode works, its intents count.
+func add_player(warrior: Warrior) -> void:
+	players.append(warrior)
+	_player_targets.append(warrior)
+	warrior.input.ready_requested.connect(_on_ready_requested)
+	warrior.input.overdrive_requested.connect(request_overdrive)
+	warrior.input.divine_requested.connect(request_divine_crossbow)
+	warrior.health.died.connect(_on_player_died.bind(warrior))
+	warrior.builder.network = _structures
+	warrior.builder.storage = _fortress.storage
+	warrior.builder.place_requested.connect(request_place.bind(warrior))
+	warrior.builder.recover_requested.connect(request_recover.bind(warrior))
+
+
+## The warrior of multiplayer peer `id`, or null.
+func player_by_peer(id: int) -> Warrior:
+	for warrior in players:
+		if warrior.peer_id == id:
+			return warrior
+	return null
+
+
+## Online: creates the warrior of peer `id` next to the fortress (host: when that peer is ready;
+## client: when a snapshot first mentions it).
+func spawn_player(id: int) -> Warrior:
+	var existing := player_by_peer(id)
+	if existing:
+		return existing
+	var warrior: Warrior = WARRIOR_SCENE.instantiate()
+	warrior.name = "Warrior_%d" % id
+	warrior.peer_id = id
+	add_child(warrior)
+	warrior.global_position = _fortress.global_transform * Vector3(8.0, 0.1, 2.0 * players.size())
+	var is_mine := id == multiplayer.get_unique_id()
+	warrior.input.remote = not is_mine
+	warrior.input.record_events = is_mine and not _is_host()
+	if not _is_host():
+		warrior.set_simulated(false)
+	add_player(warrior)
+	if is_mine:
+		_set_local_warrior(warrior)
+	_hud.show_toast(tr("Người chơi %d đã vào") % players.size())
+	return warrior
+
+
+func remove_player(id: int) -> void:
+	var warrior := player_by_peer(id)
+	if warrior == null or warrior == local_warrior:
+		return
+	players.erase(warrior)
+	_player_targets.erase(warrior)
+	_respawns.erase(warrior)
+	warrior.queue_free()
+	_hud.show_toast(tr("Một người chơi đã rời đi"))
+
+
+func _set_local_warrior(warrior: Warrior) -> void:
+	local_warrior = warrior
+	$IsoCamera.target = warrior
+	_hud.setup(_fortress, warrior, noise, best_before)
+
+
+func _tick_respawns(delta: float) -> void:
+	for warrior: Warrior in _respawns.keys():
+		_respawns[warrior] -= delta
+		if _respawns[warrior] <= 0.0:
+			_respawns.erase(warrior)
+			warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
+	var local_left: float = _respawns.get(local_warrior, 0.0)
+	_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(local_left) if local_left > 0.0 else "")
+
+
+# Solo: one player's ready is enough. Multiplayer will wait for every player here (M2.1d).
 func _on_ready_requested() -> void:
-	if _follower.is_stopped and result == Result.NONE:
+	if _is_host() and _follower.is_stopped and result == Result.NONE:
 		_follower.depart()
 
 
 ## Purchases are only allowed while stopped; in multiplayer this check runs on the server.
 func request_fortress_upgrade(upgrade: FortressUpgrade) -> bool:
-	var done := _follower.is_stopped and _fortress.buy_upgrade(upgrade)
+	var done := _is_host() and _follower.is_stopped and _fortress.buy_upgrade(upgrade)
 	_upgrade_panel.refresh()
 	return done
 
 
 func request_tier_upgrade() -> bool:
-	var done := _follower.is_stopped and _fortress.upgrade_tier()
+	var done := _is_host() and _follower.is_stopped and _fortress.upgrade_tier()
 	_upgrade_panel.refresh()
 	return done
 
 
-## One card per stop; the buyer's weapon gets it. Paid from the shared fortress storage.
-func request_weapon_upgrade(index: int) -> bool:
-	if not _follower.is_stopped or weapon_choice != -1 or index < 0 or index >= weapon_offers.size():
+## One card per stop; the buyer's weapon gets it (default: this machine's warrior).
+## Paid from the shared fortress storage.
+func request_weapon_upgrade(index: int, buyer: Warrior = null) -> bool:
+	if not _is_host() or not _follower.is_stopped or weapon_choice != -1 or index < 0 or index >= weapon_offers.size():
 		return false
 	if not _fortress.storage.spend(weapon_offers[index].cost):
 		return false
-	_warrior.weapon.apply_upgrade(weapon_offers[index])
+	(buyer if buyer else local_warrior).weapon.apply_upgrade(weapon_offers[index])
 	weapon_choice = index
 	_upgrade_panel.set_weapon_choice(index)
 	return true
@@ -181,7 +277,7 @@ func request_weapon_upgrade(index: int) -> bool:
 ## finished; otherwise a blueprint the team builds together, paid while hammering.
 ## In multiplayer this check runs on the server.
 func request_place(type: StructureType, point: Vector3, player: Warrior) -> bool:
-	if result != Result.NONE or not player.is_alive:
+	if not _is_host() or result != Result.NONE or not player.is_alive:
 		return false
 	var reach := Vector2(point.x - player.global_position.x, point.z - player.global_position.z).length()
 	if reach > player.builder.build_range + 0.1:
@@ -199,7 +295,7 @@ func request_place(type: StructureType, point: Vector3, player: Warrior) -> bool
 ## Takes down an unfinished blueprint (refunding what was paid), or folds a finished foldable
 ## structure onto `player`'s back if their hands are free.
 func request_recover(structure: Structure, player: Warrior) -> bool:
-	if result != Result.NONE or not player.is_alive or not is_instance_valid(structure) or not structure.can_recover():
+	if not _is_host() or result != Result.NONE or not player.is_alive or not is_instance_valid(structure) or not structure.can_recover():
 		return false
 	if structure.global_position.distance_to(player.global_position) > player.builder.recover_range + 0.5:
 		return false
@@ -215,7 +311,7 @@ func request_recover(structure: Structure, player: Warrior) -> bool:
 
 ## Any player may toggle the fortress overdrive; in multiplayer the server applies it.
 func request_overdrive() -> void:
-	if result != Result.NONE:
+	if not _is_host() or result != Result.NONE:
 		return
 	_fortress.overdrive = not _fortress.overdrive
 	_hud.show_toast(tr("Tăng tốc! Tốn Than gấp nhiều lần") if _fortress.overdrive else tr("Chạy bình thường"))
@@ -223,7 +319,7 @@ func request_overdrive() -> void:
 
 ## Any player may fire the Nỏ thần once it is fully charged.
 func request_divine_crossbow() -> bool:
-	if result != Result.NONE or not _fortress.divine_crossbow.is_ready():
+	if not _is_host() or result != Result.NONE or not _fortress.divine_crossbow.is_ready():
 		return false
 	var hits := _fortress.divine_crossbow.fire()
 	_hud.show_toast(tr("NỎ THẦN! Trúng %d quái") % hits)
@@ -237,7 +333,7 @@ func _on_noise_level_changed(level: NoiseMeter.Level) -> void:
 
 ## Picks the route for the stretch after this stop (may be changed until departure).
 func request_route(index: int) -> bool:
-	if not _follower.is_stopped or index < 0 or index >= route_offers.size():
+	if not _is_host() or not _follower.is_stopped or index < 0 or index >= route_offers.size():
 		return false
 	route_choice = index
 	_upgrade_panel.set_route_choice(index)
@@ -265,12 +361,15 @@ static func daily_seed(date: String) -> int:
 
 
 ## Queues a run for the next match that starts (the reload in start_run, or a test's next match).
-static func queue_run(run_mode: Mode, date: String = "") -> void:
+static func queue_run(run_mode: Mode, date: String = "", shared_seed: int = 0) -> void:
 	_queued_mode = run_mode
+	_queued_seed = shared_seed
 	_queued_daily_date = date if date != "" else (today() if run_mode == Mode.DAILY else "")
 
 
 func start_run(run_mode: Mode) -> void:
+	if Net.is_online(multiplayer):
+		leave_room()
 	queue_run(run_mode, daily_date if run_mode == Mode.DAILY and mode == Mode.DAILY else "")
 	get_tree().paused = false
 	get_tree().reload_current_scene()
@@ -278,10 +377,17 @@ func start_run(run_mode: Mode) -> void:
 
 ## Plays again in the same mode: a new random road, or the same daily road.
 func restart() -> void:
+	if Net.is_online(multiplayer) and _net:
+		if _is_host():
+			_net.start_shared_run(randi_range(1, 0x7fffffff))
+		else:
+			back_to_menu()  # only the host starts runs
+		return
 	start_run(mode)
 
 
 func back_to_menu() -> void:
+	Net.leave(multiplayer)
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
@@ -293,10 +399,149 @@ func _finish() -> void:
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
+	if _net and _is_host():
+		_net.run_finished.rpc(_follower.distance, elapsed, kills)
 	var is_record := SaveManager.record_run(_follower.distance, daily_date if mode == Mode.DAILY else "")
 	var best := maxf(best_before, _follower.distance)
 	_result_screen.show_result(_follower.distance, elapsed, kills, best, is_record, daily_date if mode == Mode.DAILY else "")
-	get_tree().paused = true
+	# Online the world keeps running underneath: pausing one machine would stall the others' sync.
+	if not Net.is_online(multiplayer):
+		get_tree().paused = true
+
+
+func _is_host() -> bool:
+	return multiplayer.is_server()
+
+
+func in_lobby() -> bool:
+	return _in_lobby
+
+
+func _ensure_net_sync() -> void:
+	if _net:
+		return
+	_net = NetSync.new()
+	_net.name = "NetSync"
+	add_child(_net)
+	_net.setup(self)
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_left_lobby)
+
+
+## Opens a co-op room from the menu; friends join by this machine's address.
+func host_room() -> void:
+	var error := Net.host(multiplayer)
+	if error != OK:
+		_start_menu.show_lobby_status(tr("Không mở được phòng (cổng %d đang bận?)") % Net.PORT, false)
+		return
+	_ensure_net_sync()
+	_refresh_lobby()
+
+
+func join_room(address: String) -> void:
+	var error := Net.join(multiplayer, address)
+	if error != OK:
+		_start_menu.show_lobby_status(tr("Địa chỉ không hợp lệ"), false)
+		return
+	_ensure_net_sync()
+	_join_address = address
+	_start_menu.show_lobby_status(tr("Đang kết nối tới %s…") % address, true)
+	multiplayer.connected_to_server.connect(_on_joined)
+	multiplayer.connection_failed.connect(_on_join_failed)
+
+
+func _on_joined() -> void:
+	_start_menu.show_lobby_status(tr("Đã vào phòng — chờ chủ phòng bắt đầu"), true)
+
+
+func _on_join_failed() -> void:
+	leave_room()
+	_start_menu.show_lobby_status(tr("Không kết nối được tới %s") % _join_address, false)
+
+
+func _on_peer_left_lobby(_id: int) -> void:
+	_refresh_lobby()
+
+
+func leave_room() -> void:
+	if multiplayer.connected_to_server.is_connected(_on_joined):
+		multiplayer.connected_to_server.disconnect(_on_joined)
+		multiplayer.connection_failed.disconnect(_on_join_failed)
+	Net.leave(multiplayer)
+	if _net:
+		_net.queue_free()
+		_net = null
+
+
+## Every machine reloads the match on the host's seed (sent through NetSync.begin_run).
+func load_shared_run(shared_seed: int) -> void:
+	if not _in_lobby and shared_seed == run_seed:
+		return  # already on this road (NetSync announced itself on connecting)
+	queue_run(Mode.RANDOM, "", shared_seed)
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _on_peer_connected(id: int) -> void:
+	if not _is_host():
+		return
+	if _in_lobby:
+		_refresh_lobby()
+	else:
+		_net.begin_run.rpc_id(id, run_seed)  # joined mid-run: load this road and catch up
+
+
+func _refresh_lobby() -> void:
+	if not _in_lobby or not _is_host() or not Net.is_online(multiplayer):
+		return
+	var addresses := ", ".join(Net.lan_addresses())
+	_start_menu.show_lobby_status(tr("Phòng đã mở — địa chỉ: %s") % (addresses if addresses != "" else "127.0.0.1")
+		+ "\n" + tr("Người chơi: %d/%d") % [multiplayer.get_peers().size() + 1, Net.MAX_PLAYERS], true, true)
+
+
+## The host left or dropped: back to the menu with a note.
+func on_host_lost() -> void:
+	back_to_menu()
+
+
+## Host: everything clients need to draw this tick.
+func net_snapshot() -> Dictionary:
+	var warriors := {}
+	for warrior in players:
+		var state := warrior.net_state()
+		state.append(_respawns.get(warrior, 0.0))
+		warriors[warrior.peer_id] = state
+	return {"fortress": _fortress.net_state(), "noise": [noise.value, noise.pursuit_time], "warriors": warriors,
+		"route": RouteTypes.ALL.find(current_route), "kills": kills, "elapsed": elapsed}
+
+
+## Client: shows the host's world.
+func apply_net_snapshot(snapshot: Dictionary) -> void:
+	_fortress.apply_net_state(snapshot.fortress)
+	noise.set_net_state(snapshot.noise[0], snapshot.noise[1])
+	kills = snapshot.kills
+	elapsed = snapshot.elapsed
+	var route: int = snapshot.route
+	if route >= 0 and RouteTypes.ALL[route] != current_route:
+		_apply_route(RouteTypes.ALL[route])
+	var warriors: Dictionary = snapshot.warriors
+	for id: int in warriors:
+		var warrior := spawn_player(id)
+		warrior.apply_net_state(warriors[id])
+	for warrior in players.duplicate():
+		if not warriors.has(warrior.peer_id):
+			remove_player(warrior.peer_id)
+	if local_warrior:
+		var respawn_left: float = warriors[local_warrior.peer_id][7]
+		_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(respawn_left) if respawn_left > 0.0 else "")
+
+
+## Client: the host says the run is over.
+func finish_from_host(distance: float, host_elapsed: float, host_kills: int) -> void:
+	elapsed = host_elapsed
+	kills = host_kills
+	_follower.distance = distance
+	_finish()
 
 
 func _seeded_rng(purpose: String) -> RandomNumberGenerator:
@@ -305,12 +550,12 @@ func _seeded_rng(purpose: String) -> RandomNumberGenerator:
 	return generator
 
 
-func _keep_warrior_on_leash() -> void:
-	var offset := _warrior.global_position - _fortress.global_position
+func _keep_on_leash(warrior: Warrior) -> void:
+	var offset := warrior.global_position - _fortress.global_position
 	offset.y = 0.0
 	if offset.length() > leash_radius:
 		var pulled := _fortress.global_position + offset.normalized() * leash_radius
-		_warrior.global_position = Vector3(pulled.x, _warrior.global_position.y, pulled.z)
+		warrior.global_position = Vector3(pulled.x, warrior.global_position.y, pulled.z)
 
 
 func _despawn_far_pickups() -> void:
@@ -319,15 +564,15 @@ func _despawn_far_pickups() -> void:
 			pickup.queue_free()
 
 
-func _on_warrior_died() -> void:
-	if _warrior.carried_type:
+func _on_player_died(warrior: Warrior) -> void:
+	if warrior.carried_type:
 		# The folded structure drops where the warrior fell (unpowered unless the fortress is near).
-		_structures.place.call_deferred(_warrior.carried_type, _warrior.global_position, _warrior.carried_health)
-		_warrior.clear_carried()
-	var carried := _warrior.inventory.take_all()
+		_structures.place.call_deferred(warrior.carried_type, warrior.global_position, warrior.carried_health)
+		warrior.clear_carried()
+	var carried := warrior.inventory.take_all()
 	if not carried.is_empty():
-		_spawn_pickup.call_deferred(carried, _warrior.global_position)
-	_respawn_left = respawn_delay
+		_spawn_pickup.call_deferred(carried, warrior.global_position)
+	_respawns[warrior] = respawn_delay
 
 
 func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:

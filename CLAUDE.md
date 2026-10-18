@@ -31,6 +31,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 - Bố trí đường ngẫu nhiên có thể đặt bom ngay đoạn đầu: test nhạy với máu/tiếng ồn của thành thì gọi `clear_random_bombs(m)` hoặc `fortress.health.reset()`. Đưa thành tới điểm dừng bằng `base_speed = 300` xong thì nhớ đặt lại 0 nếu còn chờ lâu (không thì tới điểm dừng kế và quái bị dọn).
 - Runner: file test không nạp được → FAIL; test chạy quá 7200 frame → FAIL "timed out". Test cần vật thể cố định thì tự đặt (`spawn_resource`, `RouteContent.place_bomb`) thay vì dựa vào bố trí ngẫu nhiên.
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
+- Co-op: `start_net_match(clients, seed, port, wait_for_start)` dựng host + client, mỗi máy một `SubViewport` (thế giới 3D riêng) với `MultiplayerAPI` riêng, ENet thật qua localhost; chờ bằng `wait_until(callable, max_frames)`. `Input` dùng chung: bấm phím sẽ điều khiển cả host lẫn client. Luồng thật (phòng chờ → nạp lại scene) thử bằng `tools/net_smoke.sh`.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
 
 ## Đa ngôn ngữ (i18n)
@@ -61,7 +62,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 
 | Thư mục | Nội dung |
 |---|---|
-| `match/` | `NoiseMeter` (tiếng ồn 0–100, mức, truy đuổi; nguồn ồn gọi qua group `"noise"`), `Difficulty`, `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thua → tạm dừng cây + màn kết quả + lưu kỷ lục; **chế độ** RANDOM / DAILY (seed từ ngày, `Match.queue_run` mang lựa chọn qua lần nạp lại scene); `wait_for_start` — `main.tscn` bật để hiện màn bắt đầu, test tắt), `spawner.gd` |
+| `match/` | `NetSync` (chỉ có khi online — xem mục Mạng co-op), `NoiseMeter` (tiếng ồn 0–100, mức, truy đuổi; nguồn ồn gọi qua group `"noise"`), `Difficulty`, `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thua → tạm dừng cây + màn kết quả + lưu kỷ lục; **chế độ** RANDOM / DAILY (seed từ ngày, `Match.queue_run` mang lựa chọn qua lần nạp lại scene); `wait_for_start` — `main.tscn` bật để hiện màn bắt đầu, test tắt), `spawner.gd` |
 | `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu, **nỏ liên châu** `$Crossbow`, **chông gai** `thorns_damage`, nhiên liệu Than + tăng tốc, **Nỏ thần** `DivineCrossbow` (nạp bằng hạ quái/nộp đồ/xây xong, G / RB), **nâng cấp** `FortressUpgrade` (.tres trong `upgrades/`: crossbow, boiling_oil, furnace, shield — giá trộn theo cấp) + module placeholder trên thân), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
 | `player/` | `Warrior` (tự đánh, dash, vác 1 công trình), `PlayerInput` (ý định), `Builder` (chế độ xây cục bộ: phím 1–4 / menu vòng tròn, bóng ma, giữ F thu hồi) |
 | `structures/` | `StructureType` (.tres trong `types/`) + `StructureTypes.ALL`, `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), rào gỗ (`Structure` không cần điện, hút quái), `StructureNetwork` (chứa công trình ở tọa độ thế giới, luật đặt, tiếp sức trong bán kính pháo đài, bản vẽ, dỡ/thu hồi). `Structure` bắt đầu là **bản vẽ**: `add_hammer` mỗi tick, trả dần (túi rồi kho), `add_recover_helper` cộng tiến độ thu hồi chung |
@@ -69,12 +70,13 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`: wood, coal, bronze), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây, mỏ than), `Pickup` |
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/mỏ than/bom/vòng điểm dừng theo đoạn, dọn phía sau; **hoãn** nội dung sau điểm dừng tới khi chọn tuyến — `set_content_limit`), `RouteType` (.tres trong `routes/`: rừng già, mỏ than, đồng bằng, đền hoang — hệ số cây/than/bom/quái/rơi đồ + màu đất) + `RouteTypes.draw`, `ground_follow.gd`, `HiddenBomb`, shader nền |
+| `net/` | `Net` (tĩnh: `host`/`join`/`leave`/`is_online`/`lan_addresses`, ENet cổng 24690, tối đa 4 người; nhận `MultiplayerAPI` bất kỳ để test chạy host + client trong một process) |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `locale/` | `Locales`, `locale_boot.gd` (autoload), `messages.pot`, `en.po` |
 | `save/` | `SaveManager` (tĩnh; ConfigFile có phiên bản ở `user://thanhtri_save.cfg`: kỷ lục chung, kỷ lục từng ngày, số trận, cài đặt) |
 | `tests/` | Test harness |
-| `tools/` | `benchmark.sh`, `extract_strings.py` (không thuộc bản build) |
+| `tools/` | `benchmark.sh`, `extract_strings.py`, `net_smoke.sh` (host + client thật, 2 tiến trình) — không thuộc bản build |
 
 Nguyên tắc:
 - **Chỉ `PlayerInput` được đọc `Input`.** Gameplay đọc ý định (`move_direction`, `aim_direction`, `attack_held`, `interact_held`, `ready_requested`) để sau này ý định có thể đến từ mạng.
@@ -87,6 +89,15 @@ Nguyên tắc:
 - **Chữ người chơi thấy phải đi qua `tr()`** (game đa ngôn ngữ). Nhãn debug được viết cứng.
 - Sinh node trong lúc đang ở callback vật lý (ví dụ khi có thứ chết) thì dùng deferred.
 - Không xây hệ thống cho tính năng chưa được xác nhận.
+
+Mạng co-op (M2.1, host-authoritative):
+- Solo = máy chủ không ai vào, cùng một đường code. `multiplayer.is_server()` đúng khi offline. `Match._is_host()` chặn mọi `request_*`; `HealthComponent.apply_damage`, bom, búa/thu hồi trong `Builder` cũng chỉ chạy trên host.
+- `$Warrior` của scene luôn là của host (peer 1); người khác là `Warrior_<id>` (con của Match, `Match.spawn_player`). `Warrior.peer_id`, `local_warrior` = chiến binh của máy này (camera + HUD theo nó). `Match.players` mọi chiến binh.
+- Client → host: `NetSync.client_input` mỗi tick (unreliable, `PlayerInput.export_state`) + `client_events` (reliable, sự kiện một lần + input tick đó; host lọc bằng `_clean_state` / `ALLOWED_EVENTS`). Host → client: `server_snapshot` 20 Hz (`Match.net_snapshot`: thành, tiếng ồn, tuyến, chiến binh), `begin_run(seed)`, `run_finished`.
+- Client không mô phỏng: tắt physics của Spawner/Structures/NoiseMeter/Fortress/ServiceZone/nỏ trên thành; chiến binh `set_simulated(false)` và trượt mượt tới vị trí host gửi. `RouteFollower` client vẫn chạy (dự đoán) và bị snapshot sửa. Đường + nội dung sinh từ seed chung, không gửi.
+- Phòng chờ ở màn bắt đầu (Chơi cùng bạn bè → Tạo phòng / Vào phòng bằng IP → host bấm Bắt đầu). Bắt đầu = mọi máy `reload_current_scene` với `Match._queued_seed`; client báo `client_ready` sau khi nạp xong thì host mới tạo chiến binh và gửi snapshot. Vào giữa trận: host gửi `begin_run` riêng cho người mới.
+- Thêm trạng thái cần đồng bộ: thêm vào `net_state()`/`apply_net_state()` của hệ đó (đổi trên client phải phát lại signal để HUD cập nhật) + `Match.net_snapshot`. Không gửi Resource/Object qua mạng — gửi id/chỉ số (`StructureTypes.ALL.find`, `RouteTypes.ALL.find`).
+- Chưa đồng bộ (M2.1b–d): quái, công trình, nhặt đồ / cây-than bị khai thác, bảng điểm dừng + chọn tuyến trên client. Chưa có dự đoán cho chiến binh của client (trễ 1 RTT, ổn trong LAN).
 
 Điểm gắn asset (thay placeholder không cần sửa code):
 - Biểu tượng tài nguyên trên HUD: gán `icon` trong `resources/types/*.tres`; không có thì vẽ ô màu.

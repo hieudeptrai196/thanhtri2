@@ -16,6 +16,8 @@ var failures: PackedStringArray = []
 var finished: bool = false
 
 var _scene: Node
+## Co-op tests: one SubViewport (own 3D world, own MultiplayerAPI) per machine.
+var _machines: Array[SubViewport] = []
 
 
 ## Instantiates the main scene and returns its Match node. Enemy spawning is off unless asked;
@@ -35,6 +37,45 @@ func start_match(rng_seed: int = 1, spawn_enemies: bool = false, keep_starting_r
 	return match_node
 
 
+## Co-op in one process: a host and `clients` clients, each a main scene in its own SubViewport
+## (separate 3D world) with its own MultiplayerAPI, talking over real ENet on localhost.
+## Returns the Match nodes, host first, once every client's warrior exists on the host.
+func start_net_match(clients: int = 1, rng_seed: int = 1, port: int = 24790, wait_for_start: bool = false) -> Array:
+	var matches := []
+	for i in clients + 1:
+		var machine := SubViewport.new()
+		machine.name = "Host" if i == 0 else "Client%d" % i
+		machine.own_world_3d = true
+		tree.root.add_child(machine)
+		_machines.append(machine)
+		var api := SceneMultiplayer.new()
+		tree.set_multiplayer(api, machine.get_path())
+		if not wait_for_start:
+			var error := Net.host(api, port) if i == 0 else Net.join(api, "127.0.0.1", port)
+			check(error == OK, "ENet starts (port %d): %s" % [port, error_string(error)])
+		var scene := MAIN_SCENE.instantiate()
+		var match_node: Match = scene.get_node("Match")
+		match_node.rng_seed = rng_seed
+		match_node.wait_for_start = wait_for_start
+		machine.add_child(scene)
+		matches.append(match_node)
+	if not wait_for_start:
+		var host: Match = matches[0]
+		host.get_node("Spawner").active = false
+		await wait_until(func() -> bool: return host.players.size() == clients + 1, 300)
+		check(host.players.size() == clients + 1, "every client's warrior joins the host")
+	return matches
+
+
+## Waits physics frames until `condition` holds or `max_frames` pass. Returns whether it held.
+func wait_until(condition: Callable, max_frames: int = 120) -> bool:
+	for i in max_frames:
+		if condition.call():
+			return true
+		await frames(1)
+	return condition.call()
+
+
 ## Runs one test method and flags completion; the runner watches `finished` with a timeout.
 func run(test_name: String) -> void:
 	await call(test_name)
@@ -52,6 +93,14 @@ func cleanup() -> void:
 			Input.action_release(action)
 	if is_instance_valid(_scene):
 		_scene.free()
+	# Clients first, so none of them reacts to the host going away.
+	_machines.reverse()
+	for machine in _machines:
+		var path := machine.get_path()
+		Net.leave(tree.get_multiplayer(path))
+		machine.free()
+		tree.set_multiplayer(null, path)
+	_machines.clear()
 
 
 func frames(count: int) -> void:

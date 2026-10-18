@@ -12,10 +12,11 @@ một chiến binh + ý định gửi lên máy chủ + đồng bộ chiến bin
 cây-than bị khai thác · M2.1d điểm dừng chung (bảng, chọn tuyến, tất cả sẵn sàng mới đi), kết quả.
 Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đường + nội dung không gửi qua mạng (sinh từ seed).
 
-- [ ] Match nhiều chiến binh (solo không đổi, test cũ xanh)
-- [ ] `net/` lớp mạng + phòng chờ trong màn bắt đầu
-- [ ] Ý định client → máy chủ; đồng bộ chiến binh + thành → client; client không tự mô phỏng
-- [ ] Test trong cùng process (2 nhánh multiplayer) + thử 2 cửa sổ thật
+- [x] **M2.1a** Match nhiều chiến binh; `net/` + phòng chờ trong màn bắt đầu; ý định client → host, snapshot thành/tiếng ồn/tuyến/chiến binh → client; client không tự mô phỏng; 9 test co-op trong cùng process + `tools/net_smoke.sh` (2 tiến trình thật: tạo phòng → vào → bắt đầu → cùng seed) — 100 test xanh
+- [ ] **M2.1b** Quái: host sinh, client thấy (vị trí, máu, chết, rơi đồ)
+- [ ] **M2.1c** Công trình (bản vẽ, búa, thu hồi, vác), nhặt đồ, cây/than bị khai thác, bom nổ
+- [ ] **M2.1d** Điểm dừng chung: bảng nâng cấp + chọn tuyến trên mọi máy, tất cả sẵn sàng mới đi; thẻ vũ khí theo từng người; kết quả
+- Chưa thử 2 cửa sổ có hình (chỉ headless). Muốn thử: chạy 2 bản Godot, một bên Tạo phòng, bên kia Vào phòng 127.0.0.1.
 
 ## Tiếp theo (M2, xem ROADMAP)
 

@@ -52,6 +52,13 @@ func add(amount: float) -> void:
 	_update_level()
 
 
+## Client side: takes the host's noise.
+func set_net_state(new_value: float, new_pursuit_time: float) -> void:
+	value = new_value
+	pursuit_time = new_pursuit_time
+	_update_level()
+
+
 func calm() -> void:
 	value = minf(value, stop_calm_to)
 	pursuit_time = 0.0
