@@ -5,3 +5,4 @@
 [node name="Main" type="Node3D"]
 
 [node name="Match" parent="." instance=ExtResource("1_match")]
+wait_for_start = true

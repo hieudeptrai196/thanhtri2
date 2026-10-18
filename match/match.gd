@@ -1,11 +1,16 @@
+class_name Match
 extends Node3D
 ## Root of one endless run: wires the route, fortress, players and spawner together and owns the
 ## match flow: stops, purchases, respawns and the end of the run (fortress destroyed).
 
 enum Result { NONE, LOST }
+## RANDOM = a fresh seed each run; DAILY = today's seed, the same road for everyone.
+enum Mode { RANDOM, DAILY }
 
-## 0 picks a random seed each run.
+## 0 picks a random seed each run (or today's seed in daily mode).
 @export var rng_seed: int = 0
+## main.tscn turns this on: the run waits behind the start menu. Tests leave it off.
+@export var wait_for_start: bool = false
 ## Seconds before a fallen warrior returns next to the fortress.
 @export var respawn_delay: float = 3.0
 ## The warrior cannot get farther than this from the fortress.
@@ -29,11 +34,21 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _hud: Hud = $UI/HUD
 @onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
 @onready var _result_screen: ResultScreen = $UI/ResultScreen
+@onready var _start_menu: StartMenu = $UI/StartMenu
 
 ## Gameplay randomness (enemy spawns, weapon cards). The road has its own RNGs derived from
 ## run_seed so the same seed always gives the same road, whatever happens in play.
 var rng := RandomNumberGenerator.new()
 var run_seed: int = 0
+var mode: Mode = Mode.RANDOM
+## YYYY-MM-DD of the daily challenge being played (daily mode only).
+var daily_date: String = ""
+## Record for this mode before the run started (shown on the HUD).
+var best_before: float = 0.0
+
+## The run picked on the menu / result screen, carried across the scene reload that starts it.
+static var _queued_mode: int = -1
+static var _queued_daily_date: String = ""
 var result: Result = Result.NONE
 var elapsed: float = 0.0
 var kills: int = 0
@@ -52,7 +67,18 @@ var _route_rng: RandomNumberGenerator
 
 
 func _ready() -> void:
-	run_seed = rng_seed if rng_seed != 0 else randi()
+	if _queued_mode != -1:
+		mode = _queued_mode as Mode
+		daily_date = _queued_daily_date
+		_queued_mode = -1
+		wait_for_start = false
+	if rng_seed != 0:
+		run_seed = rng_seed
+	elif mode == Mode.DAILY:
+		run_seed = daily_seed(daily_date)
+	else:
+		run_seed = randi()
+	best_before = SaveManager.best_daily(daily_date) if mode == Mode.DAILY else SaveManager.best_distance()
 	rng.seed = run_seed
 	_follower.reached_stop.connect(_on_reached_stop)
 	_follower.departed.connect(_on_departed)
@@ -94,8 +120,14 @@ func _ready() -> void:
 	_warrior.builder.storage = _fortress.storage
 	_warrior.builder.place_requested.connect(request_place.bind(_warrior))
 	_warrior.builder.recover_requested.connect(request_recover.bind(_warrior))
-	_hud.setup(_fortress, _warrior, noise)
+	_hud.setup(_fortress, _warrior, noise, best_before)
 	_hud.show_toast(tr("Bảo vệ thành trì — đi càng xa càng tốt!"))
+	_start_menu.play_requested.connect(func() -> void: start_run(Mode.RANDOM))
+	_start_menu.daily_requested.connect(func() -> void: start_run(Mode.DAILY))
+	_result_screen.menu_requested.connect(back_to_menu)
+	if wait_for_start:
+		_start_menu.open()
+		get_tree().paused = true
 
 
 func _physics_process(delta: float) -> void:
@@ -223,7 +255,33 @@ func _apply_route(type: RouteType) -> void:
 	ground.set_shader_parameter(&"color_b", type.ground_color_b)
 
 
+## Today's date as used for daily challenges (local time).
+static func today() -> String:
+	return Time.get_date_string_from_system()
+
+
+static func daily_seed(date: String) -> int:
+	return hash("thanhtri-daily:" + date)
+
+
+## Queues a run for the next match that starts (the reload in start_run, or a test's next match).
+static func queue_run(run_mode: Mode, date: String = "") -> void:
+	_queued_mode = run_mode
+	_queued_daily_date = date if date != "" else (today() if run_mode == Mode.DAILY else "")
+
+
+func start_run(run_mode: Mode) -> void:
+	queue_run(run_mode, daily_date if run_mode == Mode.DAILY and mode == Mode.DAILY else "")
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+## Plays again in the same mode: a new random road, or the same daily road.
 func restart() -> void:
+	start_run(mode)
+
+
+func back_to_menu() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
@@ -235,7 +293,9 @@ func _finish() -> void:
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
-	_result_screen.show_result(_follower.distance, elapsed, kills)
+	var is_record := SaveManager.record_run(_follower.distance, daily_date if mode == Mode.DAILY else "")
+	var best := maxf(best_before, _follower.distance)
+	_result_screen.show_result(_follower.distance, elapsed, kills, best, is_record, daily_date if mode == Mode.DAILY else "")
 	get_tree().paused = true
 
 

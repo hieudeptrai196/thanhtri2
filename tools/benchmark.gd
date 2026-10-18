@@ -18,6 +18,7 @@ func _run() -> void:
 	var scene: Node = load("res://scenes/main.tscn").instantiate()
 	var match_node := scene.get_node("Match")
 	match_node.rng_seed = 1
+	match_node.wait_for_start = false  # skip the start menu
 	root.add_child(scene)
 	current_scene = scene
 	await process_frame

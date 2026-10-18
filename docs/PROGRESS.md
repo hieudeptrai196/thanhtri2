@@ -5,12 +5,12 @@
 
 ## Đang làm
 
-(không có — M1.8 vừa commit; tiếp theo M1.9 điểm số / kỷ lục / seed ngày)
+(không có — M1.9 vừa commit; tiếp theo M1.10 i18n — **cần người dùng tắt Godot** vì phải sửa `project.godot`)
 
 ## Tiếp theo (M1, xem ROADMAP)
 
 - M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
+- M1.10 i18n (Việt + Anh) + chọn ngôn ngữ lần đầu — cần tắt Godot
 
 ## Đã xong
 
@@ -39,7 +39,8 @@
 | M1.6a | `fc24be8` | Than, tăng tốc, mỏ than, bỏ Đá |
 | M1.6b | `cbc4495` | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
 | M1.7 | `4f959c5` | Tiếng ồn + truy đuổi, Nỏ thần |
-| M1.8 | (commit này) | Chọn 1/2 tuyến ở điểm dừng (4 loại tuyến), hoãn nội dung tới khi chọn |
+| M1.8 | `e670fa4` | Chọn 1/2 tuyến ở điểm dừng (4 loại tuyến), hoãn nội dung tới khi chọn |
+| M1.9 | (commit này) | Điểm = mét, kỷ lục lưu máy, seed ngày, màn bắt đầu, kết quả mới |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 

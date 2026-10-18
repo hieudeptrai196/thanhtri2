@@ -32,24 +32,29 @@ var _toast_tween: Tween
 
 const NOISE_LEVEL_NAMES: Array[String] = ["Yên tĩnh", "Dò xét", "Bầy đàn", "Dữ dội", "TRUY ĐUỔI"]
 var _noise: NoiseMeter
+var _best: float = 0.0
+@onready var _distance_label: Label = %DistanceLabel
+@onready var _best_label: Label = %BestLabel
 
 
 func _ready() -> void:
 	$TopPanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
 	$ResourcePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
+	$DistancePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
 	UiStyle.apply_bar(_fortress_bar, Color(0.75, 0.3, 0.2))
 	UiStyle.apply_bar(_warrior_bar, Color(0.3, 0.7, 0.35))
 	UiStyle.apply_bar(_noise_bar, Color(0.75, 0.6, 0.25))
 	UiStyle.apply_bar(_divine_bar, Color(0.45, 0.75, 1.0))
-	for label in [_fortress_label, _speed_label, _toast, _center_message, _repair_hint, _noise_label, _divine_label]:
+	for label in [_fortress_label, _speed_label, _toast, _center_message, _repair_hint, _noise_label, _divine_label, _distance_label]:
 		label.add_theme_color_override("font_color", UiStyle.PARCHMENT)
 		UiStyle.outline(label)
 	_toast.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT)
 	_toast.modulate.a = 0.0
 
 
-func setup(fortress: Fortress, warrior: Warrior, noise: NoiseMeter = null) -> void:
+func setup(fortress: Fortress, warrior: Warrior, noise: NoiseMeter = null, best: float = 0.0) -> void:
 	_fortress = fortress
+	_best = best
 	_warrior = warrior
 	_noise = noise
 	_noise_bar.max_value = NoiseMeter.MAX
@@ -104,6 +109,10 @@ func _process(_delta: float) -> void:
 	_update_warrior_bar()
 	_update_prompt()
 	_update_noise_and_divine()
+	_distance_label.text = UiStyle.format_meters(_fortress.follower.distance)
+	var beating := _fortress.follower.distance > _best and _best > 0.0
+	_best_label.text = tr("Kỷ lục mới!") if beating else tr("Kỷ lục: %s") % UiStyle.format_meters(_best)
+	_best_label.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT if beating else UiStyle.MUTED.lightened(0.3))
 
 
 func _update_noise_and_divine() -> void:

@@ -25,6 +25,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 
 - Test nằm ở `tests/test_*.gd`, kế thừa `GameTest` (`tests/game_test.gd`): `start_match()`, `frames()`, `seconds()`, `check()`, `check_near()`, `aim_at()`, `attack_until_freed()`, `spawn_dummy()`.
 - Mỗi giai đoạn mới **phải thêm test** cho hành vi mới và chạy lại toàn bộ trước khi báo xong.
+- Harness dùng file lưu riêng (`user://thanhtri_test_save.cfg`), xóa sau mỗi test, và xóa trận đang xếp hàng (`Match._queued_mode`). Nút ở màn bắt đầu / kết quả gọi `reload_current_scene()` → trong test phải ngắt kết nối handler của Match trước khi bấm.
 - `start_match()` làm trống kho pháo đài (trừ khi `keep_starting_resources`), vì kho bắt đầu có 30 Gỗ.
 - Khi có kết quả trận, cây scene bị tạm dừng; `GameTest.cleanup()` tự bỏ tạm dừng. Nút Chơi lại gọi `reload_current_scene()`, harness không có current scene nên test phải ngắt `m.restart` trước khi bấm.
 - Bố trí đường ngẫu nhiên có thể đặt bom ngay đoạn đầu: test nhạy với máu/tiếng ồn của thành thì gọi `clear_random_bombs(m)` hoặc `fortress.health.reset()`. Đưa thành tới điểm dừng bằng `base_speed = 300` xong thì nhớ đặt lại 0 nếu còn chờ lâu (không thì tới điểm dừng kế và quái bị dọn).
@@ -49,7 +50,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 
 | Thư mục | Nội dung |
 |---|---|
-| `match/` | `NoiseMeter` (tiếng ồn 0–100, mức, truy đuổi; nguồn ồn gọi qua group `"noise"`), `Difficulty`, `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thắng/thua → tạm dừng cây + màn kết quả, chơi lại = nạp lại scene), `spawner.gd` |
+| `match/` | `NoiseMeter` (tiếng ồn 0–100, mức, truy đuổi; nguồn ồn gọi qua group `"noise"`), `Difficulty`, `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thua → tạm dừng cây + màn kết quả + lưu kỷ lục; **chế độ** RANDOM / DAILY (seed từ ngày, `Match.queue_run` mang lựa chọn qua lần nạp lại scene); `wait_for_start` — `main.tscn` bật để hiện màn bắt đầu, test tắt), `spawner.gd` |
 | `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu, **nỏ liên châu** `$Crossbow`, **chông gai** `thorns_damage`, nhiên liệu Than + tăng tốc, **Nỏ thần** `DivineCrossbow` (nạp bằng hạ quái/nộp đồ/xây xong, G / RB), **nâng cấp** `FortressUpgrade` (.tres trong `upgrades/`: crossbow, boiling_oil, furnace, shield — giá trộn theo cấp) + module placeholder trên thân), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
 | `player/` | `Warrior` (tự đánh, dash, vác 1 công trình), `PlayerInput` (ý định), `Builder` (chế độ xây cục bộ: phím 1–4 / menu vòng tròn, bóng ma, giữ F thu hồi) |
 | `structures/` | `StructureType` (.tres trong `types/`) + `StructureTypes.ALL`, `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), rào gỗ (`Structure` không cần điện, hút quái), `StructureNetwork` (chứa công trình ở tọa độ thế giới, luật đặt, tiếp sức trong bán kính pháo đài, bản vẽ, dỡ/thu hồi). `Structure` bắt đầu là **bản vẽ**: `add_hammer` mỗi tick, trả dần (túi rồi kho), `add_recover_helper` cộng tiến độ thu hồi chung |
@@ -59,6 +60,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/mỏ than/bom/vòng điểm dừng theo đoạn, dọn phía sau; **hoãn** nội dung sau điểm dừng tới khi chọn tuyến — `set_content_limit`), `RouteType` (.tres trong `routes/`: rừng già, mỏ than, đồng bằng, đền hoang — hệ số cây/than/bom/quái/rơi đồ + màu đất) + `RouteTypes.draw`, `ground_follow.gd`, `HiddenBomb`, shader nền |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
+| `save/` | `SaveManager` (tĩnh; ConfigFile có phiên bản ở `user://thanhtri_save.cfg`: kỷ lục chung, kỷ lục từng ngày, số trận, cài đặt) |
 | `tests/` | Test harness |
 | `tools/` | `benchmark.sh` (không thuộc bản build) |
 

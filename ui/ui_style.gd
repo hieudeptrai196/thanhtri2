@@ -90,6 +90,22 @@ static func outline(target: Label, size: int = 6) -> void:
 	target.add_theme_constant_override("outline_size", size)
 
 
+## Whole metres with thousands grouping, e.g. 12345 -> "12.345 m".
+static func format_meters(distance: float) -> String:
+	var digits := str(floori(distance))
+	var grouped := ""
+	while digits.length() > 3:
+		grouped = "." + digits.right(3) + grouped
+		digits = digits.left(digits.length() - 3)
+	return digits + grouped + " m"
+
+
+## "YYYY-MM-DD" -> "DD/MM".
+static func short_date(date: String) -> String:
+	var parts := date.split("-")
+	return "%s/%s" % [parts[2], parts[1]] if parts.size() == 3 else date
+
+
 static func label(text: String, size: int, color: Color = PARCHMENT) -> Label:
 	var result := Label.new()
 	result.text = text

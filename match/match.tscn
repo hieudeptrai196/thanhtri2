@@ -17,6 +17,7 @@
 [ext_resource type="Resource" path="res://match/difficulty_default.tres" id="18_difficulty"]
 [ext_resource type="Script" path="res://structures/structure_network.gd" id="19_structures"]
 [ext_resource type="Script" path="res://match/noise_meter.gd" id="20_noise"]
+[ext_resource type="PackedScene" path="res://ui/start_menu.tscn" id="21_menu"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -110,6 +111,8 @@ grow_vertical = 2
 script = ExtResource("10_panel")
 
 [node name="ResultScreen" parent="UI" instance=ExtResource("13_result")]
+
+[node name="StartMenu" parent="UI" instance=ExtResource("21_menu")]
 
 [node name="DebugOverlay" type="Label" parent="UI"]
 anchors_preset = 1

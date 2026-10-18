@@ -29,9 +29,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -260.0
-offset_top = -150.0
+offset_top = -190.0
 offset_right = 260.0
-offset_bottom = 150.0
+offset_bottom = 190.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -46,15 +46,32 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 34
 horizontal_alignment = 1
 
+[node name="Record" type="Label" parent="Panel/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+
 [node name="Stats" type="Label" parent="Panel/Column"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 
-[node name="Restart" type="Button" parent="Panel/Column"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 52)
+[node name="Buttons" type="HBoxContainer" parent="Panel/Column"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Restart" type="Button" parent="Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Menu" type="Button" parent="Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 52)
+layout_mode = 2
 theme_override_font_sizes/font_size = 22

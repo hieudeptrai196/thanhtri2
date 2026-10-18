@@ -26,6 +26,7 @@ func start_match(rng_seed: int = 1, spawn_enemies: bool = false, keep_starting_r
 	_scene = MAIN_SCENE.instantiate()
 	var match_node := _scene.get_node("Match")
 	match_node.rng_seed = rng_seed
+	match_node.wait_for_start = false  # main.tscn shows the start menu; tests play directly
 	tree.root.add_child(_scene)
 	await frames(1)
 	match_node.get_node("Spawner").active = spawn_enemies
@@ -42,6 +43,9 @@ func run(test_name: String) -> void:
 
 func cleanup() -> void:
 	tree.paused = false
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SaveManager.path))
+	Match._queued_mode = -1  # never leak a queued run into the next test
+	SaveManager.reload()
 	for action in InputMap.get_actions():
 		if not String(action).begins_with("ui_"):
 			Input.action_release(action)
