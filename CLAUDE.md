@@ -93,11 +93,11 @@ Nguyên tắc:
 Mạng co-op (M2.1, host-authoritative):
 - Solo = máy chủ không ai vào, cùng một đường code. `multiplayer.is_server()` đúng khi offline. `Match._is_host()` chặn mọi `request_*`; `HealthComponent.apply_damage`, bom, búa/thu hồi trong `Builder` cũng chỉ chạy trên host.
 - `$Warrior` của scene luôn là của host (peer 1); người khác là `Warrior_<id>` (con của Match, `Match.spawn_player`). `Warrior.peer_id`, `local_warrior` = chiến binh của máy này (camera + HUD theo nó). `Match.players` mọi chiến binh.
-- Client → host: `NetSync.client_input` mỗi tick (unreliable, `PlayerInput.export_state`) + `client_events` (reliable, sự kiện một lần + input tick đó; host lọc bằng `_clean_state` / `ALLOWED_EVENTS`). Host → client: `server_snapshot` 20 Hz (`Match.net_snapshot`: thành, tiếng ồn, tuyến, chiến binh), `begin_run(seed)`, `run_finished`.
+- Client → host: `NetSync.client_input` mỗi tick (unreliable, `PlayerInput.export_state`) + `client_events` (reliable, sự kiện một lần + input tick đó; host lọc bằng `_clean_state` / `ALLOWED_EVENTS`). Host → client: `server_snapshot` 20 Hz (`Match.net_snapshot`: thành, tiếng ồn, tuyến, chiến binh, quái — `Spawner.net_state` gói gọn `PackedInt32Array` id + 6 float/quái, client tạo/xóa quái theo `Enemy.net_id`, quái client `set_simulated(false)`), `begin_run(seed)`, `run_finished`.
 - Client không mô phỏng: tắt physics của Spawner/Structures/NoiseMeter/Fortress/ServiceZone/nỏ trên thành; chiến binh `set_simulated(false)` và trượt mượt tới vị trí host gửi. `RouteFollower` client vẫn chạy (dự đoán) và bị snapshot sửa. Đường + nội dung sinh từ seed chung, không gửi.
 - Phòng chờ ở màn bắt đầu (Chơi cùng bạn bè → Tạo phòng / Vào phòng bằng IP → host bấm Bắt đầu). Bắt đầu = mọi máy `reload_current_scene` với `Match._queued_seed`; client báo `client_ready` sau khi nạp xong thì host mới tạo chiến binh và gửi snapshot. Vào giữa trận: host gửi `begin_run` riêng cho người mới.
 - Thêm trạng thái cần đồng bộ: thêm vào `net_state()`/`apply_net_state()` của hệ đó (đổi trên client phải phát lại signal để HUD cập nhật) + `Match.net_snapshot`. Không gửi Resource/Object qua mạng — gửi id/chỉ số (`StructureTypes.ALL.find`, `RouteTypes.ALL.find`).
-- Chưa đồng bộ (M2.1b–d): quái, công trình, nhặt đồ / cây-than bị khai thác, bảng điểm dừng + chọn tuyến trên client. Chưa có dự đoán cho chiến binh của client (trễ 1 RTT, ổn trong LAN).
+- Chưa đồng bộ (M2.1c–d): công trình, nhặt đồ / cây-than bị khai thác, bảng điểm dừng + chọn tuyến trên client. Chưa có dự đoán cho chiến binh của client (trễ 1 RTT, ổn trong LAN).
 
 Điểm gắn asset (thay placeholder không cần sửa code):
 - Biểu tượng tài nguyên trên HUD: gán `icon` trong `resources/types/*.tres`; không có thì vẽ ô màu.

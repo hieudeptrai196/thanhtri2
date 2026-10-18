@@ -16,9 +16,13 @@ signal dropped(contents: Dictionary, at: Vector3)
 @export var attack_interval: float = 1.0
 ## Resources left behind on death, keyed by ResourceType.id.
 @export var drops: Dictionary = {&"bronze": 1}
+## Online, on clients: how quickly the enemy glides to the position the host last sent.
+@export var net_smoothing: float = 12.0
 
 @onready var _health: HealthComponent = $Health
 @onready var _attack_area: Area3D = $AttackArea
+@onready var _hurtbox: Hurtbox = $Hurtbox
+@onready var _collision: CollisionShape3D = $Collision
 @onready var _material: StandardMaterial3D = $Body.mesh.material
 
 var _fortress: Node3D
@@ -26,6 +30,9 @@ var _players: Array[Node3D] = []
 var _cooldown: float = 0.0
 var _base_color: Color
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+## Identifies this enemy between host and clients (given by the host's Spawner).
+var net_id: int = 0
+var _net_position: Variant = null
 
 
 func setup(fortress: Node3D, players: Array[Node3D]) -> void:
@@ -46,6 +53,30 @@ func _ready() -> void:
 	_base_color = _material.albedo_color
 	_health.health_changed.connect(_on_health_changed)
 	_health.died.connect(_on_died)
+	set_process(false)  # only clients glide (see set_simulated)
+
+
+## Off on clients: the host moves and fights; this enemy only shows where it is. No physics either.
+func set_simulated(on: bool) -> void:
+	set_physics_process(on)
+	set_process(not on)
+	_collision.disabled = not on
+	_attack_area.monitoring = on
+	_hurtbox.monitoring = on
+	_hurtbox.monitorable = on
+
+
+func apply_net_state(at: Vector3, yaw: float, current: float, maximum: float) -> void:
+	if _net_position == null:
+		global_position = at
+	_net_position = at
+	rotation.y = yaw
+	_health.set_net_state(current, maximum, 0.0, 0.0)
+
+
+func _process(delta: float) -> void:
+	if _net_position != null:
+		global_position = global_position.lerp(_net_position, 1.0 - exp(-net_smoothing * delta))
 
 
 func _physics_process(delta: float) -> void:

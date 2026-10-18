@@ -112,3 +112,53 @@ func test_client_input_is_sanitised() -> void:
 	check(not clean.has("aim"), "zero aim dropped")
 	check(clean.attack == false and clean.interact == true, "only real booleans count")
 	check(not clean.has("point"), "wrong types dropped")
+
+
+func test_client_sees_the_hosts_enemies() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	var host_spawner: Spawner = host.get_node("Spawner")
+	var client_spawner: Spawner = client.get_node("Spawner")
+	for i in 5:
+		host_spawner.spawn_one()
+	check(await wait_until(func() -> bool: return client_spawner.alive_count() == 5), "client shows the 5 enemies, got %d" % client_spawner.alive_count())
+	await seconds(1.0)
+	var host_enemy: Enemy = host_spawner.get_child(0)
+	var client_enemy: Enemy = client_spawner._by_net_id.get(host_enemy.net_id)
+	check(client_enemy != null, "same enemy known by id")
+	if client_enemy:
+		check(client_enemy.global_position.distance_to(host_enemy.global_position) < 1.0,
+			"client enemy follows the host's (off by %.2f m)" % client_enemy.global_position.distance_to(host_enemy.global_position))
+		check(not client_enemy.is_physics_processing(), "client does not simulate enemies")
+		host_enemy.get_node("Health").apply_damage(1.0)
+		var client_health: HealthComponent = client_enemy.get_node("Health")
+		check(await wait_until(func() -> bool: return client_health.current < client_health.max_health), "client sees the hit")
+		host_enemy.get_node("Health").apply_damage(9999.0)
+		var client_enemy_id := client_enemy.get_instance_id()
+		check(await wait_until(func() -> bool: return not is_instance_id_valid(client_enemy_id)), "client enemy disappears when it dies")
+	host_spawner.clear()
+	check(await wait_until(func() -> bool: return client_spawner.alive_count() == 0), "cleared on both machines")
+
+
+func test_client_enemies_do_no_damage_by_themselves() -> void:
+	var matches := await start_net_match()
+	var host: Match = matches[0]
+	var client: Match = matches[1]
+	var host_fortress: Fortress = host.get_node("Fortress")
+	var host_spawner: Spawner = host.get_node("Spawner")
+	host_fortress.follower.base_speed = 0.0
+	for warrior in host.players:
+		warrior.global_position = host_fortress.global_position + Vector3(0, 0.1, 30)  # out of the enemy's aggro
+	var enemy := host_spawner.spawn_one()
+	enemy.global_position = host_fortress.global_position + Vector3(3, 0, 0)
+	enemy.get_node("Health").set_max_health(1e6)  # outlive the fortress's own defences
+	var damage := enemy.damage
+	host_fortress.health.set_max_health(1e6)
+	host_fortress.health.reset()
+	await seconds(2.0)
+	var host_lost := host_fortress.health.max_health - host_fortress.health.current
+	check(host_lost > 0.0, "the enemy hits the fortress on the host")
+	var client_fortress: Fortress = client.get_node("Fortress")
+	check_near(client_fortress.health.max_health - client_fortress.health.current, host_lost, damage * 2.0,
+		"client fortress loses only what the host says")

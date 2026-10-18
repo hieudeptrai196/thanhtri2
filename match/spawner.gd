@@ -28,6 +28,9 @@ var _fortress: Node3D
 var _follower: RouteFollower
 var _players: Array[Node3D] = []
 var _time_left: float = 0.0
+## Host: id for the next enemy. Client: enemies shown, by id.
+var _next_net_id: int = 1
+var _by_net_id: Dictionary = {}
 
 
 func setup(rng: RandomNumberGenerator, fortress: Node3D, follower: RouteFollower, players: Array[Node3D]) -> void:
@@ -71,6 +74,8 @@ func spawn_one(angle: float = NAN) -> Enemy:
 		angle = _rng.randf() * TAU
 	var spawn_position := _fortress.global_position + Vector3(cos(angle), 0.0, sin(angle)) * ring_radius
 	var enemy: Enemy = enemy_scene.instantiate()
+	enemy.net_id = _next_net_id
+	_next_net_id += 1
 	add_child(enemy)
 	enemy.global_position = spawn_position
 	enemy.setup(_fortress, _players)
@@ -86,6 +91,44 @@ func alive_count() -> int:
 		if not child.is_queued_for_deletion():
 			count += 1
 	return count
+
+
+## Host: every living enemy as ids + 6 floats each (x, y, z, yaw, health, max health), compact
+## because there can be hundreds.
+func net_state() -> Array:
+	var ids := PackedInt32Array()
+	var data := PackedFloat32Array()
+	for enemy: Enemy in get_children():
+		if enemy.is_queued_for_deletion():
+			continue
+		var health: HealthComponent = enemy.get_node("Health")
+		ids.append(enemy.net_id)
+		var at := enemy.global_position
+		data.append_array([at.x, at.y, at.z, enemy.rotation.y, health.current, health.max_health])
+	return [ids, data]
+
+
+## Client: shows exactly the enemies in the host's snapshot (new ones appear, missing ones are gone).
+func apply_net_state(state: Array) -> void:
+	var ids: PackedInt32Array = state[0]
+	var data: PackedFloat32Array = state[1]
+	var seen := {}
+	for i in ids.size():
+		var id := ids[i]
+		seen[id] = true
+		var enemy: Enemy = _by_net_id.get(id)
+		if enemy == null:
+			enemy = enemy_scene.instantiate()
+			enemy.net_id = id
+			add_child(enemy)
+			enemy.set_simulated(false)
+			_by_net_id[id] = enemy
+		var f := i * 6
+		enemy.apply_net_state(Vector3(data[f], data[f + 1], data[f + 2]), data[f + 3], data[f + 4], data[f + 5])
+	for id: int in _by_net_id.keys():
+		if not seen.has(id):
+			_by_net_id[id].queue_free()
+			_by_net_id.erase(id)
 
 
 func clear() -> void:

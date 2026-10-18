@@ -512,6 +512,7 @@ func net_snapshot() -> Dictionary:
 		state.append(_respawns.get(warrior, 0.0))
 		warriors[warrior.peer_id] = state
 	return {"fortress": _fortress.net_state(), "noise": [noise.value, noise.pursuit_time], "warriors": warriors,
+		"enemies": _spawner.net_state(),
 		"route": RouteTypes.ALL.find(current_route), "kills": kills, "elapsed": elapsed}
 
 
@@ -519,6 +520,7 @@ func net_snapshot() -> Dictionary:
 func apply_net_snapshot(snapshot: Dictionary) -> void:
 	_fortress.apply_net_state(snapshot.fortress)
 	noise.set_net_state(snapshot.noise[0], snapshot.noise[1])
+	_spawner.apply_net_state(snapshot.enemies)
 	kills = snapshot.kills
 	elapsed = snapshot.elapsed
 	var route: int = snapshot.route
