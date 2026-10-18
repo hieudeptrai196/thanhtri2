@@ -1,0 +1,89 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://match/match.gd" id="1_match"]
+[ext_resource type="Shader" path="res://world/ground_checker.gdshader" id="2_ground"]
+[ext_resource type="PackedScene" path="res://fortress/fortress.tscn" id="3_fortress"]
+[ext_resource type="Script" path="res://camera/iso_camera.gd" id="4_camera"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+tonemap_mode = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ground"]
+shader = ExtResource("2_ground")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+material = SubResource("ShaderMaterial_ground")
+size = Vector2(400, 400)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(400, 1, 400)
+
+[sub_resource type="Curve3D" id="Curve3D_route"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, -20, 0, 0, 0, 0, 0, 20, 0, 0, -20, 0, 0, -60, 0, 0, 20, 0, 0, -20, 40, 0, -110, 0, 0, 20, 0, 0, -20, 40, 0, -170, 0, 0, 20, 0, 0, 0, 0, 0, -220),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+}
+point_count = 5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stop"]
+albedo_color = Color(0.95, 0.8, 0.2, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stop"]
+material = SubResource("StandardMaterial3D_stop")
+top_radius = 8.0
+bottom_radius = 8.0
+height = 0.1
+
+[node name="Match" type="Node3D"]
+script = ExtResource("1_match")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.872665, 0.523599, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -110)
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Route" type="Path3D" parent="."]
+curve = SubResource("Curve3D_route")
+
+[node name="Stop1" type="Marker3D" parent="Route"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -140)
+
+[node name="Mesh" type="MeshInstance3D" parent="Route/Stop1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("CylinderMesh_stop")
+
+[node name="Fortress" parent="." instance=ExtResource("3_fortress")]
+
+[node name="IsoCamera" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
+size = 40.0
+script = ExtResource("4_camera")
+target = NodePath("../Fortress")
+
+[node name="DebugUI" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="DebugUI"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 616.0
+offset_bottom = 48.0
+theme_override_font_sizes/font_size = 22

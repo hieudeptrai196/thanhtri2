@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://fortress/route_follower.gd" id="1_follower"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(10, 5, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+albedo_color = Color(0.55, 0.38, 0.22, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+material = SubResource("StandardMaterial3D_wood")
+size = Vector3(10, 5, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_front"]
+albedo_color = Color(0.75, 0.15, 0.1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_front"]
+material = SubResource("StandardMaterial3D_front")
+size = Vector3(3, 2, 1)
+
+[node name="Fortress" type="AnimatableBody3D"]
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_body")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+mesh = SubResource("BoxMesh_body")
+
+[node name="Front" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5.5)
+mesh = SubResource("BoxMesh_front")
+
+[node name="RouteFollower" type="Node" parent="."]
+script = ExtResource("1_follower")
