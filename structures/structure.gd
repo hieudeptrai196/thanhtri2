@@ -45,6 +45,9 @@ var net_id: int = 0
 
 var _hammer_purses: Array[Inventory] = []
 var _hammer_weight: float = 0.0
+# Construction speed-up and seconds left (a Công binh's Dựng tốc).
+var _build_boost: float = 1.0
+var _build_boost_left: float = 0.0
 ## Multiplies how fast this structure's shooter fires (set by the match, e.g. a Thầy pháp nearby).
 var fire_rate_bonus: float = 1.0
 var _recover_helpers: int = 0
@@ -111,6 +114,18 @@ func on_net_removed() -> void:
 	pass
 
 
+## Hammering this blueprint goes `multiplier` times as fast for `seconds`.
+func boost_build(multiplier: float, seconds: float) -> void:
+	_build_boost = multiplier
+	_build_boost_left = seconds
+
+
+## Repairs a built structure (a Thầy pháp's Bùa trận).
+func heal(amount: float) -> void:
+	if built:
+		health.heal(amount)
+
+
 func build_fraction() -> float:
 	return 1.0 if built else build_progress / build_time
 
@@ -118,6 +133,7 @@ func build_fraction() -> float:
 ## Called every physics tick by the network. `in_range` = within the fortress service radius.
 func supply(delta: float, in_range: bool, storage: Inventory) -> void:
 	helpers = maxi(_hammer_purses.size(), _recover_helpers)
+	_build_boost_left = maxf(_build_boost_left - delta, 0.0)
 	recover_progress = recover_progress + delta * _recover_helpers if _recover_helpers > 0 else 0.0
 	_recover_helpers = 0
 	if not built:
@@ -150,7 +166,8 @@ func _advance_construction(delta: float, storage: Inventory) -> void:
 	_hammer_weight = 0.0
 	if purses.is_empty():
 		return
-	var target := minf(build_progress + delta * pow(hammers, team_exponent), build_time)
+	var boost := _build_boost if _build_boost_left > 0.0 else 1.0
+	var target := minf(build_progress + delta * pow(hammers, team_exponent) * boost, build_time)
 	starved = false
 	var affordable := 1.0
 	for id in type.cost:

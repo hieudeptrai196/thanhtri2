@@ -22,7 +22,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 **M2.2 — 5 class = vai trò** (bắt đầu 2026-10-18; bảng class đã duyệt, co-op nâng lên 5 người)
 
 - [x] **M2.2a** Khung class (`classes/`: `PlayerClass` .tres + `PlayerClasses`), điểm mạnh thụ động: Công binh (búa ×1.5, sửa ×1.5, vác 2), Tiều phu (túi ×2, chạy ×1.25 khi rỗng), Võ tướng (máu ×1.5, sát thương ×1.3), Thầy pháp (công trình trong 8 m bắn ×1.3), Thợ máy (cả đội: tăng tốc tốn Than ×0.6, nâng cấp thành ×0.85). Chọn vai trò ở màn bắt đầu + phòng chờ (lưu trong SaveManager), gửi lên host qua `client_ready`, đồng bộ màu/class cho mọi máy. 8 test mới, 119 xanh; ảnh 1280×720 Việt + Anh vừa (đã thu gọn màn bắt đầu). Commit `04d6704`. Số liệu = Đề xuất.
-- [ ] **M2.2b** 5 kỹ năng chủ động (phím R / LT, ngắm theo hướng chuột/stick, hồi chiêu, ô kỹ năng trên HUD)
+- [x] **M2.2b** 5 kỹ năng chủ động (R / LT, chạy trên host, `ClassSkills` + số liệu trong `PlayerClass`): Dựng tốc (bản vẽ trong 8 m ×3 trong 5 s, hồi 20 s), Bổ mạnh (lấy 3 đơn vị từ cây/mỏ phía trước, hồi 8 s), Hét trận (quái trong 10 m lao vào mình, nhận ½ sát thương 4 s, hồi 15 s), Bùa trận (vùng 5 m tại điểm ngắm: hồi 8 máu/s người, 12/s công trình, quái chậm ½, 6 s, hồi 20 s), Đốt lò (tăng tốc 8 s không tốn thêm Than, hồi 30 s). Không có gì để tác động thì không mất lượt. Ô kỹ năng + hồi chiêu trên HUD; client thấy vùng/xung. 7 test mới, 126 xanh, smoke OK. **Chưa commit — chờ duyệt.** Số liệu = Đề xuất.
 
 ## Tiếp theo (M2, xem ROADMAP)
 

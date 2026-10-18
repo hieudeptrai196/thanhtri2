@@ -33,6 +33,11 @@ var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 ## Identifies this enemy between host and clients (given by the host's Spawner).
 var net_id: int = 0
 var _net_position: Variant = null
+# Forced target and seconds left (a Võ tướng's Hét trận); speed factor and seconds left (Bùa trận).
+var _taunt_target: Node3D = null
+var _taunt_left: float = 0.0
+var _slow: float = 1.0
+var _slow_left: float = 0.0
 
 
 func setup(fortress: Node3D, players: Array[Node3D]) -> void:
@@ -66,6 +71,18 @@ func set_simulated(on: bool) -> void:
 	_hurtbox.monitorable = on
 
 
+## Makes this enemy go for `target` for `seconds`, whatever else is around.
+func taunt(target: Node3D, seconds: float) -> void:
+	_taunt_target = target
+	_taunt_left = seconds
+
+
+## Moves at `factor` of its speed for `seconds` (renewed while it stays in a slowing area).
+func slow(factor: float, seconds: float) -> void:
+	_slow = factor
+	_slow_left = seconds
+
+
 func apply_net_state(at: Vector3, yaw: float, current: float, maximum: float) -> void:
 	if _net_position == null:
 		global_position = at
@@ -81,6 +98,8 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_taunt_left = maxf(_taunt_left - delta, 0.0)
+	_slow_left = maxf(_slow_left - delta, 0.0)
 	var target := _pick_target()
 	velocity.x = 0.0
 	velocity.z = 0.0
@@ -97,8 +116,9 @@ func _physics_process(delta: float) -> void:
 				hurtbox.take_hit(damage, self)
 		else:
 			var direction := to_target.normalized()
-			velocity.x = direction.x * move_speed
-			velocity.z = direction.z * move_speed
+			var speed := move_speed * (_slow if _slow_left > 0.0 else 1.0)
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
 
 	velocity.y = 0.0 if is_on_floor() else velocity.y - _gravity * delta
 	move_and_slide()
@@ -107,6 +127,8 @@ func _physics_process(delta: float) -> void:
 # Players are duck-typed: anything with `is_alive` and a Hurtbox child can be chased.
 # Structures (group "structures") win over players and the fortress inside their lure radius.
 func _pick_target() -> Node3D:
+	if _taunt_left > 0.0 and is_instance_valid(_taunt_target) and _taunt_target.get("is_alive") != false:
+		return _taunt_target
 	var best: Node3D = _fortress
 	var best_distance := aggro_radius
 	var best_lure := INF

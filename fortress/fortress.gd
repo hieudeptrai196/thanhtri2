@@ -68,6 +68,8 @@ var speed_mode: SpeedMode = SpeedMode.MARCH
 var upgrade_levels: Dictionary = {}
 ## Team bonuses from classes (a Thợ máy in the team): overdrive fuel use and upgrade prices.
 var overdrive_fuel_multiplier: float = 1.0
+## Seconds of overdrive speed that cost no extra coal (Thợ máy's Đốt lò).
+var free_overdrive_left: float = 0.0
 var upgrade_cost_multiplier: float = 1.0
 
 var _repair_cooldown: float = 0.0
@@ -106,9 +108,12 @@ func fuel_seconds_left() -> float:
 
 
 func _burn_fuel(delta: float) -> void:
+	free_overdrive_left = maxf(free_overdrive_left - delta, 0.0)
 	if follower.is_stopped:
 		return
-	_fuel_owed += (overdrive_fuel_per_second * overdrive_fuel_multiplier if overdrive else fuel_per_second) * delta
+	# Free overdrive burns the normal rate; paid overdrive burns its own.
+	var paid_overdrive := overdrive and free_overdrive_left == 0.0
+	_fuel_owed += (overdrive_fuel_per_second * overdrive_fuel_multiplier if paid_overdrive else fuel_per_second) * delta
 	while _fuel_owed >= 1.0 and storage.spend({fuel_resource.id: 1}):
 		_fuel_owed -= 1.0
 	# Out of fuel once a whole unit is owed and none is left; refuelling clears it next tick.
@@ -116,7 +121,7 @@ func _burn_fuel(delta: float) -> void:
 		speed_mode = SpeedMode.OUT_OF_FUEL
 		_fuel_owed = 1.0
 	else:
-		speed_mode = SpeedMode.OVERDRIVE if overdrive else SpeedMode.MARCH
+		speed_mode = SpeedMode.OVERDRIVE if overdrive or free_overdrive_left > 0.0 else SpeedMode.MARCH
 
 
 func _update_speed() -> void:

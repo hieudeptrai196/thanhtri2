@@ -1,7 +1,8 @@
 class_name PlayerClass
 extends Resource
 ## A class = a co-op role. Passive strengths are plain multipliers applied to the warrior (or, for
-## team-wide ones, to the fortress while someone of this class plays); the active skill is in M2.2b.
+## team-wide ones, to the fortress while someone of this class plays). The active skill is chosen by
+## `id` in ClassSkills and tuned by the Skill numbers.
 ## Numbers are proposals to be tuned in playtests.
 
 @export var id: StringName
@@ -11,6 +12,17 @@ extends Resource
 @export_multiline var description: String
 @export var skill_name: String
 @export_multiline var skill_description: String
+@export_group("Skill")
+## Seconds between uses.
+@export var skill_cooldown: float = 15.0
+## Seconds the effect lasts (0 = instant).
+@export var skill_duration: float = 0.0
+## Reach / radius of the effect in metres.
+@export var skill_radius: float = 8.0
+## Strength: build speed ×, units per strike, damage taken ×, heal per second… depends on the skill.
+@export var skill_power: float = 1.0
+@export_group("")
+
 ## Placeholder body tint until there are class models.
 @export var color: Color = Color(0.2, 0.45, 0.9)
 ## Later: portrait for the picker card.

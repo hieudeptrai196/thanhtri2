@@ -18,6 +18,9 @@ const OVERDRIVE_KEY := KEY_T
 const OVERDRIVE_BUTTON := JOY_BUTTON_DPAD_UP
 const DIVINE_KEY := KEY_G
 const DIVINE_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
+## Class skill: R / left trigger.
+const SKILL_KEY := KEY_R
+const SKILL_AXIS := JOY_AXIS_TRIGGER_LEFT
 
 ## World-space direction on the ground plane, length 0..1.
 var move_direction: Vector3 = Vector3.ZERO
@@ -36,6 +39,8 @@ var radial_held: bool = false
 var dash_pressed: bool = false
 var place_pressed: bool = false
 var cancel_pressed: bool = false
+## The class skill button went down this tick.
+var skill_pressed: bool = false
 ## Index into StructureTypes.ALL picked by a number key this tick, or -1.
 var build_select: int = -1
 
@@ -51,6 +56,8 @@ var _remote_events: Array = []
 # Mouse aims while the player uses mouse/keyboard; with a gamepad the right stick aims.
 var _using_gamepad: bool = false
 var _pending_select: int = -1
+var _pending_skill: bool = false
+var _trigger_down: bool = false
 
 
 # Read input before the body that consumes it, so intent is never a tick late.
@@ -67,6 +74,11 @@ func _input(event: InputEvent) -> void:
 			_emit_local(&"overdrive")
 		if event is InputEventJoypadButton and event.pressed and event.button_index == DIVINE_BUTTON:
 			_emit_local(&"divine")
+	if event is InputEventJoypadMotion and event.axis == SKILL_AXIS:
+		var down: bool = event.axis_value > 0.6
+		if down and not _trigger_down:
+			_pending_skill = true
+		_trigger_down = down
 	elif event is InputEventMouseMotion or event is InputEventMouseButton or event is InputEventKey:
 		_using_gamepad = false
 
@@ -80,6 +92,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			return
 		if event.physical_keycode == DIVINE_KEY:
 			_emit_local(&"divine")
+			return
+		if event.physical_keycode == SKILL_KEY:
+			_pending_skill = true
 			return
 		var index := BUILD_KEYS.find(event.physical_keycode)
 		if index != -1:
@@ -105,6 +120,8 @@ func _physics_process(_delta: float) -> void:
 	cancel_pressed = Input.is_action_just_pressed("cancel")
 	build_select = _pending_select
 	_pending_select = -1
+	skill_pressed = _pending_skill
+	_pending_skill = false
 	# Events emitted from input callbacks were recorded already; add this tick's flags.
 	if record_events:
 		_record_tick_flags()
@@ -121,6 +138,8 @@ func _record_tick_flags() -> void:
 		local_events.append([&"cancel"])
 	if build_select >= 0:
 		local_events.append([&"select", build_select])
+	if skill_pressed:
+		local_events.append([&"skill"])
 
 
 ## Continuous intent, sent to the server every tick (unreliable is fine: the next tick replaces it).
@@ -174,6 +193,7 @@ func _consume_remote() -> void:
 	dash_pressed = false
 	place_pressed = false
 	cancel_pressed = false
+	skill_pressed = false
 	build_select = -1
 	for event: Array in _remote_events:
 		match event[0]:
@@ -183,6 +203,8 @@ func _consume_remote() -> void:
 				place_pressed = true
 			&"cancel":
 				cancel_pressed = true
+			&"skill":
+				skill_pressed = true
 			&"select":
 				build_select = event[1]
 			_:

@@ -15,17 +15,26 @@ signal gathered(amount_left: int)
 
 
 func _ready() -> void:
+	add_to_group(&"resource_nodes")
 	_hurtbox.hit_taken.connect(_on_hit_taken)
 
 
 # Attackers are duck-typed: anything exposing an `inventory` can gather.
 func _on_hit_taken(_amount: float, source: Node) -> void:
-	if not multiplayer.is_server():
+	gather(source, 1)
+
+
+## Gives up to `count` units to `source`'s inventory (a Tiều phu's Bổ mạnh takes several). Host only.
+func gather(source: Node, count: int) -> void:
+	if not multiplayer.is_server() or amount <= 0:
 		return
 	var inventory: Inventory = source.get("inventory") if source else null
-	if inventory == null or inventory.add(resource_type.id, 1) == 0:
+	if inventory == null:
 		return
-	amount -= 1
+	var taken := inventory.add(resource_type.id, mini(count, amount))
+	if taken == 0:
+		return
+	amount -= taken
 	get_tree().call_group(&"noise", &"add", noise_per_hit)
 	gathered.emit(amount)
 	_bump()

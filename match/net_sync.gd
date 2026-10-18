@@ -14,7 +14,7 @@ const SNAPSHOT_INTERVAL := 0.05
 ## Stop-panel actions a client may ask for (see Match.handle_request).
 const ALLOWED_REQUESTS: Array[StringName] = [&"tier", &"fortress", &"weapon", &"route", &"ready"]
 ## Events a client may send; anything else is dropped.
-const ALLOWED_EVENTS: Array[StringName] = [&"dash", &"place", &"cancel", &"select", &"ready", &"overdrive", &"divine"]
+const ALLOWED_EVENTS: Array[StringName] = [&"dash", &"place", &"cancel", &"select", &"skill", &"ready", &"overdrive", &"divine"]
 
 var _match: Match
 ## Host: peers whose match has loaded and that receive snapshots.

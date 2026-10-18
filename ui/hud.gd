@@ -13,6 +13,10 @@ var _carried_label: Label
 var _carried: Array[ResourceCounter] = []
 var _stored: Array[ResourceCounter] = []
 var _toast_tween: Tween
+# Class skill slot (bottom right), built in code; hidden without a class.
+var _skill_panel: PanelContainer
+var _skill_label: Label
+var _skill_bar: ProgressBar
 
 @onready var _fortress_label: Label = %FortressLabel
 @onready var _fortress_bar: ProgressBar = %FortressBar
@@ -50,6 +54,7 @@ func _ready() -> void:
 		UiStyle.outline(label)
 	_toast.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT)
 	_toast.modulate.a = 0.0
+	_build_skill_slot()
 
 
 func setup(fortress: Fortress, warrior: Warrior, noise: NoiseMeter = null, best: float = 0.0) -> void:
@@ -109,6 +114,7 @@ func _process(_delta: float) -> void:
 	_update_warrior_bar()
 	_update_prompt()
 	_update_noise_and_divine()
+	_update_skill_slot()
 	_distance_label.text = UiStyle.format_meters(_fortress.follower.distance)
 	var beating := _fortress.follower.distance > _best and _best > 0.0
 	_best_label.text = tr("Kỷ lục mới!") if beating else tr("Kỷ lục: %s") % UiStyle.format_meters(_best)
@@ -126,6 +132,42 @@ func _update_noise_and_divine() -> void:
 	_divine_bar.value = divine.charge
 	_divine_label.text = tr("Nỏ thần — sẵn sàng (G)") if divine.is_ready() else tr("Nỏ thần %d%%") % roundi(divine.charge / divine.max_charge * 100.0)
 	_divine_label.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT if divine.is_ready() else UiStyle.PARCHMENT)
+
+
+func _build_skill_slot() -> void:
+	_skill_panel = PanelContainer.new()
+	_skill_panel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
+	_skill_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_skill_panel.offset_left = -270.0
+	_skill_panel.offset_top = -84.0
+	_skill_panel.offset_right = -16.0
+	_skill_panel.offset_bottom = -16.0
+	_skill_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_skill_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	var column := VBoxContainer.new()
+	_skill_panel.add_child(column)
+	_skill_label = UiStyle.label("", 17)
+	UiStyle.outline(_skill_label)
+	column.add_child(_skill_label)
+	_skill_bar = ProgressBar.new()
+	_skill_bar.show_percentage = false
+	_skill_bar.custom_minimum_size = Vector2(230, 12)
+	_skill_bar.max_value = 1.0
+	UiStyle.apply_bar(_skill_bar, Color(0.95, 0.75, 0.35))
+	column.add_child(_skill_bar)
+	add_child(_skill_panel)
+	_skill_panel.visible = false
+
+
+func _update_skill_slot() -> void:
+	var c := _warrior.player_class
+	_skill_panel.visible = c != null
+	if c == null:
+		return
+	var ready := _warrior.skills.cooldown_left <= 0.0
+	_skill_bar.value = _warrior.skills.ready_fraction()
+	_skill_label.text = tr("%s — sẵn sàng (R)") % tr(c.skill_name) if ready else tr("%s — %ds") % [tr(c.skill_name), ceili(_warrior.skills.cooldown_left)]
+	_skill_label.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT if ready else UiStyle.PARCHMENT)
 
 
 func _update_warrior_bar() -> void:

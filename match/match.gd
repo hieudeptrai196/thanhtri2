@@ -203,6 +203,8 @@ func add_player(warrior: Warrior) -> void:
 	warrior.builder.storage = _fortress.storage
 	warrior.builder.place_requested.connect(request_place.bind(warrior))
 	warrior.builder.recover_requested.connect(request_recover.bind(warrior))
+	warrior.skills.fortress = _fortress
+	warrior.skills.used.connect(_on_skill_used.bind(warrior))
 
 
 ## The warrior of multiplayer peer `id`, or null.
@@ -660,11 +662,43 @@ func play_fx(kind: StringName, args: Array) -> void:
 			_content.apply_resource_amount(args[0], args[1])
 		&"bomb":
 			_content.explode_bomb(args[0])
+		&"skill":
+			_show_skill(args[0], args[1], false)
 		&"blast":
 			var blast: Node3D = BLAST_SCENE.instantiate()
 			blast.max_scale = args[1]
 			add_child(blast)
 			blast.global_position = args[0]
+
+
+# Host: a class skill went off — the parts that need the world, and what clients should see.
+func _on_skill_used(skill_id: StringName, at: Vector3, warrior: Warrior) -> void:
+	_show_skill(skill_id, at, true)
+	_send_fx(&"skill", [skill_id, at])
+	if skill_id == &"mechanic":
+		_toast_all("Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than")  # i18n
+	elif warrior == local_warrior and skill_id == &"general":
+		_hud.show_toast(tr("Hét trận! Quái quanh bạn lao vào bạn"))
+
+
+# Bùa trận is a real area on the host and a picture on clients; other skills get a pulse.
+func _show_skill(skill_id: StringName, at: Vector3, simulated: bool) -> void:
+	var player_class := PlayerClasses.find(skill_id)
+	if player_class == null:
+		return
+	if skill_id == &"shaman":
+		var zone := CharmZone.new()
+		zone.radius = player_class.skill_radius
+		zone.duration = player_class.skill_duration
+		zone.heal_per_second = player_class.skill_power
+		zone.simulated = simulated
+		add_child(zone)
+		zone.global_position = Vector3(at.x, 0.0, at.z)
+	elif skill_id in [&"general", &"engineer"]:
+		var pulse: Node3D = BLAST_SCENE.instantiate()
+		pulse.max_scale = player_class.skill_radius * 2.0
+		add_child(pulse)
+		pulse.global_position = at
 
 
 func _on_shot_fired(from: Vector3, to: Vector3) -> void:

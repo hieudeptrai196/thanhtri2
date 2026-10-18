@@ -12,3 +12,7 @@ skill_description = "Tăng tốc pháo đài 8 giây mà không tốn thêm Than
 color = Color(0.45, 0.5, 0.55, 1)
 overdrive_fuel_multiplier = 0.6
 upgrade_cost_multiplier = 0.85
+skill_cooldown = 30.0
+skill_duration = 8.0
+skill_radius = 0.0
+skill_power = 1.0

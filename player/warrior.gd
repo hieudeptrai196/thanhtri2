@@ -22,6 +22,8 @@ extends CharacterBody3D
 @onready var inventory: Inventory = $Inventory
 @onready var weapon: MeleeWeapon = $Weapon
 @onready var builder: Builder = $Builder
+## Created in _ready: the active class skill.
+var skills: ClassSkills
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _collision: CollisionShape3D = $Collision
 @onready var _swing_fx: Node3D = $SwingFx
@@ -64,6 +66,10 @@ var _attack_facing_left: float = 0.0
 
 
 func _ready() -> void:
+	add_to_group(&"players")
+	skills = ClassSkills.new()
+	skills.name = "Skills"
+	add_child(skills)
 	weapon.swung.connect(_on_swung)
 	health.died.connect(_on_died)
 	_base_max_health = health.max_health
@@ -134,7 +140,7 @@ func set_simulated(on: bool) -> void:
 ## What clients need to draw this warrior and the HUD of its owner.
 func net_state() -> Array:
 	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
-		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count()]
+		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count(), skills.cooldown_left]
 
 
 func apply_net_state(state: Array) -> void:
@@ -148,6 +154,7 @@ func apply_net_state(state: Array) -> void:
 		_set_alive(state[2])
 	health.set_net_state(state[3], state[4], 0.0, 0.0)
 	inventory.set_net_amounts(state[5])
+	skills.cooldown_left = state[11]
 	var class_index: int = state[9]
 	apply_class(PlayerClasses.ALL[class_index] if class_index >= 0 else null)
 	# Only the top type and the count matter on clients (prop, prompts, can_carry_more).
@@ -176,6 +183,8 @@ func _physics_process(delta: float) -> void:
 	_attack_facing_left = maxf(_attack_facing_left - delta, 0.0)
 	# On a gamepad the dash button also cancels building; cancelling must not dash.
 	var cancelling := builder.is_placing() and input.cancel_pressed
+	if input.skill_pressed:
+		skills.try_use()
 	if input.dash_pressed and not cancelling and _dash_cooldown_left == 0.0 and not is_dashing():
 		_start_dash()
 
