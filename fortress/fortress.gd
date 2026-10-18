@@ -1,14 +1,13 @@
 class_name Fortress
 extends AnimatableBody3D
 ## The moving citadel. Slows down as it loses health; repaired with resources from its storage;
-## upgraded along two axes: body material tier and towers in its slots.
+## upgraded through its body material tier. Starts with some resources in its storage.
 
 ## Body material levels in order; the fortress starts at the first.
 const TIERS: Array[FortressTier] = [
 	preload("res://fortress/tiers/wood.tres"),
 	preload("res://fortress/tiers/stone.tres"),
 ]
-const TOWER_SCENE := preload("res://fortress/tower.tscn")
 
 ## Speed fraction at 0 HP, so the fortress never stops completely.
 @export_range(0.0, 1.0, 0.05) var min_speed_ratio: float = 0.4
@@ -17,15 +16,14 @@ const TOWER_SCENE := preload("res://fortress/tower.tscn")
 @export var repair_per_unit: float = 10.0
 ## Seconds between repair steps while someone keeps repairing.
 @export var repair_interval: float = 0.2
-## Resources per tower, keyed by ResourceType.id.
-@export var tower_cost: Dictionary = {&"wood": 6, &"stone": 4}
+## Put into the storage at the start of a run, keyed by ResourceType.id.
+@export var starting_resources: Dictionary = {&"wood": 30}
 
 @onready var health: HealthComponent = $Health
 @onready var follower: RouteFollower = $RouteFollower
 @onready var storage: Inventory = $Storage
 @onready var service_zone: ServiceZone = $ServiceZone
 @onready var _body_mesh: MeshInstance3D = $Body
-@onready var _tower_slots: Node3D = $TowerSlots
 
 var tier_index: int = 0
 
@@ -35,6 +33,7 @@ var _repair_cooldown: float = 0.0
 func _ready() -> void:
 	health.health_changed.connect(_on_health_changed)
 	_apply_tier(TIERS[tier_index])
+	storage.add_all(starting_resources)
 
 
 func _physics_process(delta: float) -> void:
@@ -57,24 +56,6 @@ func upgrade_tier() -> bool:
 	tier_index += 1
 	_apply_tier(next)
 	return true
-
-
-func free_tower_slots() -> int:
-	var count := 0
-	for slot in _tower_slots.get_children():
-		if slot.get_child_count() == 0:
-			count += 1
-	return count
-
-
-func build_tower() -> bool:
-	for slot in _tower_slots.get_children():
-		if slot.get_child_count() == 0:
-			if not storage.spend(tower_cost):
-				return false
-			slot.add_child(TOWER_SCENE.instantiate())
-			return true
-	return false
 
 
 ## Called every tick while at least one player repairs; spends one unit per step.

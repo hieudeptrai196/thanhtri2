@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://combat/health_component.gd" id="4_health"]
 [ext_resource type="Script" path="res://combat/hurtbox.gd" id="5_hurtbox"]
 [ext_resource type="Script" path="res://resources/inventory.gd" id="6_inventory"]
+[ext_resource type="Script" path="res://player/builder.gd" id="7_builder"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.5
@@ -41,6 +42,18 @@ size = Vector3(3, 0.05, 2.2)
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
 radius = 0.6
 height = 2.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ghost"]
+top_radius = 1.0
+bottom_radius = 1.0
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_carried"]
+albedo_color = Color(0.75, 0.55, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_carried"]
+material = SubResource("StandardMaterial3D_carried")
+size = Vector3(0.9, 0.9, 0.6)
 
 [node name="Warrior" type="CharacterBody3D"]
 collision_layer = 2
@@ -95,3 +108,14 @@ visible = false
 [node name="Mesh" type="MeshInstance3D" parent="SwingFx"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -1.4)
 mesh = SubResource("BoxMesh_swing")
+
+[node name="Builder" type="Node3D" parent="."]
+script = ExtResource("7_builder")
+
+[node name="Ghost" type="MeshInstance3D" parent="Builder"]
+mesh = SubResource("CylinderMesh_ghost")
+
+[node name="CarriedProp" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0.55)
+visible = false
+mesh = SubResource("BoxMesh_carried")

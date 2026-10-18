@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StructureType" format=3]
+
+[ext_resource type="Script" path="res://structures/structure_type.gd" id="1_type"]
+[ext_resource type="PackedScene" path="res://structures/barricade.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_type")
+id = &"barricade"
+display_name = "Rào gỗ"
+cost = {
+&"wood": 5
+}
+scene = ExtResource("2_scene")
+foldable = false
+footprint_radius = 1.6
+color = Color(0.5, 0.34, 0.18, 1)

@@ -1,7 +1,8 @@
 class_name Enemy
 extends CharacterBody3D
-## Basic melee monster. Walks toward the fortress, switches to a living player who comes close,
-## and hits its current target once that target's Hurtbox is inside the attack area.
+## Basic melee monster. Walks toward the fortress, but turns on a structure within that structure's
+## lure radius or a living player who comes close, and hits its current target once that target's
+## Hurtbox is inside the attack area.
 
 ## Emitted on death with what it leaves behind; whoever owns the world spawns the pickup.
 signal dropped(contents: Dictionary, at: Vector3)
@@ -72,9 +73,20 @@ func _physics_process(delta: float) -> void:
 
 
 # Players are duck-typed: anything with `is_alive` and a Hurtbox child can be chased.
+# Structures (group "structures") win over players and the fortress inside their lure radius.
 func _pick_target() -> Node3D:
 	var best: Node3D = _fortress
 	var best_distance := aggro_radius
+	var best_lure := INF
+	for structure: Structure in get_tree().get_nodes_in_group(&"structures"):
+		if structure.is_queued_for_deletion():
+			continue
+		var distance := global_position.distance_to(structure.global_position)
+		if distance <= structure.lure_radius and distance < best_lure:
+			best = structure
+			best_lure = distance
+	if best != _fortress:
+		return best  # a luring structure beats chasing players
 	for player in _players:
 		if not is_instance_valid(player) or not player.get("is_alive"):
 			continue

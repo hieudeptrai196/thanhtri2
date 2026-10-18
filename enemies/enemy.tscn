@@ -66,7 +66,7 @@ shape = SubResource("CapsuleShape3D_hurt")
 
 [node name="AttackArea" type="Area3D" parent="."]
 collision_layer = 0
-collision_mask = 24
+collision_mask = 152
 monitorable = false
 
 [node name="Collision" type="CollisionShape3D" parent="AttackArea"]

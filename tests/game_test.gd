@@ -18,8 +18,9 @@ var finished: bool = false
 var _scene: Node
 
 
-## Instantiates the main scene and returns its Match node. Enemy spawning is off unless asked.
-func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
+## Instantiates the main scene and returns its Match node. Enemy spawning is off unless asked;
+## the fortress storage starts empty unless `keep_starting_resources`.
+func start_match(rng_seed: int = 1, spawn_enemies: bool = false, keep_starting_resources: bool = false) -> Node:
 	if is_instance_valid(_scene):
 		_scene.free()
 	_scene = MAIN_SCENE.instantiate()
@@ -28,6 +29,8 @@ func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
 	tree.root.add_child(_scene)
 	await frames(1)
 	match_node.get_node("Spawner").active = spawn_enemies
+	if not keep_starting_resources:
+		match_node.get_node("Fortress").storage.take_all()
 	return match_node
 
 

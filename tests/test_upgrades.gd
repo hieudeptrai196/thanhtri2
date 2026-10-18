@@ -42,30 +42,7 @@ func test_tier_upgrade_needs_full_cost() -> void:
 	check(fortress.storage.amounts == {&"stone": 9, &"wood": 5}, "nothing spent on failure")
 
 
-func test_towers_fill_four_slots() -> void:
-	var m := await _match_at_stop()
-	var fortress: Fortress = m.get_node("Fortress")
-	fortress.storage.add_all({&"wood": 30, &"stone": 20})
-	for i in 4:
-		check(m.request_build_tower(), "tower %d builds" % (i + 1))
-	check(fortress.free_tower_slots() == 0, "all slots used")
-	check(not m.request_build_tower(), "no fifth tower")
-	check(fortress.storage.amounts == {&"wood": 6, &"stone": 4}, "4 towers cost 24 wood 16 stone")
-
-
-func test_tower_kills_enemy_without_player() -> void:
-	var m := await _match_at_stop()
-	var fortress: Fortress = m.get_node("Fortress")
-	fortress.storage.add_all(fortress.tower_cost)
-	check(m.request_build_tower(), "tower builds")
-	m.get_node("Warrior").global_position = fortress.global_position + Vector3(80, 0.1, 0)
-	var enemy: Enemy = m.get_node("Spawner").spawn_one()
-	enemy.global_position = fortress.global_position + Vector3(10, 0, 0)
-	await seconds(4.0)
-	check(not is_instance_valid(enemy), "tower shoots the enemy down")
-
-
-func test_panel_shows_at_stop_and_buys() -> void:
+func test_panel_shows_at_stop_and_upgrades_body() -> void:
 	var m := await start_match()
 	var panel: UpgradePanel = m.get_node("UI/UpgradePanel")
 	check(not panel.visible, "panel hidden while moving")
@@ -73,11 +50,11 @@ func test_panel_shows_at_stop_and_buys() -> void:
 	panel = m.get_node("UI/UpgradePanel")
 	var fortress: Fortress = m.get_node("Fortress")
 	check(panel.visible, "panel shown at the stop")
-	check(panel._tower_button.disabled, "tower button disabled without resources")
-	fortress.storage.add_all(fortress.tower_cost)
-	check(not panel._tower_button.disabled, "tower button enabled once affordable")
-	panel._tower_button.pressed.emit()
-	check(fortress.free_tower_slots() == 3, "pressing the button builds a tower")
+	check(panel._tier_button.disabled, "body upgrade disabled without resources")
+	fortress.storage.add_all(fortress.get_next_tier().cost)
+	check(not panel._tier_button.disabled, "body upgrade enabled once affordable")
+	panel._tier_button.pressed.emit()
+	check(fortress.get_tier().id == &"stone", "pressing the button upgrades the body")
 	panel.depart_requested.emit()
 	await frames(1)
 	check(not panel.visible, "panel hides on departure")

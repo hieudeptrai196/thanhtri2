@@ -23,6 +23,8 @@ var _toast_tween: Tween
 @onready var _repair_hint: Label = %RepairHint
 @onready var _grid: GridContainer = %Grid
 @onready var _warrior_bar: ProgressBar = %WarriorBar
+@onready var _build_bar: BuildBar = %BuildBar
+@onready var _radial_menu: RadialMenu = %RadialMenu
 
 
 func _ready() -> void:
@@ -41,6 +43,8 @@ func setup(fortress: Fortress, warrior: Warrior) -> void:
 	_fortress = fortress
 	_warrior = warrior
 	_route_progress.follower = fortress.follower
+	_build_bar.setup(warrior.builder, fortress.storage)
+	_radial_menu.setup(warrior.builder)
 
 	_carried_label = UiStyle.label("", 18, UiStyle.MUTED)
 	_grid.add_child(_carried_label)
@@ -79,7 +83,7 @@ func _process(_delta: float) -> void:
 		return
 	_speed_label.text = tr("Tốc độ %d%%") % roundi(_fortress.follower.speed_multiplier * 100.0)
 	_update_warrior_bar()
-	_update_repair_hint()
+	_update_prompt()
 
 
 func _update_warrior_bar() -> void:
@@ -91,9 +95,21 @@ func _update_warrior_bar() -> void:
 		_warrior_bar.visible = get_viewport_rect().has_point(head)
 
 
-func _update_repair_hint() -> void:
+# One contextual prompt at a time: carrying > recovering > repairing.
+func _update_prompt() -> void:
+	var builder := _warrior.builder
+	_repair_hint.visible = _warrior.is_alive
+	if not _repair_hint.visible:
+		return
+	if _warrior.carried_type:
+		_repair_hint.text = tr("Đang vác %s — click / E để đặt (không tốn tài nguyên)") % tr(_warrior.carried_type.display_name)
+		return
+	if builder.recover_target:
+		var progress := roundi(builder.recover_progress / builder.recover_hold_time * 100.0)
+		_repair_hint.text = tr("Giữ F để thu %s") % tr(builder.recover_target.type.display_name) + (" (%d%%)" % progress if progress > 0 else "")
+		return
 	var damaged := _fortress.health.current < _fortress.health.max_health
-	_repair_hint.visible = _warrior.is_alive and damaged and _fortress.service_zone.overlaps_body(_warrior)
+	_repair_hint.visible = damaged and _fortress.service_zone.overlaps_body(_warrior)
 	if not _repair_hint.visible:
 		return
 	if _fortress.storage.get_amount(_fortress.repair_resource.id) > 0:

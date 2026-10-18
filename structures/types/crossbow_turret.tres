@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StructureType" format=3]
+
+[ext_resource type="Script" path="res://structures/structure_type.gd" id="1_type"]
+[ext_resource type="PackedScene" path="res://structures/crossbow_turret.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_type")
+id = &"crossbow_turret"
+display_name = "Tháp nỏ"
+cost = {
+&"wood": 15
+}
+scene = ExtResource("2_scene")
+foldable = true
+footprint_radius = 1.0
+color = Color(0.75, 0.55, 0.3, 1)

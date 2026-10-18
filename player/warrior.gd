@@ -2,9 +2,11 @@ class_name Warrior
 extends CharacterBody3D
 ## On-foot warrior. Moves and dashes according to its PlayerInput intent; the basic attack is
 ## automatic (enemies first, then trees/rocks), with the aim direction only prioritising targets.
+## Can carry one folded structure: slower, no attacks while carrying.
 
 ## Metres per second.
 @export var move_speed: float = 7.0
+@export var carry_speed: float = 5.0
 ## Higher turns faster.
 @export var turn_speed: float = 18.0
 @export var dash_distance: float = 4.5
@@ -17,11 +19,16 @@ extends CharacterBody3D
 @onready var health: HealthComponent = $Health
 @onready var inventory: Inventory = $Inventory
 @onready var weapon: MeleeWeapon = $Weapon
+@onready var builder: Builder = $Builder
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _collision: CollisionShape3D = $Collision
 @onready var _swing_fx: Node3D = $SwingFx
+@onready var _carried_prop: Node3D = $CarriedProp
 
 var is_alive: bool = true
+## Folded structure on the warrior's back (null = hands free), and its health when folded.
+var carried_type: StructureType = null
+var carried_health: float = 0.0
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _dash_time_left: float = 0.0
@@ -43,6 +50,17 @@ func respawn_at(spawn_position: Vector3) -> void:
 	_set_alive(true)
 
 
+func carry(type: StructureType, health_value: float) -> void:
+	carried_type = type
+	carried_health = health_value
+	_carried_prop.visible = true
+
+
+func clear_carried() -> void:
+	carried_type = null
+	_carried_prop.visible = false
+
+
 func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 
@@ -50,7 +68,9 @@ func is_dashing() -> bool:
 func _physics_process(delta: float) -> void:
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	_attack_facing_left = maxf(_attack_facing_left - delta, 0.0)
-	if input.dash_pressed and _dash_cooldown_left == 0.0 and not is_dashing():
+	# On a gamepad the dash button also cancels building; cancelling must not dash.
+	var cancelling := builder.is_placing() and input.cancel_pressed
+	if input.dash_pressed and not cancelling and _dash_cooldown_left == 0.0 and not is_dashing():
 		_start_dash()
 
 	var direction := input.move_direction
@@ -62,9 +82,11 @@ func _physics_process(delta: float) -> void:
 		if not is_dashing():
 			_hurtbox.set_deferred("monitorable", true)
 	else:
-		velocity.x = direction.x * move_speed
-		velocity.z = direction.z * move_speed
-		_auto_attack()
+		var speed := carry_speed if carried_type else move_speed
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
+		if carried_type == null:
+			_auto_attack()
 	velocity.y = 0.0 if is_on_floor() else velocity.y - _gravity * delta
 
 	if _attack_facing_left == 0.0 and direction != Vector3.ZERO:

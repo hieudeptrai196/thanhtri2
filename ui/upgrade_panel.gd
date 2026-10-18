@@ -4,7 +4,6 @@ extends PanelContainer
 ## the match decides whether a purchase actually happens.
 
 signal tier_upgrade_requested
-signal tower_requested
 signal weapon_upgrade_requested(index: int)
 signal depart_requested
 
@@ -12,7 +11,6 @@ const WEAPON_CARD_SCENE := preload("res://ui/weapon_card.tscn")
 
 var _fortress: Fortress
 var _tier_button: Button
-var _tower_button: Button
 var _cards_row: HBoxContainer
 var _offers: Array[WeaponUpgrade] = []
 var _cards: Array[WeaponCard] = []
@@ -33,7 +31,6 @@ func _ready() -> void:
 	box.add_child(UiStyle.label(tr("Điểm dừng — nâng cấp"), 28, UiStyle.BRONZE_BRIGHT))
 	box.add_child(UiStyle.label(tr("Pháo đài"), 18, UiStyle.MUTED))
 	_tier_button = _add_button(box, tier_upgrade_requested)
-	_tower_button = _add_button(box, tower_requested)
 
 	box.add_child(UiStyle.label(tr("Vũ khí — chọn 1 thẻ"), 18, UiStyle.MUTED))
 	_cards_row = HBoxContainer.new()
@@ -77,10 +74,6 @@ func refresh() -> void:
 		_tier_button.text = tr("Thân pháo đài đã ở cấp cao nhất")
 		_tier_button.disabled = true
 
-	var free_slots := _fortress.free_tower_slots()
-	_tower_button.text = tr("Xây tháp (còn %d ô) — %s") % [
-		free_slots, ResourceTypes.format_amounts(_fortress.tower_cost)]
-	_tower_button.disabled = free_slots == 0 or not _fortress.storage.has_all(_fortress.tower_cost)
 
 	for i in _cards.size():
 		var card := _cards[i]

@@ -24,6 +24,7 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _warrior: Warrior = $Warrior
 @onready var _spawner: Spawner = $Spawner
 @onready var _pickups: Node3D = $Pickups
+@onready var _structures: StructureNetwork = $Structures
 @onready var _hud: Hud = $UI/HUD
 @onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
 @onready var _result_screen: ResultScreen = $UI/ResultScreen
@@ -54,7 +55,6 @@ func _ready() -> void:
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
-	_upgrade_panel.tower_requested.connect(request_build_tower)
 	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
@@ -67,6 +67,11 @@ func _ready() -> void:
 	_spawner.setup(rng, _fortress, _follower, players)
 	_spawner.active = true
 	_follower.start(_route)
+	_structures.setup(_fortress, _route)
+	_warrior.builder.network = _structures
+	_warrior.builder.storage = _fortress.storage
+	_warrior.builder.place_requested.connect(request_place.bind(_warrior))
+	_warrior.builder.recover_requested.connect(request_recover.bind(_warrior))
 	_hud.setup(_fortress, _warrior)
 	_hud.show_toast(tr("Bảo vệ thành trì — đi càng xa càng tốt!"))
 
@@ -100,12 +105,6 @@ func request_tier_upgrade() -> bool:
 	return done
 
 
-func request_build_tower() -> bool:
-	var done := _follower.is_stopped and _fortress.build_tower()
-	_upgrade_panel.refresh()
-	return done
-
-
 ## One card per stop; the buyer's weapon gets it. Paid from the shared fortress storage.
 func request_weapon_upgrade(index: int) -> bool:
 	if not _follower.is_stopped or weapon_choice != -1 or index < 0 or index >= weapon_offers.size():
@@ -115,6 +114,38 @@ func request_weapon_upgrade(index: int) -> bool:
 	_warrior.weapon.apply_upgrade(weapon_offers[index])
 	weapon_choice = index
 	_upgrade_panel.set_weapon_choice(index)
+	return true
+
+
+## Places a structure for `player`: in their build range, not blocked, and either carried (free)
+## or paid from the shared fortress storage. In multiplayer this check runs on the server.
+func request_place(type: StructureType, point: Vector3, player: Warrior) -> bool:
+	if result != Result.NONE or not player.is_alive:
+		return false
+	var reach := Vector2(point.x - player.global_position.x, point.z - player.global_position.z).length()
+	if reach > player.builder.build_range + 0.1:
+		return false
+	if _structures.check_placement(type, point) == StructureNetwork.Placement.BLOCKED:
+		return false
+	var from_carry := player.carried_type == type
+	if not from_carry and not _fortress.storage.spend(type.cost):
+		return false
+	_structures.place(type, point, player.carried_health if from_carry else -1.0)
+	if from_carry:
+		player.clear_carried()
+	return true
+
+
+## Folds a structure onto `player`'s back: hands free, in reach, and the structure allows it.
+func request_recover(structure: Structure, player: Warrior) -> bool:
+	if result != Result.NONE or not player.is_alive or player.carried_type != null:
+		return false
+	if not is_instance_valid(structure) or not structure.can_recover():
+		return false
+	if structure.global_position.distance_to(player.global_position) > player.builder.recover_range + 0.5:
+		return false
+	var data := _structures.recover(structure)
+	player.carry(data.type, data.health)
 	return true
 
 
@@ -155,6 +186,10 @@ func _despawn_far_pickups() -> void:
 
 
 func _on_warrior_died() -> void:
+	if _warrior.carried_type:
+		# The folded structure drops where the warrior fell (unpowered unless the fortress is near).
+		_structures.place.call_deferred(_warrior.carried_type, _warrior.global_position, _warrior.carried_health)
+		_warrior.clear_carried()
 	var carried := _warrior.inventory.take_all()
 	if not carried.is_empty():
 		_spawn_pickup.call_deferred(carried, _warrior.global_position)

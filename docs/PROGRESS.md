@@ -5,18 +5,19 @@
 
 ## Đang làm
 
-**M1.4 — Công trình ngoài thực địa** (bắt đầu 2026-10-18). Thông số đã duyệt: tháp nỏ gập (15 Gỗ, 120 máu), rào gỗ cố định
+**M1.4 — Công trình ngoài thực địa** (2026-10-18) — **code xong, test 56/56, chờ chơi thử rồi commit**. Thông số đã duyệt: tháp nỏ gập (15 Gỗ, 120 máu), rào gỗ cố định
 (5 Gỗ, 150 máu, hút quái); tiếp sức trong 12 m quanh pháo đài, ngoài đó bộ đệm 30 s; vác 1 tháp (chạy 5 m/s, không đánh,
 đặt lại miễn phí); hết bộ đệm → đòn cuối (bắn ×3 trong 4 s rồi nổ 6 m); xây trong 6 m quanh chiến binh, không trên đường/không
 chồng vật cản; trả từ kho chung; kho bắt đầu 30 Gỗ; quái gần công trình (6 m) quay sang đánh; bỏ 4 ô tháp trên pháo đài.
 
-- [ ] Dữ liệu: `StructureType` + `StructureTypes`, 2 file `.tres`
-- [ ] `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), `Barricade`
-- [ ] `StructureNetwork` (chứa công trình, luật đặt, tiếp sức, thu hồi) + quyền ở `Match`
-- [ ] `Builder` (phím 1–4, menu vòng tròn LB, bóng ma xanh/vàng/đỏ, giữ F thu hồi) + `PlayerInput` intent mới
-- [ ] Chiến binh vác tháp (chậm, không đánh, rơi tháp khi ngã); quái nhắm công trình
-- [ ] HUD: thanh công trình, trạng thái vác, gợi ý thu hồi, menu vòng tròn; bỏ ô tháp + nút "Xây tháp"
-- [ ] Test + chụp màn hình + người dùng chơi thử → commit
+- [x] Dữ liệu: `StructureType` + `StructureTypes`, 2 file `.tres`
+- [x] `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), `Barricade`
+- [x] `StructureNetwork` (chứa công trình, luật đặt, tiếp sức, thu hồi) + quyền ở `Match`
+- [x] `Builder` (phím 1–4, menu vòng tròn LB, bóng ma xanh/vàng/đỏ, giữ F thu hồi) + `PlayerInput` intent mới
+- [x] Chiến binh vác tháp (chậm, không đánh, rơi tháp khi ngã); quái nhắm công trình
+- [x] HUD: thanh công trình, trạng thái vác, gợi ý thu hồi, menu vòng tròn; bỏ ô tháp + nút "Xây tháp"
+- [x] Test `test_structures.gd` (9 bài) + chụp màn hình — tổng 56/56
+- [x] Commit làm nền (người dùng muốn thêm xây chung → M1.4b)
 
 ## Tiếp theo (M1, xem ROADMAP)
 

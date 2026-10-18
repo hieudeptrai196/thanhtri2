@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/blast_fx.gd" id="1_blast"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blast"]
+resource_local_to_scene = true
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.6, 0.2, 0.85)
+
+[sub_resource type="SphereMesh" id="SphereMesh_blast"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_blast")
+radius = 1.0
+height = 2.0
+
+[node name="BlastFx" type="Node3D"]
+script = ExtResource("1_blast")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("SphereMesh_blast")
