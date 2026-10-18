@@ -35,6 +35,13 @@ var _rng: RandomNumberGenerator
 var _spawned: Array = []
 var _next_stop_index: int = 0
 var _road_material: StandardMaterial3D
+## Random roadside content is only placed up to this distance (the next stop, until a route is
+## picked there); later segments wait their turn. INF = no limit.
+var content_limit: float = INF
+## The stretch being generated (null = neutral, no modifiers).
+var route_type: RouteType = null
+## [from, to] segments waiting for `content_limit` to move past them, in order.
+var _pending: Array = []
 
 
 func setup(route: EndlessRoute, rng: RandomNumberGenerator) -> void:
@@ -63,6 +70,14 @@ func place_bomb(distance: float) -> HiddenBomb:
 	return bomb
 
 
+## Raises the content limit and places any waiting segments now inside it.
+func set_content_limit(limit: float) -> void:
+	content_limit = limit
+	while not _pending.is_empty() and _pending[0][0] < content_limit:
+		var segment: Array = _pending.pop_front()
+		_place_random_content(segment[0], segment[1])
+
+
 func bombs() -> Array[HiddenBomb]:
 	var result: Array[HiddenBomb] = []
 	for entry in _spawned:
@@ -84,14 +99,23 @@ func _on_segment_added(from_distance: float, to_distance: float) -> void:
 	while _route.stop_distance(_next_stop_index) <= to_distance:
 		_place(STOP_MARKER_SCENE.instantiate(), _route.stop_distance(_next_stop_index), 0.0)
 		_next_stop_index += 1
+	if from_distance >= content_limit or not _pending.is_empty():
+		_pending.append([from_distance, to_distance])
+	else:
+		_place_random_content(from_distance, to_distance)
+
+
+# Trees, coal and bombs for one segment, scaled by the current route type.
+func _place_random_content(from_distance: float, to_distance: float) -> void:
 	if to_distance <= clear_start:
 		return
 	var start := maxf(from_distance, clear_start)
-	for i in _rng.randi_range(trees_per_segment.x, trees_per_segment.y):
+	var trees := _rng.randi_range(trees_per_segment.x, trees_per_segment.y)
+	for i in floori(trees * (route_type.tree_multiplier if route_type else 1.0) + _rng.randf()):
 		_place(TREE_SCENE.instantiate(), _rng.randf_range(start, to_distance), _random_side(tree_band))
-	if _rng.randf() < coal_chance:
+	if _rng.randf() < coal_chance * (route_type.coal_multiplier if route_type else 1.0):
 		_place(COAL_SCENE.instantiate(), _rng.randf_range(start, to_distance), _random_side(coal_band))
-	if _rng.randf() < bomb_chance:
+	if _rng.randf() < bomb_chance * (route_type.bomb_multiplier if route_type else 1.0):
 		var at := _rng.randf_range(start, to_distance)
 		if not _near_stop(at):
 			place_bomb(at)

@@ -63,6 +63,7 @@ func test_content_layout() -> void:
 	var route: EndlessRoute = m.get_node("Route")
 	var content: RouteContent = m.get_node("RouteContent")
 	route.keep_behind = 5000.0  # keep the whole road so positions can be checked against it
+	content.set_content_limit(INF)  # place everything, not just up to the first stop
 	route.ensure_ahead(1200.0)
 	var trees := 0
 	var rocks := 0

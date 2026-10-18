@@ -17,6 +17,9 @@ signal enemy_dropped(contents: Dictionary, at: Vector3)
 
 ## Optional; without it noise has no effect.
 var noise: NoiseMeter
+## Set by the match from the current route type.
+var route_rate_multiplier: float = 1.0
+var route_health_multiplier: float = 1.0
 
 var active: bool = false
 
@@ -46,7 +49,7 @@ func _physics_process(delta: float) -> void:
 	if _time_left > 0.0:
 		return
 	var at := distance()
-	_time_left = difficulty.spawn_interval(at) / (noise.spawn_rate_multiplier() if noise else 1.0)
+	_time_left = difficulty.spawn_interval(at) / (noise.spawn_rate_multiplier() if noise else 1.0) / route_rate_multiplier
 	spawn_wave(difficulty.pack_size(at) + (noise.extra_pack_size() if noise else 0))
 
 
@@ -71,7 +74,7 @@ func spawn_one(angle: float = NAN) -> Enemy:
 	add_child(enemy)
 	enemy.global_position = spawn_position
 	enemy.setup(_fortress, _players)
-	enemy.apply_scaling(difficulty.health_multiplier(distance()), difficulty.damage_multiplier(distance()),
+	enemy.apply_scaling(difficulty.health_multiplier(distance()) * route_health_multiplier, difficulty.damage_multiplier(distance()),
 		noise.enemy_speed_multiplier() if noise else 1.0)
 	enemy.dropped.connect(enemy_dropped.emit)
 	return enemy

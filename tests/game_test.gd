@@ -103,6 +103,12 @@ func spawn_resource(match_node: Node, scene: PackedScene, at: Vector3) -> Resour
 	return node
 
 
+## Removes the randomly placed bombs so a test is not affected by the road layout.
+func clear_random_bombs(match_node: Node) -> void:
+	for bomb in match_node.get_node("RouteContent").bombs():
+		bomb.free()
+
+
 func spawn_dummy(match_node: Node, at: Vector3) -> Node3D:
 	var dummy: Node3D = DUMMY_SCENE.instantiate()
 	match_node.add_child(dummy)

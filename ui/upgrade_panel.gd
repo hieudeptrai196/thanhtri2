@@ -6,6 +6,7 @@ extends PanelContainer
 signal tier_upgrade_requested
 signal fortress_upgrade_requested(upgrade: FortressUpgrade)
 signal weapon_upgrade_requested(index: int)
+signal route_requested(index: int)
 signal depart_requested
 
 const WEAPON_CARD_SCENE := preload("res://ui/weapon_card.tscn")
@@ -17,6 +18,9 @@ var _cards_row: HBoxContainer
 var _offers: Array[WeaponUpgrade] = []
 var _cards: Array[WeaponCard] = []
 var _chosen: int = -1
+var _routes_row: HBoxContainer
+var _route_cards: Array[Button] = []
+var _route_choice: int = -1
 
 
 func setup(fortress: Fortress) -> void:
@@ -30,6 +34,10 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 12)
 	add_child(box)
 	box.add_child(UiStyle.label(tr("Điểm dừng — nâng cấp"), 28, UiStyle.BRONZE_BRIGHT))
+	box.add_child(UiStyle.label(tr("Chọn tuyến tiếp theo"), 18, UiStyle.MUTED))
+	_routes_row = HBoxContainer.new()
+	_routes_row.add_theme_constant_override("separation", 12)
+	box.add_child(_routes_row)
 
 	# Two columns keep the panel short enough for 720p: fortress on the left, weapon cards on the right.
 	var columns := HBoxContainer.new()
@@ -78,6 +86,26 @@ func set_weapon_offers(offers: Array[WeaponUpgrade]) -> void:
 	refresh()
 
 
+func set_route_offers(offers: Array[RouteType]) -> void:
+	for card in _route_cards:
+		card.queue_free()
+	_route_cards.clear()
+	for i in offers.size():
+		var card := _make_route_card(offers[i])
+		card.pressed.connect(route_requested.emit.bind(i))
+		_routes_row.add_child(card)
+		_route_cards.append(card)
+	set_route_choice(-1)
+
+
+func set_route_choice(index: int) -> void:
+	_route_choice = index
+	for i in _route_cards.size():
+		var chosen := i == index
+		_route_cards[i].add_theme_stylebox_override("normal", UiStyle.card_frame(UiStyle.BRONZE_BRIGHT if chosen else UiStyle.BRONZE.darkened(0.25), 4 if chosen else 2,
+			Color.WHITE, UiStyle.WOOD_LIGHT if chosen else UiStyle.WOOD))
+
+
 func set_weapon_choice(index: int) -> void:
 	_chosen = index
 	refresh()
@@ -112,6 +140,28 @@ func refresh() -> void:
 		card.disabled = _chosen != -1 or not _fortress.storage.has_all(_offers[i].cost)
 		card.modulate = Color(1, 1, 1, 0.45) if card.disabled and _chosen != i else Color.WHITE
 		card.set_chosen(_chosen == i)
+
+
+# Wide card: route name and what it trades off. Uses RouteType.art later when it exists.
+func _make_route_card(type: RouteType) -> Button:
+	var card := Button.new()
+	card.custom_minimum_size = Vector2(0, 74)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiStyle.apply_card(card)
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 10)
+	card.add_child(margin)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(column)
+	column.add_child(UiStyle.label(tr(type.display_name), 19, UiStyle.BRONZE_BRIGHT))
+	var description := UiStyle.label(tr(type.description), 14)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(description)
+	return card
 
 
 func _add_button(parent: Control, pressed_signal: Signal) -> Button:

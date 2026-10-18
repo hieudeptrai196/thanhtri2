@@ -61,6 +61,7 @@ func test_crossbow_levels_cost_mixed_resources() -> void:
 func test_boiling_oil_pours_when_health_drops_a_step() -> void:
 	var m := await _match_at_stop()
 	var fortress := _quiet_fortress(m)
+	fortress.health.reset()  # bombs on the way may already have cost health
 	fortress.storage.add_all(OIL.costs[0])
 	check(m.request_fortress_upgrade(OIL), "boiling oil bought")
 	var enemy := _enemy_at_walls(m, 3.0)

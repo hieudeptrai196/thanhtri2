@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RouteType" format=3]
+
+[ext_resource type="Script" path="res://world/route_type.gd" id="1_route"]
+
+[resource]
+script = ExtResource("1_route")
+id = &"coal_mine"
+display_name = "Mỏ than"
+description = "Than nằm khắp nơi — nhưng đầy bom ẩn và ít cây."
+coal_multiplier = 3.0
+tree_multiplier = 0.5
+bomb_multiplier = 2.0
+ground_color_a = Color(0.36, 0.36, 0.33, 1)
+ground_color_b = Color(0.31, 0.31, 0.29, 1)

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RouteType" format=3]
+
+[ext_resource type="Script" path="res://world/route_type.gd" id="1_route"]
+
+[resource]
+script = ExtResource("1_route")
+id = &"plains"
+display_name = "Đồng bằng"
+description = "Yên bình, quái thưa — nhưng tài nguyên cũng nghèo."
+tree_multiplier = 0.7
+coal_multiplier = 0.7
+enemy_rate_multiplier = 0.8
+ground_color_a = Color(0.45, 0.55, 0.28, 1)
+ground_color_b = Color(0.41, 0.5, 0.25, 1)

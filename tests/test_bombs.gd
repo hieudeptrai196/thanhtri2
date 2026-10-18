@@ -5,6 +5,7 @@ func test_fortress_triggers_a_bomb_once() -> void:
 	var m := await start_match()
 	var fortress: Fortress = m.get_node("Fortress")
 	var content: RouteContent = m.get_node("RouteContent")
+	clear_random_bombs(m)
 	var bomb := content.place_bomb(fortress.follower.distance + 20.0)
 	var damage := bomb.damage
 	var explosions := []

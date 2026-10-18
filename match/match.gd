@@ -38,11 +38,17 @@ var result: Result = Result.NONE
 var elapsed: float = 0.0
 var kills: int = 0
 
+## Route types offered at the current stop, the pick (-1 = none yet), and the stretch being driven.
+var route_offers: Array[RouteType] = []
+var route_choice: int = -1
+var current_route: RouteType = null
+
 ## Weapon cards offered at the current stop, and which one was bought (-1 = none yet).
 var weapon_offers: Array[WeaponUpgrade] = []
 var weapon_choice: int = -1
 
 var _respawn_left: float = 0.0
+var _route_rng: RandomNumberGenerator
 
 
 func _ready() -> void:
@@ -60,11 +66,15 @@ func _ready() -> void:
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
 	_upgrade_panel.fortress_upgrade_requested.connect(request_fortress_upgrade)
 	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
+	_upgrade_panel.route_requested.connect(request_route)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
 	_result_screen.restart_requested.connect(restart)
 	_content.bomb_exploded.connect(_on_bomb_exploded)
 	_content.setup(_route, _seeded_rng("content"))
+	# Roadside content past the first stop waits until a route is picked there.
+	_content.set_content_limit(_route.stop_distance(0))
+	_route_rng = _seeded_rng("routes")
 	_route.setup(_seeded_rng("route"))
 
 	var players: Array[Node3D] = [_warrior]
@@ -193,6 +203,26 @@ func _on_noise_level_changed(level: NoiseMeter.Level) -> void:
 		_hud.show_toast(tr("TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"))
 
 
+## Picks the route for the stretch after this stop (may be changed until departure).
+func request_route(index: int) -> bool:
+	if not _follower.is_stopped or index < 0 or index >= route_offers.size():
+		return false
+	route_choice = index
+	_upgrade_panel.set_route_choice(index)
+	return true
+
+
+func _apply_route(type: RouteType) -> void:
+	current_route = type
+	_content.route_type = type
+	_content.set_content_limit(_follower.next_stop_distance())
+	_spawner.route_rate_multiplier = type.enemy_rate_multiplier
+	_spawner.route_health_multiplier = type.enemy_health_multiplier
+	var ground: ShaderMaterial = $Ground/Mesh.mesh.material
+	ground.set_shader_parameter(&"color_a", type.ground_color_a)
+	ground.set_shader_parameter(&"color_b", type.ground_color_b)
+
+
 func restart() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
@@ -242,6 +272,9 @@ func _on_warrior_died() -> void:
 
 func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:
 	kills += 1
+	if current_route and current_route.drop_multiplier != 1.0:
+		for id in contents:
+			contents[id] = roundi(contents[id] * current_route.drop_multiplier)
 	_fortress.divine_crossbow.add_charge(_fortress.divine_crossbow.charge_per_kill)
 	_spawn_pickup(contents, at)
 
@@ -266,12 +299,19 @@ func _on_reached_stop(_index: int) -> void:
 	_spawner.clear()
 	weapon_offers = WeaponUpgrades.draw(rng, 3)
 	weapon_choice = -1
+	route_offers = RouteTypes.draw(_route_rng, 2)
+	route_choice = -1
 	_upgrade_panel.show()
 	_upgrade_panel.set_weapon_offers(weapon_offers)
+	_upgrade_panel.set_route_offers(route_offers)
 	_hud.show_toast(tr("Điểm dừng — nâng cấp rồi khởi hành"))
 
 
 func _on_departed() -> void:
 	_spawner.active = true
 	_upgrade_panel.hide()
-	_hud.show_toast(tr("Khởi hành!"))
+	if not route_offers.is_empty():
+		_apply_route(route_offers[maxi(route_choice, 0)])
+		_hud.show_toast(tr("Khởi hành — tuyến %s") % tr(current_route.display_name))
+	else:
+		_hud.show_toast(tr("Khởi hành!"))

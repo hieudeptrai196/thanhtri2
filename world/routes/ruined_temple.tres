@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RouteType" format=3]
+
+[ext_resource type="Script" path="res://world/route_type.gd" id="1_route"]
+
+[resource]
+script = ExtResource("1_route")
+id = &"ruined_temple"
+display_name = "Đền hoang"
+description = "Quái ở đây giữ nhiều Đồng — nhưng chúng trâu hơn."
+drop_multiplier = 2.0
+enemy_health_multiplier = 1.3
+ground_color_a = Color(0.42, 0.34, 0.26, 1)
+ground_color_b = Color(0.37, 0.3, 0.23, 1)

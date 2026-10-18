@@ -6,6 +6,7 @@ func test_noise_rises_while_marching_and_faster_in_overdrive() -> void:
 	var fortress: Fortress = m.get_node("Fortress")
 	fortress.storage.add(&"coal", 50)
 	var noise: NoiseMeter = m.noise
+	clear_random_bombs(m)  # a bomb on the way would add its own noise
 	await seconds(10.0)
 	check_near(noise.value, 10.0 * noise.passive_per_second, 0.2, "passive noise after 10 s")
 	var before := noise.value

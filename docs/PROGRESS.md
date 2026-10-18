@@ -5,12 +5,12 @@
 
 ## Đang làm
 
-(không có — M1.7 vừa commit; tiếp theo M1.8 chọn tuyến)
+(không có — M1.8 vừa commit; tiếp theo M1.9 điểm số / kỷ lục / seed ngày)
 
 ## Tiếp theo (M1, xem ROADMAP)
 
 - M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
+- M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
 
@@ -38,7 +38,8 @@
 | M1.5 | `9970e8a` | Thành tự vệ cơ bản |
 | M1.6a | `fc24be8` | Than, tăng tốc, mỏ than, bỏ Đá |
 | M1.6b | `cbc4495` | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
-| M1.7 | (commit này) | Tiếng ồn + truy đuổi, Nỏ thần |
+| M1.7 | `4f959c5` | Tiếng ồn + truy đuổi, Nỏ thần |
+| M1.8 | (commit này) | Chọn 1/2 tuyến ở điểm dừng (4 loại tuyến), hoãn nội dung tới khi chọn |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 

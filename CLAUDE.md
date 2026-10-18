@@ -27,6 +27,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 - Mỗi giai đoạn mới **phải thêm test** cho hành vi mới và chạy lại toàn bộ trước khi báo xong.
 - `start_match()` làm trống kho pháo đài (trừ khi `keep_starting_resources`), vì kho bắt đầu có 30 Gỗ.
 - Khi có kết quả trận, cây scene bị tạm dừng; `GameTest.cleanup()` tự bỏ tạm dừng. Nút Chơi lại gọi `reload_current_scene()`, harness không có current scene nên test phải ngắt `m.restart` trước khi bấm.
+- Bố trí đường ngẫu nhiên có thể đặt bom ngay đoạn đầu: test nhạy với máu/tiếng ồn của thành thì gọi `clear_random_bombs(m)` hoặc `fortress.health.reset()`. Đưa thành tới điểm dừng bằng `base_speed = 300` xong thì nhớ đặt lại 0 nếu còn chờ lâu (không thì tới điểm dừng kế và quái bị dọn).
 - Runner: file test không nạp được → FAIL; test chạy quá 7200 frame → FAIL "timed out". Test cần vật thể cố định thì tự đặt (`spawn_resource`, `RouteContent.place_bomb`) thay vì dựa vào bố trí ngẫu nhiên.
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
@@ -55,7 +56,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, `AutoShooter` (tự bắn mục tiêu gần nhất — dùng cho tháp nỏ và nỏ liên châu trên thành), bia thử |
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`: wood, coal, bronze), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây, mỏ than), `Pickup` |
-| `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/đá/bom/vòng điểm dừng theo đoạn, dọn phía sau), `ground_follow.gd`, `HiddenBomb`, shader nền |
+| `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/mỏ than/bom/vòng điểm dừng theo đoạn, dọn phía sau; **hoãn** nội dung sau điểm dừng tới khi chọn tuyến — `set_content_limit`), `RouteType` (.tres trong `routes/`: rừng già, mỏ than, đồng bằng, đền hoang — hệ số cây/than/bom/quái/rơi đồ + màu đất) + `RouteTypes.draw`, `ground_follow.gd`, `HiddenBomb`, shader nền |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `tests/` | Test harness |
