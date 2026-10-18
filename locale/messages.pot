@@ -1,0 +1,355 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: THANH TRI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: match/match.gd:124
+msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
+msgstr ""
+
+#: match/match.gd:146
+msgid "Hồi sinh sau %d…"
+msgstr ""
+
+#: match/match.gd:221
+msgid "Tăng tốc! Tốn Than gấp nhiều lần"
+msgstr ""
+
+#: match/match.gd:221
+msgid "Chạy bình thường"
+msgstr ""
+
+#: match/match.gd:229
+msgid "NỎ THẦN! Trúng %d quái"
+msgstr ""
+
+#: match/match.gd:235
+msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
+msgstr ""
+
+#: match/match.gd:353
+msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
+msgstr ""
+
+#: match/match.gd:367
+msgid "Điểm dừng — nâng cấp rồi khởi hành"
+msgstr ""
+
+#: match/match.gd:375
+msgid "Khởi hành — tuyến %s"
+msgstr ""
+
+#: match/match.gd:377
+msgid "Khởi hành!"
+msgstr ""
+
+#: structures/structure.gd:163
+msgid "Thiếu %s"
+msgstr ""
+
+#: ui/hud.gd:33
+msgid "Yên tĩnh"
+msgstr ""
+
+#: ui/hud.gd:33
+msgid "Dò xét"
+msgstr ""
+
+#: ui/hud.gd:33
+msgid "Bầy đàn"
+msgstr ""
+
+#: ui/hud.gd:33
+msgid "Dữ dội"
+msgstr ""
+
+#: ui/hud.gd:33
+msgid "TRUY ĐUỔI"
+msgstr ""
+
+#: ui/hud.gd:69
+msgid "Kho"
+msgstr ""
+
+#: ui/hud.gd:101
+msgid "Tốc độ %d%%"
+msgstr ""
+
+#: ui/hud.gd:104
+msgid " · TĂNG TỐC"
+msgstr ""
+
+#: ui/hud.gd:106
+msgid " · HẾT THAN"
+msgstr ""
+
+#: ui/hud.gd:114
+msgid "Kỷ lục mới!"
+msgstr ""
+
+#: ui/hud.gd:114
+msgid "Kỷ lục: %s"
+msgstr ""
+
+#: ui/hud.gd:123
+msgid "Tiếng ồn: %s"
+msgstr ""
+
+#: ui/hud.gd:127
+msgid "Nỏ thần — sẵn sàng (G)"
+msgstr ""
+
+#: ui/hud.gd:127
+msgid "Nỏ thần %d%%"
+msgstr ""
+
+#: ui/hud.gd:147
+msgid "Đang vác %s — click / E để đặt (không tốn tài nguyên)"
+msgstr ""
+
+#: ui/hud.gd:153
+msgid "Hết tài nguyên để xây %s — mang thêm về hoặc góp từ túi"
+msgstr ""
+
+#: ui/hud.gd:155
+msgid "Giữ E để xây %s — %d%%"
+msgstr ""
+
+#: ui/hud.gd:160
+msgid "Giữ F để thu %s"
+msgstr ""
+
+#: ui/hud.gd:160
+msgid "Giữ F để dỡ bản vẽ %s"
+msgstr ""
+
+#: ui/hud.gd:168
+msgid "Giữ E để sửa pháo đài"
+msgstr ""
+
+#: ui/hud.gd:170
+msgid "Kho hết %s — cần mang về để sửa"
+msgstr ""
+
+#: ui/hud.gd:174
+msgid " · %d người"
+msgstr ""
+
+#: ui/hud.gd:190
+msgid "Mang %d/%d"
+msgstr ""
+
+#: ui/hud.gd:200
+msgid "Pháo đài %s %d/%d"
+msgstr ""
+
+#: ui/hud.gd:209
+msgid "Nộp vào kho: %s"
+msgstr ""
+
+#: ui/result_screen.gd:21
+msgid "Chơi lại"
+msgstr ""
+
+#: ui/result_screen.gd:24
+msgid "Về menu"
+msgstr ""
+
+#: ui/result_screen.gd:33
+msgid "Thành trì đã thất thủ"
+msgstr ""
+
+#: ui/result_screen.gd:37
+msgid "Thử thách ngày %s"
+msgstr ""
+
+#: ui/result_screen.gd:38
+msgid "Quãng đường: %s\nKỷ lục: %s\nThời gian: %d:%02d\nQuái đã hạ: %d"
+msgstr ""
+
+#: ui/route_progress.gd:32
+msgid "Điểm dừng: %d m"
+msgstr ""
+
+#: ui/start_menu.gd:48
+msgid "Chọn ngôn ngữ"
+msgstr ""
+
+#: ui/start_menu.gd:52
+msgid "THÀNH TRÌ"
+msgstr ""
+
+#: ui/start_menu.gd:53
+msgid "Hộ tống thành trì đi càng xa càng tốt"
+msgstr ""
+
+#: ui/start_menu.gd:54
+msgid "Chơi"
+msgstr ""
+
+#: ui/start_menu.gd:55
+msgid "Thử thách hôm nay (%s)"
+msgstr ""
+
+#: ui/start_menu.gd:56
+msgid "Kỷ lục: %s   ·   Hôm nay: %s   ·   Đã chơi %d trận"
+msgstr ""
+
+#: ui/upgrade_panel.gd:36
+msgid "Điểm dừng — nâng cấp"
+msgstr ""
+
+#: ui/upgrade_panel.gd:37
+msgid "Chọn tuyến tiếp theo"
+msgstr ""
+
+#: ui/upgrade_panel.gd:55
+msgid "Pháo đài"
+msgstr ""
+
+#: ui/upgrade_panel.gd:64
+msgid "Vũ khí — chọn 1 thẻ"
+msgstr ""
+
+#: ui/upgrade_panel.gd:70
+msgid "Khởi hành  ▶  (Space)"
+msgstr ""
+
+#: ui/upgrade_panel.gd:119
+msgid "Nâng thân pháo đài lên %s (%d máu) — %s"
+msgstr ""
+
+#: ui/upgrade_panel.gd:123
+msgid "Thân pháo đài đã ở cấp cao nhất"
+msgstr ""
+
+#: ui/upgrade_panel.gd:132
+msgid "%s — cấp tối đa"
+msgstr ""
+
+#: ui/upgrade_panel.gd:135
+msgid "%s cấp %d — %s"
+msgstr ""
+
+#: combat/upgrades/arc.tres
+msgid "Chém rộng +40°"
+msgstr ""
+
+#: combat/upgrades/arc.tres
+msgid "Vùng chém hình quạt rộng thêm 40 độ."
+msgstr ""
+
+#: combat/upgrades/damage.tres
+msgid "Sát thương +30%"
+msgstr ""
+
+#: combat/upgrades/damage.tres
+msgid "Mỗi đòn chém gây thêm 30% sát thương."
+msgstr ""
+
+#: combat/upgrades/reach.tres
+msgid "Tầm với +25%"
+msgstr ""
+
+#: combat/upgrades/reach.tres
+msgid "Đòn chém với xa hơn 25%."
+msgstr ""
+
+#: combat/upgrades/speed.tres
+msgid "Đánh nhanh +20%"
+msgstr ""
+
+#: combat/upgrades/speed.tres
+msgid "Thời gian giữa hai đòn ngắn hơn 20%."
+msgstr ""
+
+#: fortress/tiers/stone.tres
+msgid "Đá"
+msgstr ""
+
+#: fortress/tiers/wood.tres
+msgid "Gỗ"
+msgstr ""
+
+#: fortress/upgrades/boiling_oil.tres
+msgid "Dầu sôi"
+msgstr ""
+
+#: fortress/upgrades/boiling_oil.tres
+msgid "Mỗi khi thành mất thêm 20% máu, dội dầu sôi quanh thân."
+msgstr ""
+
+#: fortress/upgrades/crossbow.tres
+msgid "Nỏ liên châu"
+msgstr ""
+
+#: fortress/upgrades/crossbow.tres
+msgid "Nỏ trên thành bắn mạnh hơn, nhanh hơn, xa hơn."
+msgstr ""
+
+#: fortress/upgrades/furnace.tres
+msgid "Lò lửa"
+msgstr ""
+
+#: fortress/upgrades/furnace.tres
+msgid "Phun lửa vào quái sát thành, mỗi lần đốt 1 Than."
+msgstr ""
+
+#: fortress/upgrades/shield.tres
+msgid "Khiên tự hồi"
+msgstr ""
+
+#: fortress/upgrades/shield.tres
+msgid "Khiên hấp thụ sát thương, tự hồi khi không bị đánh."
+msgstr ""
+
+#: resources/types/bronze.tres
+msgid "Đồng"
+msgstr ""
+
+#: resources/types/coal.tres
+msgid "Than"
+msgstr ""
+
+#: structures/types/barricade.tres
+msgid "Rào gỗ"
+msgstr ""
+
+#: structures/types/crossbow_turret.tres
+msgid "Tháp nỏ"
+msgstr ""
+
+#: world/routes/coal_mine.tres
+msgid "Mỏ than"
+msgstr ""
+
+#: world/routes/coal_mine.tres
+msgid "Than nằm khắp nơi — nhưng đầy bom ẩn và ít cây."
+msgstr ""
+
+#: world/routes/old_forest.tres
+msgid "Rừng già"
+msgstr ""
+
+#: world/routes/old_forest.tres
+msgid "Cây cối um tùm — nhiều Gỗ, nhưng quái kéo tới dày hơn và ít than."
+msgstr ""
+
+#: world/routes/plains.tres
+msgid "Đồng bằng"
+msgstr ""
+
+#: world/routes/plains.tres
+msgid "Yên bình, quái thưa — nhưng tài nguyên cũng nghèo."
+msgstr ""
+
+#: world/routes/ruined_temple.tres
+msgid "Đền hoang"
+msgstr ""
+
+#: world/routes/ruined_temple.tres
+msgid "Quái ở đây giữ nhiều Đồng — nhưng chúng trâu hơn."
+msgstr ""
+

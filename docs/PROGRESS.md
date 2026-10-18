@@ -5,12 +5,13 @@
 
 ## Đang làm
 
-(không có — M1.9 vừa commit; tiếp theo M1.10 i18n — **cần người dùng tắt Godot** vì phải sửa `project.godot`)
+(không có — **M1 xong** với M1.10; tiếp theo M2 co-op & vai trò, bắt đầu từ M2.1 mạng co-op nền)
 
-## Tiếp theo (M1, xem ROADMAP)
+## Tiếp theo (M2, xem ROADMAP)
 
-- M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.10 i18n (Việt + Anh) + chọn ngôn ngữ lần đầu — cần tắt Godot
+- M2.1 Mạng co-op nền (host-authoritative, ENet, test 2–4 cửa sổ trên cùng máy), kho chung + túi riêng
+- M2.2 5 class = vai trò · M2.3 đỡ đồng đội, kết hợp class, ping, ụ nỏ có người điều khiển · M2.4 độ khó theo số người · M2.5 tổng kết MVP
+- Trước M2 nên có một lượt **chơi thử + cân bằng** toàn bộ M1 (người dùng chưa chơi thử từ M1.4b).
 
 ## Đã xong
 
@@ -40,7 +41,8 @@
 | M1.6b | `cbc4495` | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
 | M1.7 | `4f959c5` | Tiếng ồn + truy đuổi, Nỏ thần |
 | M1.8 | `e670fa4` | Chọn 1/2 tuyến ở điểm dừng (4 loại tuyến), hoãn nội dung tới khi chọn |
-| M1.9 | (commit này) | Điểm = mét, kỷ lục lưu máy, seed ngày, màn bắt đầu, kết quả mới |
+| M1.9 | `d897f42` | Điểm = mét, kỷ lục lưu máy, seed ngày, màn bắt đầu, kết quả mới |
+| M1.10 | (commit này) | i18n Việt + Anh, chọn ngôn ngữ lần đầu, công cụ trích chuỗi |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
@@ -65,8 +67,7 @@
 
 ## Câu hỏi đang chờ người dùng
 
-- Chơi thử **M1.4b (xây chung) + M1.5 (thành tự vệ)** → trả lời câu hỏi cốt lõi "nhảy cóc có vui không", chỗ nào phiền/chậm (giữ E khi solo), chết ở bao nhiêu mét → cân bằng → commit.
-- Tiếp sau: M1.6 tài nguyên Gỗ/Than/Đồng + nâng cấp pháo đài (giá trộn nguyên liệu) → M1.7 tiếng ồn/truy đuổi + Nỏ thần → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
+- M1 đã xong. Người dùng **chưa chơi thử** các bước từ M1.4b → M1.10; nên chơi thử + cân bằng trước khi sang M2 (hoặc làm M2.1 trước nếu người dùng muốn).
 
 ## Ghi chú cho phiên sau
 

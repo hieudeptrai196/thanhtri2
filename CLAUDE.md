@@ -33,6 +33,17 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
 
+## Đa ngôn ngữ (i18n)
+
+- **Tiếng Việt là ngôn ngữ gốc** (msgid). Bản dịch: gettext `locale/*.po` (hiện có `en.po`); fallback locale = `vi` trong `project.godot`.
+- Sau khi thêm/sửa chữ: chạy `python3 -I tools/extract_strings.py` → cập nhật `locale/messages.pot` + mọi `.po`, in ra chuỗi còn thiếu. Dịch phần thiếu trong `en.po`. `tests/test_i18n.gd` hỏng nếu còn chuỗi chưa dịch.
+- Công cụ lấy: `tr("...")` trong `.gd`, chuỗi trên dòng có `# i18n` (vd hằng mảng tên), `display_name` / `description` trong `.tres`.
+- **Không ghép câu** từ mảnh (vd "Giữ F để %s %s" với động từ chèn vào): viết câu trọn cho từng trường hợp để người dịch tự sắp trật tự từ.
+- `Locales` (`locale/locales.gd`): ngôn ngữ hỗ trợ + lựa chọn (lưu trong SaveManager); autoload `LocaleBoot` áp dụng trước khi scene dựng chữ. Lần đầu mở game: màn bắt đầu chỉ hiện chọn ngôn ngữ. Tên ngôn ngữ tự gọi mình, không dịch.
+- Thêm ngôn ngữ mới: tạo `locale/<mã>.po` (chạy công cụ trích để điền msgid), thêm vào `locale/translations` trong `project.godot` (tắt Godot trước) và `Locales.SUPPORTED`. Ngôn ngữ CJK cần font dự phòng.
+- Chữ tiếng Anh dài hơn: khi thêm UI phải chụp lại bằng cả hai ngôn ngữ ở 1280×720.
+- Harness luôn đặt locale `vi`.
+
 ## Hiệu năng
 
 - `tools/benchmark.sh [WxH]`: mở cửa sổ, tắt vsync, tăng dần số quái (0→300) quanh pháo đài, in FPS / ms / khung tệ nhất / ms vật lý / draw call. Trong trận bấm **F3** để bật lớp số liệu.
@@ -60,9 +71,10 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/mỏ than/bom/vòng điểm dừng theo đoạn, dọn phía sau; **hoãn** nội dung sau điểm dừng tới khi chọn tuyến — `set_content_limit`), `RouteType` (.tres trong `routes/`: rừng già, mỏ than, đồng bằng, đền hoang — hệ số cây/than/bom/quái/rơi đồ + màu đất) + `RouteTypes.draw`, `ground_follow.gd`, `HiddenBomb`, shader nền |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
+| `locale/` | `Locales`, `locale_boot.gd` (autoload), `messages.pot`, `en.po` |
 | `save/` | `SaveManager` (tĩnh; ConfigFile có phiên bản ở `user://thanhtri_save.cfg`: kỷ lục chung, kỷ lục từng ngày, số trận, cài đặt) |
 | `tests/` | Test harness |
-| `tools/` | `benchmark.sh` (không thuộc bản build) |
+| `tools/` | `benchmark.sh`, `extract_strings.py` (không thuộc bản build) |
 
 Nguyên tắc:
 - **Chỉ `PlayerInput` được đọc `Input`.** Gameplay đọc ý định (`move_direction`, `aim_direction`, `attack_held`, `interact_held`, `ready_requested`) để sau này ý định có thể đến từ mạng.

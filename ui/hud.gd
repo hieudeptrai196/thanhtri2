@@ -30,7 +30,7 @@ var _toast_tween: Tween
 @onready var _divine_label: Label = %DivineLabel
 @onready var _divine_bar: ProgressBar = %DivineBar
 
-const NOISE_LEVEL_NAMES: Array[String] = ["Yên tĩnh", "Dò xét", "Bầy đàn", "Dữ dội", "TRUY ĐUỔI"]
+const NOISE_LEVEL_NAMES: Array[String] = ["Yên tĩnh", "Dò xét", "Bầy đàn", "Dữ dội", "TRUY ĐUỔI"]  # i18n
 var _noise: NoiseMeter
 var _best: float = 0.0
 @onready var _distance_label: Label = %DistanceLabel
@@ -156,8 +156,9 @@ func _update_prompt() -> void:
 		return
 	if builder.recover_target:
 		var progress := roundi(builder.recover_progress / builder.recover_hold_time * 100.0)
-		var verb := tr("thu") if builder.recover_target.built else tr("dỡ bản vẽ")
-		_repair_hint.text = tr("Giữ F để %s %s") % [verb, tr(builder.recover_target.type.display_name)] + (" (%d%%)" % progress if progress > 0 else "") + _helpers_text(builder.recover_target)
+		# Whole sentences per case, so translations can order the words their own way.
+		var prompt := tr("Giữ F để thu %s") if builder.recover_target.built else tr("Giữ F để dỡ bản vẽ %s")
+		_repair_hint.text = prompt % tr(builder.recover_target.type.display_name) + (" (%d%%)" % progress if progress > 0 else "") + _helpers_text(builder.recover_target)
 		return
 	var damaged := _fortress.health.current < _fortress.health.max_health
 	_repair_hint.visible = damaged and _fortress.service_zone.overlaps_body(_warrior)

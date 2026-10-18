@@ -1,0 +1,356 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: THANH TRI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+#: match/match.gd:124
+msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
+msgstr "Protect the citadel — go as far as you can!"
+
+#: match/match.gd:146
+msgid "Hồi sinh sau %d…"
+msgstr "Respawning in %d…"
+
+#: match/match.gd:221
+msgid "Tăng tốc! Tốn Than gấp nhiều lần"
+msgstr "Overdrive! Burns far more coal"
+
+#: match/match.gd:221
+msgid "Chạy bình thường"
+msgstr "Normal speed"
+
+#: match/match.gd:229
+msgid "NỎ THẦN! Trúng %d quái"
+msgstr "DIVINE CROSSBOW! %d monsters hit"
+
+#: match/match.gd:235
+msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
+msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
+
+#: match/match.gd:353
+msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
+msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
+
+#: match/match.gd:367
+msgid "Điểm dừng — nâng cấp rồi khởi hành"
+msgstr "Stop — upgrade, then set off"
+
+#: match/match.gd:375
+msgid "Khởi hành — tuyến %s"
+msgstr "Setting off — %s route"
+
+#: match/match.gd:377
+msgid "Khởi hành!"
+msgstr "Setting off!"
+
+#: structures/structure.gd:163
+msgid "Thiếu %s"
+msgstr "Need %s"
+
+#: ui/hud.gd:33
+msgid "Yên tĩnh"
+msgstr "Quiet"
+
+#: ui/hud.gd:33
+msgid "Dò xét"
+msgstr "Probing"
+
+#: ui/hud.gd:33
+msgid "Bầy đàn"
+msgstr "Swarm"
+
+#: ui/hud.gd:33
+msgid "Dữ dội"
+msgstr "Heavy"
+
+#: ui/hud.gd:33
+msgid "TRUY ĐUỔI"
+msgstr "PURSUIT"
+
+#: ui/hud.gd:69
+msgid "Kho"
+msgstr "Storage"
+
+#: ui/hud.gd:101
+msgid "Tốc độ %d%%"
+msgstr "Speed %d%%"
+
+#: ui/hud.gd:104
+msgid " · TĂNG TỐC"
+msgstr " · OVERDRIVE"
+
+#: ui/hud.gd:106
+msgid " · HẾT THAN"
+msgstr " · OUT OF COAL"
+
+#: ui/hud.gd:114
+msgid "Kỷ lục mới!"
+msgstr "New record!"
+
+#: ui/hud.gd:114
+msgid "Kỷ lục: %s"
+msgstr "Record: %s"
+
+#: ui/hud.gd:123
+msgid "Tiếng ồn: %s"
+msgstr "Noise: %s"
+
+#: ui/hud.gd:127
+msgid "Nỏ thần — sẵn sàng (G)"
+msgstr "Divine Crossbow — ready (G)"
+
+#: ui/hud.gd:127
+msgid "Nỏ thần %d%%"
+msgstr "Divine Crossbow %d%%"
+
+#: ui/hud.gd:147
+msgid "Đang vác %s — click / E để đặt (không tốn tài nguyên)"
+msgstr "Carrying %s — click / E to place it (free)"
+
+#: ui/hud.gd:153
+msgid "Hết tài nguyên để xây %s — mang thêm về hoặc góp từ túi"
+msgstr "Out of resources for %s — bring more back or chip in from your pack"
+
+#: ui/hud.gd:155
+msgid "Giữ E để xây %s — %d%%"
+msgstr "Hold E to build %s — %d%%"
+
+#: ui/hud.gd:160
+msgid "Giữ F để thu %s"
+msgstr "Hold F to fold up %s"
+
+#: ui/hud.gd:160
+msgid "Giữ F để dỡ bản vẽ %s"
+msgstr "Hold F to take down the %s blueprint"
+
+#: ui/hud.gd:168
+msgid "Giữ E để sửa pháo đài"
+msgstr "Hold E to repair the citadel"
+
+#: ui/hud.gd:170
+msgid "Kho hết %s — cần mang về để sửa"
+msgstr "No %s in storage — bring some back to repair"
+
+#: ui/hud.gd:174
+msgid " · %d người"
+msgstr " · %d players"
+
+#: ui/hud.gd:190
+msgid "Mang %d/%d"
+msgstr "Carrying %d/%d"
+
+#: ui/hud.gd:200
+msgid "Pháo đài %s %d/%d"
+msgstr "%s citadel %d/%d"
+
+#: ui/hud.gd:209
+msgid "Nộp vào kho: %s"
+msgstr "Stored: %s"
+
+#: ui/result_screen.gd:21
+msgid "Chơi lại"
+msgstr "Play again"
+
+#: ui/result_screen.gd:24
+msgid "Về menu"
+msgstr "Main menu"
+
+#: ui/result_screen.gd:33
+msgid "Thành trì đã thất thủ"
+msgstr "The citadel has fallen"
+
+#: ui/result_screen.gd:37
+msgid "Thử thách ngày %s"
+msgstr "Daily challenge %s"
+
+#: ui/result_screen.gd:38
+msgid "Quãng đường: %s\nKỷ lục: %s\nThời gian: %d:%02d\nQuái đã hạ: %d"
+msgstr "Distance: %s\nRecord: %s\nTime: %d:%02d\nMonsters slain: %d"
+
+#: ui/route_progress.gd:32
+msgid "Điểm dừng: %d m"
+msgstr "Next stop: %d m"
+
+#: ui/start_menu.gd:48
+msgid "Chọn ngôn ngữ"
+msgstr "Language"
+
+#: ui/start_menu.gd:52
+msgid "THÀNH TRÌ"
+msgstr "THÀNH TRÌ"
+
+#: ui/start_menu.gd:53
+msgid "Hộ tống thành trì đi càng xa càng tốt"
+msgstr "Escort the citadel as far as you can"
+
+#: ui/start_menu.gd:54
+msgid "Chơi"
+msgstr "Play"
+
+#: ui/start_menu.gd:55
+msgid "Thử thách hôm nay (%s)"
+msgstr "Today's challenge (%s)"
+
+#: ui/start_menu.gd:56
+msgid "Kỷ lục: %s   ·   Hôm nay: %s   ·   Đã chơi %d trận"
+msgstr "Record: %s   ·   Today: %s   ·   %d runs played"
+
+#: ui/upgrade_panel.gd:36
+msgid "Điểm dừng — nâng cấp"
+msgstr "Stop — upgrades"
+
+#: ui/upgrade_panel.gd:37
+msgid "Chọn tuyến tiếp theo"
+msgstr "Choose the next route"
+
+#: ui/upgrade_panel.gd:55
+msgid "Pháo đài"
+msgstr "Citadel"
+
+#: ui/upgrade_panel.gd:64
+msgid "Vũ khí — chọn 1 thẻ"
+msgstr "Weapon — pick 1 card"
+
+#: ui/upgrade_panel.gd:70
+msgid "Khởi hành  ▶  (Space)"
+msgstr "Set off  ▶  (Space)"
+
+#: ui/upgrade_panel.gd:119
+msgid "Nâng thân pháo đài lên %s (%d máu) — %s"
+msgstr "Rebuild the citadel in %s (%d HP) — %s"
+
+#: ui/upgrade_panel.gd:123
+msgid "Thân pháo đài đã ở cấp cao nhất"
+msgstr "Citadel body at its highest level"
+
+#: ui/upgrade_panel.gd:132
+msgid "%s — cấp tối đa"
+msgstr "%s — max level"
+
+#: ui/upgrade_panel.gd:135
+msgid "%s cấp %d — %s"
+msgstr "%s level %d — %s"
+
+#: combat/upgrades/arc.tres
+msgid "Chém rộng +40°"
+msgstr "Wide Slash +40°"
+
+#: combat/upgrades/arc.tres
+msgid "Vùng chém hình quạt rộng thêm 40 độ."
+msgstr "Your swing covers a 40° wider arc."
+
+#: combat/upgrades/damage.tres
+msgid "Sát thương +30%"
+msgstr "Damage +30%"
+
+#: combat/upgrades/damage.tres
+msgid "Mỗi đòn chém gây thêm 30% sát thương."
+msgstr "Every swing deals 30% more damage."
+
+#: combat/upgrades/reach.tres
+msgid "Tầm với +25%"
+msgstr "Reach +25%"
+
+#: combat/upgrades/reach.tres
+msgid "Đòn chém với xa hơn 25%."
+msgstr "Your swing reaches 25% farther."
+
+#: combat/upgrades/speed.tres
+msgid "Đánh nhanh +20%"
+msgstr "Attack Speed +20%"
+
+#: combat/upgrades/speed.tres
+msgid "Thời gian giữa hai đòn ngắn hơn 20%."
+msgstr "20% less time between swings."
+
+#: fortress/tiers/stone.tres
+msgid "Đá"
+msgstr "Stone"
+
+#: fortress/tiers/wood.tres
+msgid "Gỗ"
+msgstr "Wood"
+
+#: fortress/upgrades/boiling_oil.tres
+msgid "Dầu sôi"
+msgstr "Boiling Oil"
+
+#: fortress/upgrades/boiling_oil.tres
+msgid "Mỗi khi thành mất thêm 20% máu, dội dầu sôi quanh thân."
+msgstr "Every time the citadel loses another 20% of its health, it pours boiling oil around itself."
+
+#: fortress/upgrades/crossbow.tres
+msgid "Nỏ liên châu"
+msgstr "Repeating Crossbow"
+
+#: fortress/upgrades/crossbow.tres
+msgid "Nỏ trên thành bắn mạnh hơn, nhanh hơn, xa hơn."
+msgstr "The crossbow on the citadel hits harder, faster and farther."
+
+#: fortress/upgrades/furnace.tres
+msgid "Lò lửa"
+msgstr "Fire Furnace"
+
+#: fortress/upgrades/furnace.tres
+msgid "Phun lửa vào quái sát thành, mỗi lần đốt 1 Than."
+msgstr "Breathes fire on monsters at the walls, burning 1 coal per burst."
+
+#: fortress/upgrades/shield.tres
+msgid "Khiên tự hồi"
+msgstr "Regenerating Shield"
+
+#: fortress/upgrades/shield.tres
+msgid "Khiên hấp thụ sát thương, tự hồi khi không bị đánh."
+msgstr "A shield absorbs damage and recovers when not under attack."
+
+#: resources/types/bronze.tres
+msgid "Đồng"
+msgstr "Bronze"
+
+#: resources/types/coal.tres
+msgid "Than"
+msgstr "Coal"
+
+#: structures/types/barricade.tres
+msgid "Rào gỗ"
+msgstr "Wooden Barricade"
+
+#: structures/types/crossbow_turret.tres
+msgid "Tháp nỏ"
+msgstr "Crossbow Turret"
+
+#: world/routes/coal_mine.tres
+msgid "Mỏ than"
+msgstr "Coal Mine"
+
+#: world/routes/coal_mine.tres
+msgid "Than nằm khắp nơi — nhưng đầy bom ẩn và ít cây."
+msgstr "Coal everywhere — but full of hidden bombs and few trees."
+
+#: world/routes/old_forest.tres
+msgid "Rừng già"
+msgstr "Old Forest"
+
+#: world/routes/old_forest.tres
+msgid "Cây cối um tùm — nhiều Gỗ, nhưng quái kéo tới dày hơn và ít than."
+msgstr "Dense woods — plenty of wood, but more monsters and little coal."
+
+#: world/routes/plains.tres
+msgid "Đồng bằng"
+msgstr "Plains"
+
+#: world/routes/plains.tres
+msgid "Yên bình, quái thưa — nhưng tài nguyên cũng nghèo."
+msgstr "Peaceful and sparse — but poor in resources too."
+
+#: world/routes/ruined_temple.tres
+msgid "Đền hoang"
+msgstr "Ruined Temple"
+
+#: world/routes/ruined_temple.tres
+msgid "Quái ở đây giữ nhiều Đồng — nhưng chúng trâu hơn."
+msgstr "Monsters here carry more bronze — but they are tougher."
+

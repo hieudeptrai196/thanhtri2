@@ -37,7 +37,7 @@ Tiến độ hằng ngày: [`PROGRESS.md`](PROGRESS.md) · Game tham khảo: [`R
 
 Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duyệt từng bước.
 
-### M1 — Vòng cốt lõi (solo, placeholder)
+### M1 — Vòng cốt lõi (solo, placeholder) — ✅ xong 2026-10-18 (cân bằng còn chờ chơi thử)
 
 **Câu hỏi phải trả lời được: "nhảy cóc công trình trong khi pháo đài cứ đi và quái áp sát có vui không?"** Nếu chưa vui, sửa vòng này trước khi thêm nội dung.
 

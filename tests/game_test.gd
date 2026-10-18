@@ -45,6 +45,7 @@ func cleanup() -> void:
 	tree.paused = false
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SaveManager.path))
 	Match._queued_mode = -1  # never leak a queued run into the next test
+	TranslationServer.set_locale("vi")
 	SaveManager.reload()
 	for action in InputMap.get_actions():
 		if not String(action).begins_with("ui_"):

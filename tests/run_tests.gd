@@ -21,6 +21,7 @@ func _run() -> void:
 	# Never touch the player's own save while testing.
 	SaveManager.path = "user://thanhtri_test_save.cfg"
 	SaveManager.reload()
+	TranslationServer.set_locale("vi")  # tests read Vietnamese source text
 	OS.add_logger(errors)
 
 	for file in DirAccess.get_files_at(TEST_DIR):
