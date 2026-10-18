@@ -42,6 +42,7 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Độ khó: quãng đường làm nền (M1.2 giữ lại) + thanh tiếng ồn / truy đuổi.**
 - 2026-10-18 · **Tài nguyên: Gỗ (xây/sửa), Than (nhiên liệu, tăng tốc), Đồng (vũ khí/kỹ năng/module); bỏ Đá.**
 - 2026-10-18 · **Đòn thường tự đánh, kỹ năng class bấm chủ động + ngắm.**
 - 2026-10-18 · **Lấy vòng chính của Marcha de Ferro: đặt công trình ngoài thực địa, tiếp sức gần pháo đài, nhảy cóc / bỏ lại.** Các chi tiết khác đang hỏi tiếp.
@@ -57,7 +58,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** Trail → endless/cổng cuối → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó) tạm giữ chưa commit, có thể bị thay bởi Trail.
+- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** endless/cổng cuối + rẽ nhánh → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
 
 ## Ghi chú cho phiên sau
 
