@@ -46,6 +46,8 @@ func _ready() -> void:
 	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
+	for bomb: HiddenBomb in $Bombs.get_children():
+		bomb.exploded.connect(_on_bomb_exploded)
 
 	var players: Array[Node3D] = [_warrior]
 	_spawner.setup(rng, _fortress, players)
@@ -126,6 +128,11 @@ func _format_amounts(inventory: Inventory) -> String:
 	for type in ResourceTypes.ALL:
 		parts.append("%s %d" % [tr(type.display_name), inventory.get_amount(type.id)])
 	return "  ".join(parts)
+
+
+func _on_bomb_exploded(_at: Vector3) -> void:
+	print("Match: pháo đài dẫm phải bom")
+	_status.text = "Pháo đài dẫm phải bom! Giữ E cạnh pháo đài để sửa"
 
 
 func _on_fortress_health_changed(current: float, maximum: float) -> void:

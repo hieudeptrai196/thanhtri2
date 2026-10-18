@@ -24,10 +24,11 @@ func test_tier_upgrade_only_at_stop_and_keeps_damage() -> void:
 	fortress = m.get_node("Fortress")
 	fortress.storage.add_all({&"stone": 12, &"wood": 6})
 	fortress.health.apply_damage(100.0)
+	var health_before := fortress.health.current  # also includes the bomb on the way
 	check(m.request_tier_upgrade(), "upgrade succeeds at the stop")
 	check(fortress.get_tier().id == &"stone", "body is now stone")
 	check(fortress.health.max_health == 800.0, "stone max health")
-	check(fortress.health.current == 700.0, "damage taken is kept, got %.0f" % fortress.health.current)
+	check(fortress.health.current == health_before + 300.0, "damage taken is kept, got %.0f" % fortress.health.current)
 	check(fortress.storage.amounts == {&"stone": 2, &"wood": 1}, "cost spent, left %s" % fortress.storage.amounts)
 	check(not m.request_tier_upgrade(), "no tier above stone yet")
 

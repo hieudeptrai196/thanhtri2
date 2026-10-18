@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://resources/tree.tscn" id="8_tree"]
 [ext_resource type="PackedScene" path="res://resources/rock.tscn" id="9_rock"]
 [ext_resource type="Script" path="res://ui/upgrade_panel.gd" id="10_panel"]
+[ext_resource type="PackedScene" path="res://world/hidden_bomb.tscn" id="11_bomb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -158,6 +159,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85, 0, -140)
 
 [node name="Rock5" parent="Resources" instance=ExtResource("9_rock")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -200)
+
+[node name="Bombs" type="Node3D" parent="."]
+
+[node name="Bomb1" parent="Bombs" instance=ExtResource("11_bomb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
+
+[node name="Bomb2" parent="Bombs" instance=ExtResource("11_bomb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -160)
 
 [node name="Pickups" type="Node3D" parent="."]
 
