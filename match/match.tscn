@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://world/hidden_bomb.tscn" id="11_bomb"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="12_hud"]
 [ext_resource type="PackedScene" path="res://ui/result_screen.tscn" id="13_result"]
+[ext_resource type="Script" path="res://ui/debug_overlay.gd" id="14_debug"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -198,3 +199,16 @@ grow_vertical = 2
 script = ExtResource("10_panel")
 
 [node name="ResultScreen" parent="UI" instance=ExtResource("13_result")]
+
+[node name="DebugOverlay" type="Label" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -420.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 80.0
+grow_horizontal = 0
+mouse_filter = 2
+horizontal_alignment = 2
+script = ExtResource("14_debug")

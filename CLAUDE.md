@@ -1,13 +1,15 @@
 # THÀNH TRÌ
 
-Game roguelite hành động 3D isometric, cảm hứng dân gian Việt Nam. Godot **4.7.2**, **GDScript**, Forward Plus, Jolt Physics. Máy dev: MacBook Pro M1 (macOS). Trả lời người dùng bằng **tiếng Việt**.
+Game roguelite hành động 3D isometric, cảm hứng dân gian Việt Nam. Godot **4.7.2**, **GDScript**, Forward Plus, Jolt Physics. Máy dev: MacBook Pro 14" **M1 Pro** (8 nhân, 32 GB, màn 120 Hz, macOS). Trả lời người dùng bằng **tiếng Việt**.
+
+**Mục tiêu:** game nghiêm túc, phát hành **Steam + Google Play + App Store**, chế độ chính **endless** (so ai đi xa hơn), asset tử tế, **i18n bắt buộc**. Kế hoạch đầy đủ: [`docs/ROADMAP.md`](docs/ROADMAP.md). Mọi tính năng phải tính tới **di động** (cảm ứng qua `PlayerInput`, hiệu năng điện thoại, UI co giãn).
 
 ## Cách làm việc (bắt buộc)
 
 - Làm theo **từng giai đoạn nhỏ**, mỗi giai đoạn kiểm thử độc lập được. Xong một giai đoạn thì báo kết quả và **chờ người dùng duyệt** rồi mới commit / làm tiếp.
 - Luôn phân biệt **[Chốt]** (người dùng đã xác nhận), **[Đề xuất]** và **[Mở]**. Không tự chốt nội dung gameplay: tên quái, vũ khí, kỹ năng, nâng cấp, điều kiện thắng, lộ trình…
 - Cần quyết định thì hỏi **một câu quan trọng nhất** trước, kèm phương án đề xuất.
-- Không cam kết hiệu năng khi chưa đo trên M1.
+- Không cam kết hiệu năng khi chưa đo (dùng `tools/benchmark.sh`).
 - Không cài plugin, không dùng API key, **không push**, không deploy khi chưa được phép. Commit local khi người dùng đồng ý; message tiếng Việt dạng `Giai đoạn N: ...`.
 - **Godot editor đang mở sẽ ghi đè `project.godot`** bằng bản trong bộ nhớ. Trước khi sửa `project.godot` (input map, layer, setting): nhờ người dùng thoát Godot (⌘Q, Don't Save) và kiểm tra bằng `pgrep -fl Godot`. Sửa scene/script thì để editor mở được, nhắc người dùng chọn Reload.
 - Phím tắt trên Mac: chạy game ⌘B, chạy scene ⌘R, dừng ⌘. (không phải F5/F6/F8).
@@ -26,6 +28,19 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
 
+## Hiệu năng
+
+- `tools/benchmark.sh [WxH]`: mở cửa sổ, tắt vsync, tăng dần số quái (0→300) quanh pháo đài, in FPS / ms / khung tệ nhất / ms vật lý / draw call. Trong trận bấm **F3** để bật lớp số liệu.
+- Đo trên M1 Pro (2026-10-18), Forward+ / Metal, quái placeholder:
+
+| Quái | 1600×900: FPS tb / khung tệ nhất | 1512×982: FPS tb / khung tệ nhất | Vật lý mỗi nhịp |
+|---|---|---|---|
+| 50 | 361 / 10.7 ms | 145 / 10.1 ms | ~3–4 ms |
+| 150 | 335 / 9.9 ms | 145 / 12.3 ms | ~4–4.6 ms |
+| 300 | 184 / 21.5 ms | 145 / 16.5 ms | ~9.4–9.9 ms |
+
+- Ở 1512×982 FPS bị chặn trần ~145 (không phải giới hạn máy). Chi phí lớn dần là **vật lý của quái** (mỗi quái là CharacterBody3D + move_and_slide + Area3D): khoảng +0.03 ms/quái/nhịp. Nếu cần nhiều quái hơn, đây là chỗ tối ưu đầu tiên. Số đo chỉ đúng cho máy này và cảnh placeholder; giai đoạn làm đẹp phải đo lại.
+
 ## Kiến trúc
 
 | Thư mục | Nội dung |
@@ -39,6 +54,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `camera/`, `world/` | Camera isometric orthographic, shader nền |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `tests/` | Test harness |
+| `tools/` | `benchmark.sh` (không thuộc bản build) |
 
 Nguyên tắc:
 - **Chỉ `PlayerInput` được đọc `Input`.** Gameplay đọc ý định (`move_direction`, `aim_direction`, `attack_held`, `interact_held`, `ready_requested`) để sau này ý định có thể đến từ mạng.

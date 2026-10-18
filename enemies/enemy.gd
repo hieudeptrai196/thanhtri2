@@ -33,6 +33,7 @@ func setup(fortress: Node3D, players: Array[Node3D]) -> void:
 
 
 func _ready() -> void:
+	add_to_group(&"enemies")
 	_base_color = _material.albedo_color
 	_health.health_changed.connect(_on_health_changed)
 	_health.died.connect(_on_died)
