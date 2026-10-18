@@ -94,7 +94,7 @@ Collision layer:
 - **Game tham khảo: Marcha de Ferro** (xem `docs/REFERENCE.md`) + co-op + tính năng riêng của người dùng. Học nguyên tắc, không chép nguyên văn.
 - **[2026-10-18] Vòng chính: đặt công trình (tháp, chướng ngại…) ngoài thực địa phía trước pháo đài, công trình được tiếp sức khi ở gần pháo đài, thu về mang lên trước ("nhảy cóc") hoặc bỏ lại kèm đòn cuối.** Chi tiết (mang theo, bộ đệm, loại công trình, tháp gắn pháo đài cũ) đang chốt dần.
 - Người chơi là **chiến binh đi bộ** bảo vệ **pháo đài tự di chuyển** (không lái). Tham khảo *Monsters Are Coming! Rock & Road*.
-- Đánh **chủ động**: click chuột / J / RT, **ngắm theo con trỏ** (twin-stick; tay cầm ngắm bằng stick phải).
+- **[2026-10-18] Đòn thường tự đánh** (chuột / stick phải chỉ ưu tiên hướng mục tiêu); **kỹ năng class bấm chủ động và ngắm** (dùng lại phần ngắm/quạt chém hiện có). Tháp/công trình là lực sát thương chính. *(Code hiện vẫn là đánh chủ động — sẽ đổi khi làm vòng mới.)*
 - Pháo đài chạy liên tục, **hư càng nhiều càng chậm**. Thỉnh thoảng dẫm **bom ẩn** (ít). Có **điểm dừng nâng cấp**: vùng an toàn, không quái, khởi hành khi người chơi sẵn sàng.
 - **Quái di chuyển, đánh cả người chơi lẫn pháo đài.**
 - Tài nguyên: **Gỗ** (chặt cây → sửa thành), **Đá** (đập đá → nâng cấp pháo đài), **Đồng** (quái rơi → nâng cấp vũ khí). Mang về pháo đài; ý đồ là người chơi chia việc giữ thành / đi kiếm.
