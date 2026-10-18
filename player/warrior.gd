@@ -12,7 +12,7 @@ extends CharacterBody3D
 @onready var inventory: Inventory = $Inventory
 @onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _collision: CollisionShape3D = $Collision
-@onready var _weapon: MeleeWeapon = $Weapon
+@onready var weapon: MeleeWeapon = $Weapon
 @onready var _swing_fx: Node3D = $SwingFx
 
 var is_alive: bool = true
@@ -21,7 +21,7 @@ var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
 func _ready() -> void:
-	_weapon.swung.connect(_on_swung)
+	weapon.swung.connect(_on_swung)
 	health.died.connect(_on_died)
 
 
@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, target_yaw, 1.0 - exp(-turn_speed * delta))
 
 	if input.attack_held:
-		_weapon.try_attack(aim)
+		weapon.try_attack(aim)
 
 	move_and_slide()
 

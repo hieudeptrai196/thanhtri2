@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponUpgrade" format=3]
+
+[ext_resource type="Script" path="res://combat/weapon_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"reach"
+display_name = "Tầm với +25%"
+description = "Đòn chém với xa hơn 25%."
+cost = {
+&"bronze": 3
+}
+reach_multiplier = 1.25

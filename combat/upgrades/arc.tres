@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponUpgrade" format=3]
+
+[ext_resource type="Script" path="res://combat/weapon_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"arc"
+display_name = "Chém rộng +40°"
+description = "Vùng chém hình quạt rộng thêm 40 độ."
+cost = {
+&"bronze": 3
+}
+arc_bonus_degrees = 40.0

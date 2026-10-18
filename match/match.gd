@@ -25,6 +25,10 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 
 var rng := RandomNumberGenerator.new()
 
+## Weapon cards offered at the current stop, and which one was bought (-1 = none yet).
+var weapon_offers: Array[WeaponUpgrade] = []
+var weapon_choice: int = -1
+
 
 func _ready() -> void:
 	if rng_seed != 0:
@@ -39,6 +43,7 @@ func _ready() -> void:
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
 	_upgrade_panel.tower_requested.connect(request_build_tower)
+	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
 
@@ -86,6 +91,18 @@ func request_build_tower() -> bool:
 	return done
 
 
+## One card per stop; the buyer's weapon gets it. Paid from the shared fortress storage.
+func request_weapon_upgrade(index: int) -> bool:
+	if not _follower.is_stopped or weapon_choice != -1 or index < 0 or index >= weapon_offers.size():
+		return false
+	if not _fortress.storage.spend(weapon_offers[index].cost):
+		return false
+	_warrior.weapon.apply_upgrade(weapon_offers[index])
+	weapon_choice = index
+	_upgrade_panel.set_weapon_choice(index)
+	return true
+
+
 func _on_warrior_died() -> void:
 	var carried := _warrior.inventory.take_all()
 	if not carried.is_empty():
@@ -122,8 +139,10 @@ func _on_reached_stop(index: int) -> void:
 	_spawner.active = false
 	_spawner.clear()
 	_status.text = "Điểm dừng %d — bấm Space / Start để khởi hành" % (index + 1)
+	weapon_offers = WeaponUpgrades.draw(rng, 3)
+	weapon_choice = -1
 	_upgrade_panel.show()
-	_upgrade_panel.refresh()
+	_upgrade_panel.set_weapon_offers(weapon_offers)
 
 
 func _on_departed() -> void:

@@ -12,6 +12,25 @@ signal swung(direction: Vector3, hit_count: int)
 @export_range(10.0, 360.0) var arc_degrees: float = 120.0
 
 var _cooldown_left: float = 0.0
+var _reach_shape: SphereShape3D
+
+
+func _ready() -> void:
+	# Own copy of the reach shape so upgrades do not grow every instance sharing the scene.
+	var collision: CollisionShape3D = $Collision
+	_reach_shape = collision.shape.duplicate()
+	collision.shape = _reach_shape
+
+
+func get_reach() -> float:
+	return _reach_shape.radius
+
+
+func apply_upgrade(upgrade: WeaponUpgrade) -> void:
+	damage *= upgrade.damage_multiplier
+	cooldown *= upgrade.cooldown_multiplier
+	arc_degrees = minf(arc_degrees + upgrade.arc_bonus_degrees, 360.0)
+	_reach_shape.radius *= upgrade.reach_multiplier
 
 
 func _physics_process(delta: float) -> void:

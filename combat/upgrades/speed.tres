@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponUpgrade" format=3]
+
+[ext_resource type="Script" path="res://combat/weapon_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"speed"
+display_name = "Đánh nhanh +20%"
+description = "Thời gian giữa hai đòn ngắn hơn 20%."
+cost = {
+&"bronze": 3
+}
+cooldown_multiplier = 0.8

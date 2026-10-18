@@ -36,6 +36,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây/đá), `Pickup` |
 | `camera/`, `world/` | Camera isometric orthographic, shader nền |
+| `ui/` | `UiStyle` (style chung), `UpgradePanel` (bảng ở điểm dừng), `WeaponCard` (thẻ vũ khí) |
 | `tests/` | Test harness |
 
 Nguyên tắc:
@@ -47,6 +48,12 @@ Nguyên tắc:
 - **Chữ người chơi thấy phải đi qua `tr()`** (game đa ngôn ngữ). Nhãn debug được viết cứng.
 - Sinh node trong lúc đang ở callback vật lý (ví dụ khi có thứ chết) thì dùng deferred.
 - Không xây hệ thống cho tính năng chưa được xác nhận.
+
+Điểm gắn asset (thay placeholder không cần sửa code):
+- Ảnh minh họa thẻ vũ khí: gán `art` (Texture2D) trong `combat/upgrades/*.tres`; thẻ tự thay ô placeholder.
+- Khung thẻ: thả ảnh 9-slice vào `ui/art/card_frame.png` (viền không giãn 24 px, xem `UiStyle.CARD_FRAME_SLICE`).
+- Bố cục thẻ: sửa `ui/weapon_card.tscn` trong editor. Màu/style chung: `ui/ui_style.gd`.
+- Khi thêm UI mới: tách thành scene riêng và chừa chỗ cho ảnh như trên.
 
 Collision layer:
 
