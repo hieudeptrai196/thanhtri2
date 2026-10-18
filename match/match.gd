@@ -152,6 +152,8 @@ func _ready() -> void:
 	var host_warrior: Warrior = $Warrior
 	add_player(host_warrior)
 	if _is_host():
+		host_warrior.apply_class(PlayerClasses.chosen())
+		_update_team_bonuses()
 		_set_local_warrior(host_warrior)
 	else:
 		# Clients draw what the host simulates; their own warrior arrives with the first snapshot.
@@ -184,6 +186,7 @@ func _physics_process(delta: float) -> void:
 		return
 	for player in players:
 		_keep_on_leash(player)
+	_apply_structure_auras()
 	_despawn_far_pickups()
 	_tick_respawns(delta)
 
@@ -212,7 +215,7 @@ func player_by_peer(id: int) -> Warrior:
 
 ## Online: creates the warrior of peer `id` next to the fortress (host: when that peer is ready;
 ## client: when a snapshot first mentions it).
-func spawn_player(id: int) -> Warrior:
+func spawn_player(id: int, player_class: PlayerClass = null) -> Warrior:
 	var existing := player_by_peer(id)
 	if existing:
 		return existing
@@ -221,12 +224,14 @@ func spawn_player(id: int) -> Warrior:
 	warrior.peer_id = id
 	add_child(warrior)
 	warrior.global_position = _fortress.global_transform * Vector3(8.0, 0.1, 2.0 * players.size())
+	warrior.apply_class(player_class)
 	var is_mine := id == multiplayer.get_unique_id()
 	warrior.input.remote = not is_mine
 	warrior.input.record_events = is_mine and not _is_host()
 	if not _is_host():
 		warrior.set_simulated(false)
 	add_player(warrior)
+	_update_team_bonuses()
 	if is_mine:
 		_set_local_warrior(warrior)
 	else:
@@ -243,6 +248,7 @@ func remove_player(id: int) -> void:
 	_respawns.erase(warrior)
 	_ready_players.erase(warrior)
 	warrior.queue_free()
+	_update_team_bonuses()
 	_check_all_ready()  # the one who left may have been the last not ready
 	_hud.show_toast(tr("Một người chơi đã rời đi"))
 
@@ -251,6 +257,31 @@ func _set_local_warrior(warrior: Warrior) -> void:
 	local_warrior = warrior
 	$IsoCamera.target = warrior
 	_hud.setup(_fortress, warrior, noise, best_before)
+
+
+## Team-wide class bonuses: the best one in the team applies (they do not stack).
+func _update_team_bonuses() -> void:
+	var fuel := 1.0
+	var prices := 1.0
+	for warrior in players:
+		if warrior.player_class:
+			fuel = minf(fuel, warrior.player_class.overdrive_fuel_multiplier)
+			prices = minf(prices, warrior.player_class.upgrade_cost_multiplier)
+	_fortress.overdrive_fuel_multiplier = fuel
+	_fortress.upgrade_cost_multiplier = prices
+	_upgrade_panel.refresh()
+
+
+# Structures near a living warrior with an aura class (Thầy pháp) fire faster.
+func _apply_structure_auras() -> void:
+	for structure in _structures.structures():
+		var bonus := 1.0
+		for warrior in players:
+			var c := warrior.player_class
+			if c and c.structure_aura_radius > 0.0 and warrior.is_alive \
+					and warrior.global_position.distance_to(structure.global_position) <= c.structure_aura_radius:
+				bonus = maxf(bonus, c.structure_fire_rate)
+		structure.fire_rate_bonus = bonus
 
 
 func _tick_respawns(delta: float) -> void:
@@ -360,7 +391,7 @@ func request_recover(structure: Structure, player: Warrior) -> bool:
 	if not structure.built:
 		_structures.dismantle(structure)
 		return true
-	if player.carried_type != null:
+	if not player.can_carry_more():
 		return false
 	var data := _structures.recover(structure)
 	player.carry(data.type, data.health)
@@ -760,8 +791,8 @@ func _despawn_far_pickups() -> void:
 
 
 func _on_player_died(warrior: Warrior) -> void:
-	if warrior.carried_type:
-		# The folded structure drops where the warrior fell (unpowered unless the fortress is near).
+	while warrior.carried_type:
+		# Folded structures drop where the warrior fell (unpowered unless the fortress is near).
 		_structures.place.call_deferred(warrior.carried_type, warrior.global_position, warrior.carried_health)
 		warrior.clear_carried()
 	var carried := warrior.inventory.take_all()

@@ -129,8 +129,8 @@ func refresh() -> void:
 	var next := _fortress.get_next_tier()
 	if next:
 		_tier_button.text = tr("Nâng thân pháo đài lên %s (%d máu) — %s") % [
-			tr(next.display_name), next.max_health, ResourceTypes.format_amounts(next.cost)]
-		_tier_button.disabled = not _fortress.storage.has_all(next.cost)
+			tr(next.display_name), next.max_health, ResourceTypes.format_amounts(_fortress.tier_cost(next))]
+		_tier_button.disabled = not _fortress.storage.has_all(_fortress.tier_cost(next))
 	else:
 		_tier_button.text = tr("Thân pháo đài đã ở cấp cao nhất")
 		_tier_button.disabled = true

@@ -19,6 +19,11 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
   - [Chốt 2026-10-18] cả đội thấy cùng 3 thẻ, mỗi người mua tối đa 1 (trả từ kho chung); ai cũng chọn được tuyến, người chọn sau cùng thắng; đã bấm sẵn sàng thì không hủy được.
 - Chưa thử 2 cửa sổ có hình (chỉ headless). Muốn thử: chạy 2 bản Godot, một bên Tạo phòng, bên kia Vào phòng 127.0.0.1.
 
+**M2.2 — 5 class = vai trò** (bắt đầu 2026-10-18; bảng class đã duyệt, co-op nâng lên 5 người)
+
+- [x] **M2.2a** Khung class (`classes/`: `PlayerClass` .tres + `PlayerClasses`), điểm mạnh thụ động: Công binh (búa ×1.5, sửa ×1.5, vác 2), Tiều phu (túi ×2, chạy ×1.25 khi rỗng), Võ tướng (máu ×1.5, sát thương ×1.3), Thầy pháp (công trình trong 8 m bắn ×1.3), Thợ máy (cả đội: tăng tốc tốn Than ×0.6, nâng cấp thành ×0.85). Chọn vai trò ở màn bắt đầu + phòng chờ (lưu trong SaveManager), gửi lên host qua `client_ready`, đồng bộ màu/class cho mọi máy. 8 test mới, 119 xanh; ảnh 1280×720 Việt + Anh vừa (đã thu gọn màn bắt đầu). **Chưa commit — chờ duyệt.** Số liệu = Đề xuất.
+- [ ] **M2.2b** 5 kỹ năng chủ động (phím R / LT, ngắm theo hướng chuột/stick, hồi chiêu, ô kỹ năng trên HUD)
+
 ## Tiếp theo (M2, xem ROADMAP)
 
 - M2.1 Mạng co-op nền (host-authoritative, ENet, test 2–4 cửa sổ trên cùng máy), kho chung + túi riêng

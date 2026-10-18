@@ -23,6 +23,10 @@ signal leave_requested
 @onready var _languages: HBoxContainer = %Languages
 
 var _language_buttons: Dictionary = {}
+# Class picker (main view and lobby), built in code.
+var _class_title: Label
+var _class_row: HBoxContainer
+var _class_cards: Dictionary = {}
 # Co-op lobby, built in code under the main column.
 var _coop: Button
 var _lobby: VBoxContainer
@@ -46,6 +50,7 @@ func _ready() -> void:
 	_play.pressed.connect(play_requested.emit)
 	_daily.pressed.connect(daily_requested.emit)
 	_build_lobby()
+	_build_class_picker()
 	_language_title.add_theme_color_override("font_color", UiStyle.PARCHMENT)
 	for code in Locales.SUPPORTED:
 		var button := Button.new()
@@ -65,6 +70,9 @@ func open() -> void:
 	_language_title.visible = true
 	_languages.visible = true
 	_lobby.visible = false
+	_class_title.visible = not first_launch
+	_class_row.visible = not first_launch
+	_refresh_class_cards()
 	_language_title.text = tr("Chọn ngôn ngữ") if not first_launch else "Chọn ngôn ngữ / Choose language"
 	for code in _language_buttons:
 		UiStyle.apply_button(_language_buttons[code], UiStyle.BRONZE_BRIGHT if code == Locales.current() and not first_launch else UiStyle.BRONZE)
@@ -107,10 +115,65 @@ func _open_lobby() -> void:
 	_address.editable = true
 
 
+func _build_class_picker() -> void:
+	var column := _play.get_parent()
+	_class_title = UiStyle.label("", 17, UiStyle.PARCHMENT)
+	_class_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(_class_title)
+	column.move_child(_class_title, _subtitle.get_index() + 1)
+	_class_row = HBoxContainer.new()
+	_class_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_class_row.add_theme_constant_override("separation", 10)
+	column.add_child(_class_row)
+	column.move_child(_class_row, _class_title.get_index() + 1)
+	for player_class in PlayerClasses.ALL:
+		var card := Button.new()
+		card.custom_minimum_size = Vector2(158, 112)
+		UiStyle.apply_card(card)
+		card.pressed.connect(_on_class_picked.bind(player_class))
+		var margin := MarginContainer.new()
+		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for side in ["left", "right", "top", "bottom"]:
+			margin.add_theme_constant_override("margin_" + side, 8)
+		card.add_child(margin)
+		var text := VBoxContainer.new()
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		margin.add_child(text)
+		var name_label := UiStyle.label("", 18, player_class.color.lightened(0.35))
+		name_label.name = "Name"
+		text.add_child(name_label)
+		var about := UiStyle.label("", 12)
+		about.name = "About"
+		about.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		text.add_child(about)
+		_class_row.add_child(card)
+		_class_cards[player_class] = card
+
+
+func _refresh_class_cards() -> void:
+	_class_title.text = tr("Chọn vai trò")
+	var chosen := PlayerClasses.chosen()
+	for player_class: PlayerClass in _class_cards:
+		var card: Button = _class_cards[player_class]
+		card.find_child("Name", true, false).text = tr(player_class.display_name)
+		card.find_child("About", true, false).text = tr(player_class.description)
+		card.tooltip_text = "%s — %s" % [tr(player_class.skill_name), tr(player_class.skill_description)]
+		var picked := player_class == chosen
+		card.add_theme_stylebox_override("normal", UiStyle.card_frame(UiStyle.BRONZE_BRIGHT if picked else UiStyle.BRONZE.darkened(0.25),
+			4 if picked else 2, Color.WHITE, UiStyle.WOOD_LIGHT if picked else UiStyle.WOOD))
+
+
+# Remembered for the next runs too; online, the host learns it when this player's match loads.
+func _on_class_picked(player_class: PlayerClass) -> void:
+	PlayerClasses.choose(player_class)
+	_refresh_class_cards()
+
+
 func _build_lobby() -> void:
 	var column := _play.get_parent()
 	_coop = Button.new()
-	_coop.custom_minimum_size = Vector2(320, 50)
+	_coop.custom_minimum_size = Vector2(320, 44)
 	_coop.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_coop.add_theme_font_size_override("font_size", 19)
 	UiStyle.apply_button(_coop)
@@ -134,7 +197,7 @@ func _build_lobby() -> void:
 	join_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	join_row.add_theme_constant_override("separation", 10)
 	_address = LineEdit.new()
-	_address.custom_minimum_size = Vector2(230, 48)
+	_address.custom_minimum_size = Vector2(290, 48)
 	_address.add_theme_font_size_override("font_size", 18)
 	_address.add_theme_stylebox_override("normal", UiStyle.box(UiStyle.WOOD.darkened(0.3), UiStyle.BRONZE, 2, 8))
 	_address.add_theme_stylebox_override("focus", UiStyle.box(UiStyle.WOOD.darkened(0.3), UiStyle.BRONZE_BRIGHT, 2, 8))

@@ -2,7 +2,7 @@
 """Collects player-facing strings and keeps the translation files in step.
 
 Sources: tr("...") in game scripts, string literals on lines marked "# i18n", and display_name /
-description fields of .tres data. Vietnamese is the source language (msgid).
+description / skill_name / skill_description fields of .tres data. Vietnamese is the source language (msgid).
 Writes locale/messages.pot and merges every locale/*.po: known translations are kept, new
 strings are added empty, strings no longer used are dropped. Prints what is still untranslated.
 
@@ -16,7 +16,7 @@ SKIP_DIRS = {"tests", "tools", ".godot", "addons"}
 STRING = r'"((?:[^"\\]|\\.)*)"'
 TR_CALL = re.compile(r'\btr\(\s*' + STRING + r'\s*\)')
 LITERAL = re.compile(STRING)
-TRES_FIELD = re.compile(r'^(?:display_name|description) = ' + STRING + r'\s*$', re.M)
+TRES_FIELD = re.compile(r'^(?:display_name|description|skill_name|skill_description) = ' + STRING + r'\s*$', re.M)
 
 
 def game_files(pattern):

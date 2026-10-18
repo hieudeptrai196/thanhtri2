@@ -5,83 +5,83 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: match/match.gd:164
+#: match/match.gd:166
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:233
+#: match/match.gd:238
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:247
+#: match/match.gd:253
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:263
+#: match/match.gd:294
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:375
+#: match/match.gd:406
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:375
+#: match/match.gd:406
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:383
+#: match/match.gd:414
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:390
+#: match/match.gd:421
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:494
+#: match/match.gd:525
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:503
+#: match/match.gd:534
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:507
+#: match/match.gd:538
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:513
+#: match/match.gd:544
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:518
+#: match/match.gd:549
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:557
+#: match/match.gd:588
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:558
+#: match/match.gd:589
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:795
+#: match/match.gd:826
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr ""
 
-#: match/match.gd:809
+#: match/match.gd:840
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr ""
 
-#: match/match.gd:823
+#: match/match.gd:854
 msgid "Khởi hành — tuyến %s"
 msgstr ""
 
-#: match/match.gd:825
+#: match/match.gd:856
 msgid "Khởi hành!"
 msgstr ""
 
-#: structures/structure.gd:198
+#: structures/structure.gd:204
 msgid "Thiếu %s"
 msgstr ""
 
@@ -209,56 +209,60 @@ msgstr ""
 msgid "Điểm dừng: %d m"
 msgstr ""
 
-#: ui/start_menu.gd:68
+#: ui/start_menu.gd:76
 msgid "Chọn ngôn ngữ"
 msgstr ""
 
-#: ui/start_menu.gd:72
+#: ui/start_menu.gd:80
 msgid "THÀNH TRÌ"
 msgstr ""
 
-#: ui/start_menu.gd:73
+#: ui/start_menu.gd:81
 msgid "Hộ tống thành trì đi càng xa càng tốt"
 msgstr ""
 
-#: ui/start_menu.gd:74
+#: ui/start_menu.gd:82
 msgid "Chơi"
 msgstr ""
 
-#: ui/start_menu.gd:75
+#: ui/start_menu.gd:83
 msgid "Thử thách hôm nay (%s)"
 msgstr ""
 
-#: ui/start_menu.gd:76
+#: ui/start_menu.gd:84
 msgid "Chơi cùng bạn bè"
 msgstr ""
 
-#: ui/start_menu.gd:77
+#: ui/start_menu.gd:85
 msgid "Kỷ lục: %s   ·   Hôm nay: %s   ·   Đã chơi %d trận"
 msgstr ""
 
-#: ui/start_menu.gd:98
+#: ui/start_menu.gd:106
 msgid "Tạo phòng"
 msgstr ""
 
-#: ui/start_menu.gd:99
+#: ui/start_menu.gd:107
 msgid "Địa chỉ IP của chủ phòng"
 msgstr ""
 
-#: ui/start_menu.gd:100
+#: ui/start_menu.gd:108
 msgid "Vào phòng"
 msgstr ""
 
-#: ui/start_menu.gd:101
+#: ui/start_menu.gd:109
 msgid "Bắt đầu"
 msgstr ""
 
-#: ui/start_menu.gd:102
+#: ui/start_menu.gd:110
 msgid "Quay lại"
 msgstr ""
 
-#: ui/start_menu.gd:103
+#: ui/start_menu.gd:111
 msgid "Tối đa %d người. Cùng mạng LAN, hoặc mở cổng %d."
+msgstr ""
+
+#: ui/start_menu.gd:155
+msgid "Chọn vai trò"
 msgstr ""
 
 #: ui/upgrade_panel.gd:37
@@ -303,6 +307,86 @@ msgstr ""
 
 #: ui/upgrade_panel.gd:147
 msgid "%s cấp %d — %s"
+msgstr ""
+
+#: classes/types/engineer.tres
+msgid "Công binh"
+msgstr ""
+
+#: classes/types/engineer.tres
+msgid "Gõ búa và sửa thành nhanh hơn, vác được 2 công trình."
+msgstr ""
+
+#: classes/types/engineer.tres
+msgid "Dựng tốc"
+msgstr ""
+
+#: classes/types/engineer.tres
+msgid "Các bản vẽ quanh mình xây nhanh gấp 3 trong 5 giây."
+msgstr ""
+
+#: classes/types/general.tres
+msgid "Võ tướng"
+msgstr ""
+
+#: classes/types/general.tres
+msgid "Máu và sát thương cao hơn."
+msgstr ""
+
+#: classes/types/general.tres
+msgid "Hét trận"
+msgstr ""
+
+#: classes/types/general.tres
+msgid "Kéo quái quanh mình về phía mình, giảm sát thương phải nhận trong 4 giây."
+msgstr ""
+
+#: classes/types/mechanic.tres
+msgid "Thợ máy"
+msgstr ""
+
+#: classes/types/mechanic.tres
+msgid "Tăng tốc tốn ít Than hơn, nâng cấp pháo đài rẻ hơn (cả đội)."
+msgstr ""
+
+#: classes/types/mechanic.tres
+msgid "Đốt lò"
+msgstr ""
+
+#: classes/types/mechanic.tres
+msgid "Tăng tốc pháo đài 8 giây mà không tốn thêm Than."
+msgstr ""
+
+#: classes/types/shaman.tres
+msgid "Thầy pháp"
+msgstr ""
+
+#: classes/types/shaman.tres
+msgid "Công trình gần mình bắn nhanh hơn."
+msgstr ""
+
+#: classes/types/shaman.tres
+msgid "Bùa trận"
+msgstr ""
+
+#: classes/types/shaman.tres
+msgid "Vùng hồi máu cho người và công trình; quái trong vùng bị chậm."
+msgstr ""
+
+#: classes/types/woodcutter.tres
+msgid "Tiều phu"
+msgstr ""
+
+#: classes/types/woodcutter.tres
+msgid "Túi đựng gấp đôi, chạy nhanh khi túi rỗng."
+msgstr ""
+
+#: classes/types/woodcutter.tres
+msgid "Bổ mạnh"
+msgstr ""
+
+#: classes/types/woodcutter.tres
+msgid "Một nhát lấy 3 đơn vị Gỗ hoặc Than."
 msgstr ""
 
 #: combat/upgrades/arc.tres

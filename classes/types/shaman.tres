@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PlayerClass" format=3]
+
+[ext_resource type="Script" path="res://classes/player_class.gd" id="1_class"]
+
+[resource]
+script = ExtResource("1_class")
+id = &"shaman"
+display_name = "Thầy pháp"
+description = "Công trình gần mình bắn nhanh hơn."
+skill_name = "Bùa trận"
+skill_description = "Vùng hồi máu cho người và công trình; quái trong vùng bị chậm."
+color = Color(0.6, 0.35, 0.85, 1)
+structure_aura_radius = 8.0
+structure_fire_rate = 1.3

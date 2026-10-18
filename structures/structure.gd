@@ -44,6 +44,9 @@ var helpers: int = 0
 var net_id: int = 0
 
 var _hammer_purses: Array[Inventory] = []
+var _hammer_weight: float = 0.0
+## Multiplies how fast this structure's shooter fires (set by the match, e.g. a Thầy pháp nearby).
+var fire_rate_bonus: float = 1.0
 var _recover_helpers: int = 0
 
 
@@ -64,8 +67,10 @@ func start_as_blueprint() -> void:
 
 
 ## A player hammers this blueprint this tick; `purse` pays first, before the shared storage.
-func add_hammer(purse: Inventory) -> void:
+## `weight` > 1 counts as more than one hammer (a Công binh).
+func add_hammer(purse: Inventory, weight: float = 1.0) -> void:
 	_hammer_purses.append(purse)
+	_hammer_weight += weight
 
 
 ## A player holds recover on this structure this tick.
@@ -139,10 +144,11 @@ func can_recover() -> bool:
 
 
 func _advance_construction(delta: float, storage: Inventory) -> void:
-	var hammers := _hammer_purses.size()
+	var hammers := _hammer_weight
 	var purses := _hammer_purses.duplicate()
 	_hammer_purses.clear()
-	if hammers == 0:
+	_hammer_weight = 0.0
+	if purses.is_empty():
 		return
 	var target := minf(build_progress + delta * pow(hammers, team_exponent), build_time)
 	starved = false

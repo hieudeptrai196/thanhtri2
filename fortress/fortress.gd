@@ -66,6 +66,9 @@ var overdrive: bool = false
 var speed_mode: SpeedMode = SpeedMode.MARCH
 ## Bought level per FortressUpgrade id (missing = 0).
 var upgrade_levels: Dictionary = {}
+## Team bonuses from classes (a Thợ máy in the team): overdrive fuel use and upgrade prices.
+var overdrive_fuel_multiplier: float = 1.0
+var upgrade_cost_multiplier: float = 1.0
 
 var _repair_cooldown: float = 0.0
 ## Fuel burned but not yet taken out of storage (whole units are taken).
@@ -98,14 +101,14 @@ func fuel_left() -> int:
 
 ## Seconds of marching left at the current burn rate.
 func fuel_seconds_left() -> float:
-	var rate := overdrive_fuel_per_second if overdrive else fuel_per_second
+	var rate := overdrive_fuel_per_second * overdrive_fuel_multiplier if overdrive else fuel_per_second
 	return (fuel_left() - _fuel_owed) / rate
 
 
 func _burn_fuel(delta: float) -> void:
 	if follower.is_stopped:
 		return
-	_fuel_owed += (overdrive_fuel_per_second if overdrive else fuel_per_second) * delta
+	_fuel_owed += (overdrive_fuel_per_second * overdrive_fuel_multiplier if overdrive else fuel_per_second) * delta
 	while _fuel_owed >= 1.0 and storage.spend({fuel_resource.id: 1}):
 		_fuel_owed -= 1.0
 	# Out of fuel once a whole unit is owed and none is left; refuelling clears it next tick.
@@ -138,7 +141,7 @@ func get_next_tier() -> FortressTier:
 
 func upgrade_tier() -> bool:
 	var next := get_next_tier()
-	if next == null or not storage.spend(next.cost):
+	if next == null or not storage.spend(tier_cost(next)):
 		return false
 	tier_index += 1
 	_apply_tier(next)
@@ -149,7 +152,8 @@ func upgrade_tier() -> bool:
 func net_state() -> Dictionary:
 	return {"follow": follower.net_state(), "hp": [health.current, health.max_health, health.shield, health.max_shield],
 		"storage": storage.amounts, "overdrive": overdrive, "mode": speed_mode, "tier": tier_index,
-		"upgrades": upgrade_levels, "divine": divine_crossbow.charge, "speed": follower.speed_multiplier}
+		"upgrades": upgrade_levels, "divine": divine_crossbow.charge, "speed": follower.speed_multiplier,
+		"prices": upgrade_cost_multiplier}
 
 
 func apply_net_state(state: Dictionary) -> void:
@@ -161,6 +165,7 @@ func apply_net_state(state: Dictionary) -> void:
 	storage.set_net_amounts(state.storage)
 	overdrive = state.overdrive
 	speed_mode = state.mode
+	upgrade_cost_multiplier = state.prices
 	if state.tier != tier_index or state.upgrades != upgrade_levels:
 		tier_index = state.tier
 		upgrade_levels = state.upgrades.duplicate()
@@ -181,7 +186,21 @@ func upgrade_level(id: StringName) -> int:
 ## Cost of the next level of `upgrade`, or empty when maxed.
 func next_upgrade_cost(upgrade: FortressUpgrade) -> Dictionary:
 	var level := upgrade_level(upgrade.id)
-	return upgrade.costs[level] if level < upgrade.max_level() else {}
+	return _scaled_cost(upgrade.costs[level]) if level < upgrade.max_level() else {}
+
+
+## What `tier` costs this team (after class discounts).
+func tier_cost(tier: FortressTier) -> Dictionary:
+	return _scaled_cost(tier.cost)
+
+
+func _scaled_cost(cost: Dictionary) -> Dictionary:
+	if upgrade_cost_multiplier == 1.0:
+		return cost
+	var scaled := {}
+	for id in cost:
+		scaled[id] = maxi(ceili(cost[id] * upgrade_cost_multiplier), 1)
+	return scaled
 
 
 func buy_upgrade(upgrade: FortressUpgrade) -> bool:
@@ -194,10 +213,11 @@ func buy_upgrade(upgrade: FortressUpgrade) -> bool:
 
 
 ## Called every tick while at least one player repairs; spends one unit per step.
-func tick_repair(_delta: float) -> void:
+## `rate` > 1 repairs faster (shorter wait between units).
+func tick_repair(_delta: float, rate: float = 1.0) -> void:
 	if _repair_cooldown > 0.0 or health.current >= health.max_health:
 		return
-	_repair_cooldown = repair_interval
+	_repair_cooldown = repair_interval / rate
 	if storage.spend({repair_resource.id: 1}):
 		health.heal(repair_per_unit)
 

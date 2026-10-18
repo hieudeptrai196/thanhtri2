@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PlayerClass" format=3]
+
+[ext_resource type="Script" path="res://classes/player_class.gd" id="1_class"]
+
+[resource]
+script = ExtResource("1_class")
+id = &"mechanic"
+display_name = "Thợ máy"
+description = "Tăng tốc tốn ít Than hơn, nâng cấp pháo đài rẻ hơn (cả đội)."
+skill_name = "Đốt lò"
+skill_description = "Tăng tốc pháo đài 8 giây mà không tốn thêm Than."
+color = Color(0.45, 0.5, 0.55, 1)
+overdrive_fuel_multiplier = 0.6
+upgrade_cost_multiplier = 0.85

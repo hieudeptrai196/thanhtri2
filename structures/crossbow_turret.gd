@@ -36,7 +36,7 @@ func _physics_process(delta: float) -> void:
 			return
 	_update_status()
 	_shooter.enabled = is_running() or is_overloading()
-	_shooter.rate_multiplier = last_shot_rate_multiplier if is_overloading() else 1.0
+	_shooter.rate_multiplier = (last_shot_rate_multiplier if is_overloading() else 1.0) * fire_rate_bonus
 
 
 func net_state() -> Array:

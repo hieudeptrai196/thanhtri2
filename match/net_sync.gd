@@ -43,7 +43,7 @@ func start_shared_run(run_seed: int) -> void:
 func _announce_ready() -> void:
 	if _match.in_lobby():
 		return  # joined from the menu: wait for the host to start a run
-	client_ready.rpc_id(1)
+	client_ready.rpc_id(1, PlayerClasses.ALL.find(PlayerClasses.chosen()))
 
 
 func _physics_process(delta: float) -> void:
@@ -72,12 +72,13 @@ func begin_run(run_seed: int) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func client_ready() -> void:
+func client_ready(class_index: int) -> void:
 	if not multiplayer.is_server():
 		return
 	var id := multiplayer.get_remote_sender_id()
 	_ready_peers[id] = true
-	_match.spawn_player(id)
+	var valid := class_index >= 0 and class_index < PlayerClasses.ALL.size()
+	_match.spawn_player(id, PlayerClasses.ALL[class_index] if valid else null)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")

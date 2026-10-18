@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PlayerClass" format=3]
+
+[ext_resource type="Script" path="res://classes/player_class.gd" id="1_class"]
+
+[resource]
+script = ExtResource("1_class")
+id = &"engineer"
+display_name = "Công binh"
+description = "Gõ búa và sửa thành nhanh hơn, vác được 2 công trình."
+skill_name = "Dựng tốc"
+skill_description = "Các bản vẽ quanh mình xây nhanh gấp 3 trong 5 giây."
+color = Color(0.85, 0.55, 0.2, 1)
+hammer_multiplier = 1.5
+repair_multiplier = 1.5
+carry_capacity = 2

@@ -31,6 +31,21 @@ var is_alive: bool = true
 ## Folded structure on the warrior's back (null = hands free), and its health when folded.
 var carried_type: StructureType = null
 var carried_health: float = 0.0
+## Class (role) of this warrior; null = no class (plain stats, used by tests).
+var player_class: PlayerClass = null
+## Folded structures this warrior can carry at once (the top one is carried_type / carried_health).
+var carry_capacity: int = 1
+## Class strengths read by other systems (Builder, ServiceZone).
+var hammer_multiplier: float = 1.0
+var repair_multiplier: float = 1.0
+var _empty_speed_multiplier: float = 1.0
+# Structures carried under the top one, as [type, health].
+var _carried_stack: Array = []
+# Stats before any class, so changing class never compounds.
+var _base_max_health: float
+var _base_damage: float
+var _base_capacity: int
+var _base_color: Color
 ## Multiplayer peer that controls this warrior (1 = the host, also used offline).
 var peer_id: int = 1
 ## False on clients: the host simulates and this warrior only shows what the host sends.
@@ -51,6 +66,29 @@ var _attack_facing_left: float = 0.0
 func _ready() -> void:
 	weapon.swung.connect(_on_swung)
 	health.died.connect(_on_died)
+	_base_max_health = health.max_health
+	_base_damage = weapon.damage
+	_base_capacity = inventory.capacity
+	_base_color = ($Body.mesh.material as StandardMaterial3D).albedo_color
+
+
+## Gives this warrior a class (null = none): its passive strengths and placeholder colour.
+func apply_class(new_class: PlayerClass) -> void:
+	if new_class == player_class:
+		return
+	player_class = new_class
+	var c := new_class if new_class else PlayerClass.new()
+	health.set_max_health(_base_max_health * c.max_health_multiplier)
+	health.reset()
+	weapon.damage = _base_damage * c.damage_multiplier
+	inventory.capacity = roundi(_base_capacity * c.capacity_multiplier)
+	carry_capacity = c.carry_capacity
+	hammer_multiplier = c.hammer_multiplier
+	repair_multiplier = c.repair_multiplier
+	_empty_speed_multiplier = c.empty_speed_multiplier
+	var material := StandardMaterial3D.new()
+	material.albedo_color = new_class.color if new_class else _base_color
+	$Body.material_override = material
 
 
 ## Brings the warrior back at full health. Who decides when and where is up to the match.
@@ -60,15 +98,32 @@ func respawn_at(spawn_position: Vector3) -> void:
 	_set_alive(true)
 
 
+## Puts a folded structure on top of what is carried (check can_carry_more first).
 func carry(type: StructureType, health_value: float) -> void:
+	if carried_type:
+		_carried_stack.push_back([carried_type, carried_health])
 	carried_type = type
 	carried_health = health_value
 	_carried_prop.visible = true
 
 
+## Removes the top carried structure; the next one (if any) comes up.
 func clear_carried() -> void:
-	carried_type = null
-	_carried_prop.visible = false
+	if _carried_stack.is_empty():
+		carried_type = null
+		_carried_prop.visible = false
+		return
+	var next: Array = _carried_stack.pop_back()
+	carried_type = next[0]
+	carried_health = next[1]
+
+
+func carried_count() -> int:
+	return (1 if carried_type else 0) + _carried_stack.size()
+
+
+func can_carry_more() -> bool:
+	return carried_count() < carry_capacity
 
 
 func set_simulated(on: bool) -> void:
@@ -79,7 +134,7 @@ func set_simulated(on: bool) -> void:
 ## What clients need to draw this warrior and the HUD of its owner.
 func net_state() -> Array:
 	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
-		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw]
+		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count()]
 
 
 func apply_net_state(state: Array) -> void:
@@ -93,11 +148,15 @@ func apply_net_state(state: Array) -> void:
 		_set_alive(state[2])
 	health.set_net_state(state[3], state[4], 0.0, 0.0)
 	inventory.set_net_amounts(state[5])
+	var class_index: int = state[9]
+	apply_class(PlayerClasses.ALL[class_index] if class_index >= 0 else null)
+	# Only the top type and the count matter on clients (prop, prompts, can_carry_more).
 	var carried: int = state[6]
-	if carried < 0 and carried_type:
-		clear_carried()
-	elif carried >= 0 and carried_type != StructureTypes.ALL[carried]:
-		carry(StructureTypes.ALL[carried], 0.0)
+	_carried_stack.clear()
+	carried_type = StructureTypes.ALL[carried] if carried >= 0 else null
+	_carried_prop.visible = carried_type != null
+	for i in maxi(state[10] - 1, 0):
+		_carried_stack.append([carried_type, 0.0])
 	if state[7] != _swing_count:
 		_swing_count = state[7]
 		_flash_swing(state[8])
@@ -130,6 +189,8 @@ func _physics_process(delta: float) -> void:
 			_hurtbox.set_deferred("monitorable", true)
 	else:
 		var speed := carry_speed if carried_type else move_speed
+		if carried_type == null and inventory.total() == 0:
+			speed *= _empty_speed_multiplier
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		if carried_type == null and builder.hammer_target == null:

@@ -121,14 +121,14 @@ func _update_hammer(input: PlayerInput) -> void:
 	if blueprint and input.interact_held:
 		hammer_target = blueprint
 		if multiplayer.is_server():
-			blueprint.add_hammer(_warrior.inventory)
+			blueprint.add_hammer(_warrior.inventory, _warrior.hammer_multiplier)
 
 
 # Recover progress lives on the structure, so helpers holding recover together finish sooner.
 # With hands full only blueprints can be taken down.
 func _update_recover(input: PlayerInput) -> void:
 	recover_target = network.nearest_recoverable(_warrior.global_position, recover_range)
-	if recover_target and recover_target.built and _warrior.carried_type != null:
+	if recover_target and recover_target.built and not _warrior.can_carry_more():
 		recover_target = null
 	recover_progress = recover_target.recover_progress if recover_target else 0.0
 	if recover_target == null or not input.recover_held or not multiplayer.is_server():
