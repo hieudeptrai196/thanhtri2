@@ -41,9 +41,11 @@
 | — | `ef650ec` | `docs/PROGRESS.md` |
 | M1.1 | `ab03fb0` | Lộ trình vô tận, nội dung theo đoạn, harness timeout |
 | M1.2 | `c85f80e` | Độ khó theo quãng đường |
+| M1.3 | `5e07fb1` | Tự đánh + dash |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · Điều khiển xây: phím 1–4 + chuột trên PC, menu vòng tròn (LB) cho tay cầm; xây thời gian thực, không slow-mo.
 - 2026-10-18 · Chọn ý tưởng 1,2,4,5,7–18 (19 ưu tiên thấp); co-op tối đa 4; roadmap viết lại (M1 vòng cốt lõi → M2 co-op…).
 - 2026-10-18 · **Endless + chọn 1/2 tuyến ở mỗi điểm dừng** (thay quyết định "một đường, ngã rẽ để M3").
 - 2026-10-18 · **Độ khó: quãng đường làm nền (M1.2 giữ lại) + thanh tiếng ồn / truy đuổi.**
@@ -62,7 +64,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). Chốt cách điều khiển chế độ xây cho M1.4.
+- Đã chốt vòng nhảy cóc (phương án 1). Duyệt bộ thông số đề xuất cho M1.4 (công trình).
 
 ## Ghi chú cho phiên sau
 
