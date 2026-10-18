@@ -54,7 +54,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `structures/` | `StructureType` (.tres trong `types/`) + `StructureTypes.ALL`, `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), rào gỗ (`Structure` không cần điện, hút quái), `StructureNetwork` (chứa công trình ở tọa độ thế giới, luật đặt, tiếp sức trong bán kính pháo đài, bản vẽ, dỡ/thu hồi). `Structure` bắt đầu là **bản vẽ**: `add_hammer` mỗi tick, trả dần (túi rồi kho), `add_recover_helper` cộng tiến độ thu hồi chung |
 | `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, `AutoShooter` (tự bắn mục tiêu gần nhất — dùng cho tháp nỏ và nỏ liên châu trên thành), bia thử |
 | `enemies/` | `Enemy` |
-| `resources/` | `ResourceType` (.tres trong `types/`), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây/đá), `Pickup` |
+| `resources/` | `ResourceType` (.tres trong `types/`: wood, coal, bronze), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây, mỏ than), `Pickup` |
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/đá/bom/vòng điểm dừng theo đoạn, dọn phía sau), `ground_follow.gd`, `HiddenBomb`, shader nền |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
@@ -68,7 +68,7 @@ Nguyên tắc:
 - **Quyền đặt / thu hồi công trình ở `Match.request_place` / `request_recover`** (sau này chạy trên server); `Builder` chỉ phát ý định. Công trình là con của `StructureNetwork`, không bao giờ là con của pháo đài.
 - Người chơi được nhận diện kiểu duck typing (`is_alive`, `inventory`, `input`), quái không phụ thuộc trực tiếp vào `Warrior`.
 - **Tất định theo seed:** đường + nội dung dùng RNG riêng sinh từ `run_seed` (`Match._seeded_rng`), không dùng chung RNG gameplay — cần cho seed hằng ngày.
-- Tài nguyên/chi phí là dữ liệu dạng `{ &"wood": 3 }`. Thêm loại tài nguyên = thêm `.tres` + khai báo trong `ResourceTypes.ALL`.
+- Tài nguyên/chi phí là dữ liệu dạng `{ &"wood": 3, &"coal": 1 }`. Thêm loại tài nguyên = thêm `.tres` + khai báo trong `ResourceTypes.ALL`.
 - **Chữ người chơi thấy phải đi qua `tr()`** (game đa ngôn ngữ). Nhãn debug được viết cứng.
 - Sinh node trong lúc đang ở callback vật lý (ví dụ khi có thứ chết) thì dùng deferred.
 - Không xây hệ thống cho tính năng chưa được xác nhận.
@@ -104,7 +104,7 @@ Collision layer:
 - **[2026-10-18] Pháo đài tự phòng thủ được (khác spec Marcha de Ferro).** Nguyên tắc: thành chỉ xử lý quái **lọt sát thân**; chặn cả đợt vẫn là việc của công trình ngoài thực địa + người chơi. Gồm cả 6 cơ chế: (1) **nỏ liên châu** tự bắn yếu, tầm ngắn, có sẵn; (2) **Nỏ thần** — thanh năng lượng đầy dần khi đội hạ quái/nộp đồ/xây, một người kích hoạt loạt tên quét quanh thành; (3) **chông gai** phản sát thương → nâng cấp **dầu sôi** tự dội khi thành mất nhiều máu; (4) module **lò lửa đốt Than**; (5) **ụ nỏ có người điều khiển** (co-op: người đứng vào ngắm bắn mạnh, không ai thì tự bắn yếu); (6) **khiên tự hồi**. Module hiện lên trên thân thành. **Vũ khí của thành nằm trong nâng cấp của thành (ở điểm dừng), trả bằng nguyên liệu kiếm được** — giá trộn Gỗ/Than/Đồng theo từng nâng cấp (vd nâng nỏ: Gỗ + Đồng; lò lửa: Đồng + Than; khiên: Đồng) [số liệu: Đề xuất].
 - **[2026-10-18] Endless + chọn 1 trong 2 tuyến ở mỗi điểm dừng** (mỗi tuyến có thưởng/rủi ro, vd rừng già: nhiều Gỗ + đông quái; mỏ than: nhiều Than + đường hẹp; đền hoang: chắc có module + ít tài nguyên). Tuyến sinh theo seed (seed hằng ngày vẫn công bằng). Chế độ Hành trình có cổng cuối: để sau phát hành nếu cần.
 - **[2026-10-18] Độ khó = quãng đường (nền, `Difficulty`) + tiếng ồn** (tăng theo thời gian và việc ồn: tăng tốc, chặt cây, bắn…; đầy thanh → truy đuổi, quái dồn từ phía sau; điểm dừng làm dịu).
-- **[2026-10-18] Tài nguyên mới (3 loại):** **Gỗ** = xây công trình + sửa thành; **Than** (mới) = nhiên liệu pháo đài (đủ than chạy thường, **tăng tốc** tốn than + kéo thêm quái, hết than bò chậm); **Đồng** = vũ khí, kỹ năng, góp phần vào nâng cấp pháo đài (cùng Gỗ/Than). **Bỏ Đá** (nâng thân pháo đài chuyển thành module trả Đồng). *(Code hiện vẫn Gỗ/Đá/Đồng — đổi khi làm vòng mới.)* Mang về pháo đài; người chơi chia việc giữ thành / đi kiếm.
+- **[2026-10-18] Tài nguyên mới (3 loại):** **Gỗ** = xây công trình + sửa thành; **Than** (mới) = nhiên liệu pháo đài (đủ than chạy thường, **tăng tốc** tốn than + kéo thêm quái, hết than bò chậm); **Đồng** = vũ khí, kỹ năng, góp phần vào nâng cấp pháo đài (cùng Gỗ/Than). **Bỏ Đá**. Đã làm ở M1.6a: Than từ **mỏ than** dọc đường; thành tiêu 0.125 Than/s, **tăng tốc** (T / D-pad lên) ×1.6 tốc độ, 0.6 Than/s; hết Than chạy 35%; kho bắt đầu 30 Gỗ + 15 Than. Mang về pháo đài; người chơi chia việc giữ thành / đi kiếm.
 - Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
 - Chiến binh ngã thì hồi sinh nhưng **rơi hết đồ đang mang**. Thua khi pháo đài bị phá.
 - Pháo đài không chỉ bằng gỗ. Nâng cấp ở điểm dừng theo 2 trục: **thân pháo đài lên cấp vật liệu** (gỗ → đá → …, tăng độ bền, đổi hình) + **ô quanh rìa gắn công trình tấn công** (tháp…). Prototype: 1 cấp gỗ → đá, 1 loại tháp tự bắn. Thẻ nâng cấp ngẫu nhiên có thể thêm khi làm endless.

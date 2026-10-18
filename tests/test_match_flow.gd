@@ -72,8 +72,8 @@ func test_hud_tracks_fortress_route_and_resources() -> void:
 	warrior.inventory.add(&"wood", 4)
 	check(hud._carried[0].type.id == &"wood" and hud._carried[0]._amount.text == "4", "carried wood shows 4")
 	check(hud._carried_label.text.contains("4/20"), "carried total shows 4/20")
-	fortress.storage.add(&"stone", 7)
-	check(hud._stored[1]._amount.text == "7", "stored stone shows 7")
+	fortress.storage.add(&"coal", 7)
+	check(hud._stored[1]._amount.text == "7", "stored coal shows 7")
 
 
 func test_hud_hints_repair_and_shows_respawn() -> void:

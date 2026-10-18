@@ -81,7 +81,14 @@ func set_center_message(text: String) -> void:
 func _process(_delta: float) -> void:
 	if _fortress == null:
 		return
-	_speed_label.text = tr("Tốc độ %d%%") % roundi(_fortress.follower.speed_multiplier * 100.0)
+	var speed_text := tr("Tốc độ %d%%") % roundi(_fortress.follower.speed_multiplier * 100.0)
+	match _fortress.speed_mode:
+		Fortress.SpeedMode.OVERDRIVE:
+			speed_text += tr(" · TĂNG TỐC")
+		Fortress.SpeedMode.OUT_OF_FUEL:
+			speed_text += tr(" · HẾT THAN")
+	_speed_label.text = speed_text
+	_speed_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.3) if _fortress.speed_mode == Fortress.SpeedMode.OUT_OF_FUEL else (UiStyle.BRONZE_BRIGHT if _fortress.overdrive else UiStyle.PARCHMENT))
 	_update_warrior_bar()
 	_update_prompt()
 

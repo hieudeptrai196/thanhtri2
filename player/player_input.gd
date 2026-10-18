@@ -4,11 +4,15 @@ extends Node
 ## so intent can later come from the network instead.
 
 signal ready_requested
+## The player toggles the fortress overdrive (T / D-pad up).
+signal overdrive_requested
 
 ## Number keys that pick a structure; key 1 = StructureTypes.ALL[0], ...
 const BUILD_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4]
 ## How far in front of the player the build ghost sits when aiming with a stick.
 const STICK_GHOST_DISTANCE := 3.5
+const OVERDRIVE_KEY := KEY_T
+const OVERDRIVE_BUTTON := JOY_BUTTON_DPAD_UP
 
 ## World-space direction on the ground plane, length 0..1.
 var move_direction: Vector3 = Vector3.ZERO
@@ -43,12 +47,17 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.3):
 		_using_gamepad = true
+		if event is InputEventJoypadButton and event.pressed and event.button_index == OVERDRIVE_BUTTON:
+			overdrive_requested.emit()
 	elif event is InputEventMouseMotion or event is InputEventMouseButton or event is InputEventKey:
 		_using_gamepad = false
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == OVERDRIVE_KEY:
+			overdrive_requested.emit()
+			return
 		var index := BUILD_KEYS.find(event.physical_keycode)
 		if index != -1:
 			_pending_select = index

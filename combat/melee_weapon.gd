@@ -11,7 +11,7 @@ signal swung(direction: Vector3, hit_count: int)
 @export var cooldown: float = 0.5
 ## Full width of the swing arc.
 @export_range(10.0, 360.0) var arc_degrees: float = 120.0
-## Hurtboxes on these layers are always preferred over others (enemies over trees and rocks).
+## Hurtboxes on these layers are always preferred over others (enemies over trees and coal deposits).
 @export_flags_3d_physics var priority_layers: int = 4
 ## How strongly the preferred direction outweighs distance when picking a target.
 @export var aim_weight: float = 3.0

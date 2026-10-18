@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://fortress/service_zone.gd" id="6_zone"]
 [ext_resource type="Resource" path="res://resources/types/wood.tres" id="7_wood"]
 [ext_resource type="PackedScene" path="res://combat/auto_shooter.tscn" id="8_shooter"]
+[ext_resource type="Resource" path="res://resources/types/coal.tres" id="9_coal"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(10, 5, 10)
@@ -42,6 +43,7 @@ size = Vector3(2.2, 0.4, 1.2)
 [node name="Fortress" type="AnimatableBody3D"]
 script = ExtResource("2_fortress")
 repair_resource = ExtResource("7_wood")
+fuel_resource = ExtResource("9_coal")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)

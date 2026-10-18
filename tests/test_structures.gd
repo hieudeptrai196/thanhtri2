@@ -16,6 +16,7 @@ func _setup() -> Node:
 func test_run_starts_with_wood_in_storage() -> void:
 	var m := await start_match(1, false, true)
 	check(m.get_node("Fortress").storage.get_amount(&"wood") == 30, "storage starts with 30 wood")
+	check(m.get_node("Fortress").storage.get_amount(&"coal") == 15, "and 15 coal")
 
 
 func test_placing_makes_a_free_blueprint_and_obeys_rules() -> void:

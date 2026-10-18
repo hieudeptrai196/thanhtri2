@@ -10,7 +10,7 @@ enum Placement { VALID, UNPOWERED, BLOCKED }
 @export var service_radius: float = 12.0
 ## Structures must keep this far from the road centre (the fortress needs the road).
 @export var road_half_width: float = 8.0
-## Physics layers that block placement (trees, rocks, fortress, other structures).
+## Physics layers that block placement (trees, coal deposits, fortress, other structures).
 @export_flags_3d_physics var blocking_layers: int = 1
 
 var _fortress: Node3D

@@ -88,7 +88,7 @@ func test_content_layout() -> void:
 			check(absf(at - nearest) >= content.bomb_stop_margin, "bomb %.0f m is away from stops" % at)
 		else:
 			markers += 1
-	check(trees > 20 and rocks > 5, "trees and rocks along 1.2 km: %d trees, %d rocks" % [trees, rocks])
+	check(trees > 20 and rocks > 5, "trees and coal deposits along 1.2 km: %d trees, %d deposits" % [trees, rocks])
 	check(markers == 3, "stop markers at 350/700/1050 m, got %d" % markers)
 	var expected_strips := ceili(route.generated_to() / route.segment_length)
 	check(absi(strips - expected_strips) <= 1, "one road strip per segment: %d strips, ~%d segments" % [strips, expected_strips])

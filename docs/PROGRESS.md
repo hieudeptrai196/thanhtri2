@@ -5,22 +5,16 @@
 
 ## Đang làm
 
-**M1.6a — Tài nguyên mới: Than** (bắt đầu 2026-10-18; người dùng: "cứ theo bạn, xong điều chỉnh sau")
+**M1.6b — Nâng cấp pháo đài trả giá trộn nguyên liệu** (bắt đầu 2026-10-18)
 
-Đề xuất: bỏ Đá; **Than** = nhiên liệu thành (tiêu ~0.125/s khi chạy thường → 1 Than ~8 s; tăng tốc ×1.6 tốc độ, tiêu 0.6/s;
-hết Than → chạy 35% tốc độ); kho bắt đầu 10 Than; **mỏ than** thay mỏ đá dọc đường (5 Than mỗi mỏ); bật/tắt tăng tốc bằng **T** /
-D-pad lên (đọc trong `PlayerInput`, không sửa `project.godot`), quyền ở `Match`; HUD hiện Than + trạng thái tăng tốc/hết Than.
-Thân pháo đài "Đá" giữ tên vật liệu, đổi giá sang Gỗ + Đồng.
-
-- [ ] Dữ liệu: bỏ `stone.tres`, thêm `coal.tres`; mỏ than (`resources/coal_deposit.tscn`)
-- [ ] `Fortress`: nhiên liệu từ kho, chế độ tốc độ (thường / tăng tốc / hết Than) nhân với hệ số máu
-- [ ] Tăng tốc: ý định trong `PlayerInput`, `Match.request_overdrive`
-- [ ] HUD + test + người dùng chơi thử → commit
+- [ ] Dữ liệu nâng cấp (`FortressUpgrade`): cấp nỏ liên châu, dầu sôi, lò lửa đốt Than, khiên tự hồi; thân Đá đã có (Gỗ + Đồng)
+- [ ] Bảng ở điểm dừng hiện danh sách nâng cấp + giá trộn; module hiện trên thân thành
+- [ ] Test + người dùng chơi thử (cân bằng sau)
 
 ## Tiếp theo (M1, xem ROADMAP)
 
 - M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.6 Tài nguyên Gỗ/Than/Đồng + nâng cấp pháo đài trả giá trộn nguyên liệu (thân, cấp nỏ, dầu sôi, lò lửa Than, khiên)
+- M1.6b Nâng cấp pháo đài trả giá trộn nguyên liệu (cấp nỏ, dầu sôi, lò lửa Than, khiên)
 - M1.7 Tiếng ồn/truy đuổi + Nỏ thần · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
@@ -45,6 +39,9 @@ Thân pháo đài "Đá" giữ tên vật liệu, đổi giá sang Gỗ + Đồn
 | M1.2 | `c85f80e` | Độ khó theo quãng đường |
 | M1.3 | `5e07fb1` | Tự đánh + dash |
 | M1.4 | `46b4449` | Công trình ngoài thực địa, nhảy cóc |
+| M1.4b | `22a9e29` | Xây chung |
+| M1.5 | `9970e8a` | Thành tự vệ cơ bản |
+| M1.6a | (commit này) | Than, tăng tốc, mỏ than, bỏ Đá |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 

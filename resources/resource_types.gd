@@ -3,7 +3,7 @@ class_name ResourceTypes
 
 const ALL: Array[ResourceType] = [
 	preload("res://resources/types/wood.tres"),
-	preload("res://resources/types/stone.tres"),
+	preload("res://resources/types/coal.tres"),
 	preload("res://resources/types/bronze.tres"),
 ]
 

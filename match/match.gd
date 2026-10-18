@@ -51,6 +51,7 @@ func _ready() -> void:
 	_follower.departed.connect(_on_departed)
 	_fortress.health.died.connect(_finish)
 	_warrior.input.ready_requested.connect(_on_ready_requested)
+	_warrior.input.overdrive_requested.connect(request_overdrive)
 	_warrior.health.died.connect(_on_warrior_died)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
@@ -151,6 +152,14 @@ func request_recover(structure: Structure, player: Warrior) -> bool:
 	var data := _structures.recover(structure)
 	player.carry(data.type, data.health)
 	return true
+
+
+## Any player may toggle the fortress overdrive; in multiplayer the server applies it.
+func request_overdrive() -> void:
+	if result != Result.NONE:
+		return
+	_fortress.overdrive = not _fortress.overdrive
+	_hud.show_toast(tr("Tăng tốc! Tốn Than gấp nhiều lần") if _fortress.overdrive else tr("Chạy bình thường"))
 
 
 func restart() -> void:

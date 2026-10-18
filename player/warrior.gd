@@ -1,7 +1,7 @@
 class_name Warrior
 extends CharacterBody3D
 ## On-foot warrior. Moves and dashes according to its PlayerInput intent; the basic attack is
-## automatic (enemies first, then trees/rocks), with the aim direction only prioritising targets.
+## automatic (enemies first, then trees/coal deposits), with the aim direction only prioritising targets.
 ## Can carry one folded structure: slower, no attacks while carrying (or while hammering).
 
 ## Metres per second.

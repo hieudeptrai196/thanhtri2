@@ -1,7 +1,7 @@
 class_name Inventory
 extends Node
 ## Resource amounts keyed by ResourceType.id, with an optional total capacity.
-## Contents/costs elsewhere use the same shape: { &"wood": 3, &"stone": 1 }.
+## Contents/costs elsewhere use the same shape: { &"wood": 3, &"coal": 1 }.
 
 signal changed
 

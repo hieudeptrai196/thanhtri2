@@ -1,6 +1,6 @@
 class_name ResourceNode
 extends StaticBody3D
-## A tree, rock, ... Each weapon hit gives one unit to the attacker's inventory until depleted.
+## A tree, coal deposit, ... Each weapon hit gives one unit to the attacker's inventory until depleted.
 
 @export var resource_type: ResourceType
 @export var amount: int = 5

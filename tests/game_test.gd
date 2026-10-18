@@ -7,7 +7,7 @@ extends RefCounted
 const MAIN_SCENE := preload("res://scenes/main.tscn")
 const DUMMY_SCENE := preload("res://combat/training_dummy.tscn")
 const TREE_SCENE := preload("res://resources/tree.tscn")
-const ROCK_SCENE := preload("res://resources/rock.tscn")
+const COAL_SCENE := preload("res://resources/coal_deposit.tscn")
 const AIM_ACTIONS: Array[StringName] = [&"aim_left", &"aim_right", &"aim_up", &"aim_down"]
 
 var tree: SceneTree
@@ -95,7 +95,7 @@ func attack_until_freed(who: Node3D, target: Node3D, max_frames: int = 300) -> b
 	return not is_instance_valid(target)
 
 
-## A tree or rock placed by the test, so it does not depend on the random road layout.
+## A tree or coal deposit placed by the test, so it does not depend on the random road layout.
 func spawn_resource(match_node: Node, scene: PackedScene, at: Vector3) -> ResourceNode:
 	var node: ResourceNode = scene.instantiate()
 	match_node.add_child(node)

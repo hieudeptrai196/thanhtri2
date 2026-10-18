@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://resources/resource_node.gd" id="1_node"]
-[ext_resource type="Resource" path="res://resources/types/stone.tres" id="2_stone"]
+[ext_resource type="Resource" path="res://resources/types/coal.tres" id="2_coal"]
 [ext_resource type="Script" path="res://combat/hurtbox.gd" id="3_hurtbox"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_rock"]
@@ -11,15 +11,15 @@ size = Vector3(2.2, 1.6, 2.2)
 size = Vector3(2.8, 2, 2.8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rock"]
-albedo_color = Color(0.55, 0.55, 0.58, 1)
+albedo_color = Color(0.2, 0.2, 0.23, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_rock"]
 material = SubResource("StandardMaterial3D_rock")
 size = Vector3(2.2, 1.6, 2.2)
 
-[node name="Rock" type="StaticBody3D"]
+[node name="CoalDeposit" type="StaticBody3D"]
 script = ExtResource("1_node")
-resource_type = ExtResource("2_stone")
+resource_type = ExtResource("2_coal")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)

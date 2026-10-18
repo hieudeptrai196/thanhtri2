@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_type")
-id = &"stone"
-display_name = "Đá"
-color = Color(0.6, 0.6, 0.62, 1)
+id = &"coal"
+display_name = "Than"
+color = Color(0.22, 0.22, 0.25, 1)

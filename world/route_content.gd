@@ -1,13 +1,13 @@
 class_name RouteContent
 extends Node3D
-## Places the visible road strip, trees, rocks, hidden bombs and stop markers along each new road
+## Places the visible road strip, trees, coal deposits, hidden bombs and stop markers along each new road
 ## segment, and frees them once they fall far behind the fortress. Uses its own seeded RNG so the same seed always
 ## gives the same layout, independent of gameplay timing.
 
 signal bomb_exploded(at: Vector3)
 
 const TREE_SCENE := preload("res://resources/tree.tscn")
-const ROCK_SCENE := preload("res://resources/rock.tscn")
+const COAL_SCENE := preload("res://resources/coal_deposit.tscn")
 const BOMB_SCENE := preload("res://world/hidden_bomb.tscn")
 const STOP_MARKER_SCENE := preload("res://world/stop_marker.tscn")
 
@@ -15,12 +15,12 @@ const STOP_MARKER_SCENE := preload("res://world/stop_marker.tscn")
 @export var clear_start: float = 30.0
 ## Content this far behind the fortress is freed.
 @export var despawn_behind: float = 90.0
-## Half the road width that stays free of trees and rocks.
+## Half the road width that stays free of trees and coal deposits.
 @export var road_half_width: float = 8.0
 @export var trees_per_segment: Vector2i = Vector2i(0, 2)
 @export var tree_band: Vector2 = Vector2(9.0, 22.0)
-@export_range(0.0, 1.0) var rock_chance: float = 0.3
-@export var rock_band: Vector2 = Vector2(20.0, 40.0)
+@export_range(0.0, 1.0) var coal_chance: float = 0.3
+@export var coal_band: Vector2 = Vector2(20.0, 40.0)
 ## Chance per segment; ~1 bomb every 300 m at 20 m segments.
 @export_range(0.0, 1.0) var bomb_chance: float = 0.07
 ## Bombs keep this far from stops (both sides).
@@ -89,8 +89,8 @@ func _on_segment_added(from_distance: float, to_distance: float) -> void:
 	var start := maxf(from_distance, clear_start)
 	for i in _rng.randi_range(trees_per_segment.x, trees_per_segment.y):
 		_place(TREE_SCENE.instantiate(), _rng.randf_range(start, to_distance), _random_side(tree_band))
-	if _rng.randf() < rock_chance:
-		_place(ROCK_SCENE.instantiate(), _rng.randf_range(start, to_distance), _random_side(rock_band))
+	if _rng.randf() < coal_chance:
+		_place(COAL_SCENE.instantiate(), _rng.randf_range(start, to_distance), _random_side(coal_band))
 	if _rng.randf() < bomb_chance:
 		var at := _rng.randf_range(start, to_distance)
 		if not _near_stop(at):
