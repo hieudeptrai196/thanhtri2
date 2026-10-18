@@ -70,7 +70,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`: wood, coal, bronze), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây, mỏ than), `Pickup` |
 | `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/mỏ than/bom/vòng điểm dừng theo đoạn, dọn phía sau; **hoãn** nội dung sau điểm dừng tới khi chọn tuyến — `set_content_limit`), `RouteType` (.tres trong `routes/`: rừng già, mỏ than, đồng bằng, đền hoang — hệ số cây/than/bom/quái/rơi đồ + màu đất) + `RouteTypes.draw`, `ground_follow.gd`, `HiddenBomb`, shader nền |
-| `net/` | `Net` (tĩnh: `host`/`join`/`leave`/`is_online`/`lan_addresses`, ENet cổng 24690, tối đa 4 người; nhận `MultiplayerAPI` bất kỳ để test chạy host + client trong một process) |
+| `net/` | `Net` (tĩnh: `host`/`join`/`leave`/`is_online`/`lan_addresses`, ENet cổng 24690, tối đa 5 người; nhận `MultiplayerAPI` bất kỳ để test chạy host + client trong một process) |
 | `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `locale/` | `Locales`, `locale_boot.gd` (autoload), `messages.pot`, `en.po` |
@@ -135,7 +135,7 @@ Collision layer:
 - Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
 - Chiến binh ngã thì hồi sinh nhưng **rơi hết đồ đang mang**. Thua khi pháo đài bị phá.
 - Pháo đài không chỉ bằng gỗ. Nâng cấp ở điểm dừng theo 2 trục: **thân pháo đài lên cấp vật liệu** (gỗ → đá → …, tăng độ bền, đổi hình) + **ô quanh rìa gắn công trình tấn công** (tháp…). Prototype: 1 cấp gỗ → đá, 1 loại tháp tự bắn. Thẻ nâng cấp ngẫu nhiên có thể thêm khi làm endless.
-- **Co-op tối đa 4 người, chia vai trò rõ (class = vai trò)**; solo vẫn trọn vẹn. Kiến trúc sẵn sàng; networking làm ở M2.
+- **Co-op tối đa 5 người [đổi từ 4 ngày 2026-10-18: 5 class = 5 vai trò, đủ người thì mỗi người một class], chia vai trò rõ (class = vai trò)**; solo vẫn trọn vẹn. Kiến trúc sẵn sàng; networking làm ở M2.
 - Tính năng đã chọn (xem `docs/IDEAS.md`): class-vai trò, đỡ đồng đội, kết hợp class, ping, kho chung/túi riêng, độ khó theo số người, xếp hạng theo cỡ đội + bạn bè + seed ngày/tuần + mùa giải + chống gian lận, tổng kết MVP theo vai trò, thẻ hành trình, biome vùng miền, sự kiện truyền thuyết, boss; trang phục theo thời đại ưu tiên thấp.
 - Sau này: class nhân vật có chiêu riêng, dash; menu chọn ngôn ngữ lúc mới vào.
 - **Giao diện phải đẹp, có chất game** (thẻ, khung có style, hiệu ứng hover…), không dùng kiểu form mặc định (input, select box, nút xám trơn). Prototype được tạm, nhưng không làm UI kiểu form.

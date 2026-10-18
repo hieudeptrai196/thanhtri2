@@ -1,7 +1,7 @@
 # THÀNH TRÌ — Ý tưởng tính năng (đề xuất, chờ chọn)
 
 Cập nhật 2026-10-18. Người dùng hướng tới: **chia vai trò rõ trong co-op** + **xếp hạng đội/người chơi đi xa nhất**.
-Tất cả dưới đây là đề xuất của Claude. **2026-10-18 người dùng chọn: 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18; 19 ưu tiên thấp (bỏ được nếu tốn công); không chọn 3, 6; 20 chưa quyết.** Co-op tối đa 4 người. Đã xếp vào `ROADMAP.md`.
+Tất cả dưới đây là đề xuất của Claude. **2026-10-18 người dùng chọn: 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18; 19 ưu tiên thấp (bỏ được nếu tốn công); không chọn 3, 6; 20 chưa quyết.** Co-op tối đa 5 người (ban đầu 4, đổi 2026-10-18). Đã xếp vào `ROADMAP.md`.
 
 ## A. Chia vai trò trong co-op
 
@@ -22,7 +22,7 @@ Tất cả dưới đây là đề xuất của Claude. **2026-10-18 người d�
 
 ## B. Xếp hạng & cạnh tranh
 
-9. **Bảng xếp hạng theo cỡ đội**: Solo / 2 / 3 / 4 người tách riêng, theo quãng đường.
+9. **Bảng xếp hạng theo cỡ đội**: Solo / 2 / 3 / 4 / 5 người tách riêng, theo quãng đường.
 10. **Seed hằng ngày và hằng tuần** (cùng đường, cùng tuyến cho mọi người), kèm **biến thể thử thách** (vd "Than gấp đôi", "không có tháp", "ban đêm").
 11. **Xếp hạng bạn bè** (qua Steam) bên cạnh bảng toàn cầu.
 12. **Tổng kết cuối trận theo vai trò**: MVP xây nhiều nhất, khuân nhiều Than nhất, hạ nhiều quái nhất, cứu đồng đội nhiều nhất → khuyến khích chơi đúng vai.

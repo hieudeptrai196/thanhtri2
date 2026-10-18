@@ -100,7 +100,7 @@ func test_lobby_counts_players() -> void:
 	host.host_room()
 	client.join_room("127.0.0.1")
 	var status: Label = host.get_node("UI/StartMenu")._lobby_status
-	check(await wait_until(func() -> bool: return status.text.contains("2/4"), 300), "host lobby shows 2/4, got: " + status.text)
+	check(await wait_until(func() -> bool: return status.text.contains("2/5"), 300), "host lobby shows 2/5, got: " + status.text)
 	var client_status: Label = client.get_node("UI/StartMenu")._lobby_status
 	check(client_status.text == tr("Đã vào phòng — chờ chủ phòng bắt đầu"), "client waits for the host")
 
@@ -353,3 +353,11 @@ func test_each_player_buys_their_own_weapon_card() -> void:
 	check([client_warrior.weapon.damage, client_warrior.weapon.cooldown, client_warrior.weapon.arc_degrees, client_warrior.weapon._reach_shape.radius] != weapon_before,
 		"the card changes the client's own weapon")
 	check(not host.request_weapon_upgrade(1, client_warrior), "still one card per player")
+
+
+func test_a_full_room_of_five_plays_together() -> void:
+	var matches := await start_net_match(Net.MAX_PLAYERS - 1)
+	var host: Match = matches[0]
+	check(host.players.size() == 5, "five warriors on the host, got %d" % host.players.size())
+	for client: Match in matches.slice(1):
+		check(client.players.size() == 5 and client.local_warrior != null, "each client sees all five and plays its own")

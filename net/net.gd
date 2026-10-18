@@ -5,7 +5,7 @@ extends RefCounted
 ## Works on any MultiplayerAPI so tests can run a host and a client in one process.
 
 const PORT := 24690
-const MAX_PLAYERS := 4
+const MAX_PLAYERS := 5
 
 
 ## Opens a room on this machine. Returns OK or the ENet error.

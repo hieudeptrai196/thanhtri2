@@ -7,7 +7,7 @@ Tiến độ hằng ngày: [`PROGRESS.md`](PROGRESS.md) · Game tham khảo: [`R
 
 - Game nghiêm túc. **Steam trước (PC)**, sau đó Google Play + App Store. Forward+ trên PC, Mobile trên điện thoại.
 - **Endless**, so **đội / người chơi nào đi xa hơn**; bảng xếp hạng theo cỡ đội.
-- **Co-op tối đa 4 người, chia vai trò rõ** — đây là hướng chính của người dùng. Solo vẫn chơi trọn vẹn.
+- **Co-op tối đa 5 người (đổi từ 4 ngày 2026-10-18 cho khớp 5 class), chia vai trò rõ** — đây là hướng chính của người dùng. Solo vẫn chơi trọn vẹn.
 - Tham khảo **Marcha de Ferro** (học nguyên tắc, không chép), thêm co-op và tính năng riêng.
 - Asset tử tế (nền KayKit/Kenney CC0 + phần bản sắc Việt do họa sĩ làm), UI có chất game, **i18n bắt buộc**.
 
