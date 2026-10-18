@@ -120,8 +120,8 @@ cancel={
 
 [internationalization]
 
-locale/fallback="vi"
 locale/translations=PackedStringArray("res://locale/en.po")
+locale/fallback="vi"
 
 [layer_names]
 

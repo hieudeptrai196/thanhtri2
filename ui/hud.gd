@@ -185,6 +185,10 @@ func _update_prompt() -> void:
 	_repair_hint.visible = _warrior.is_alive
 	if not _repair_hint.visible:
 		return
+	var fallen := _downed_teammate_near()
+	if fallen:
+		_repair_hint.text = tr("Giữ E để đỡ đồng đội dậy — %d%%") % roundi(fallen.revive_progress / fallen.revive_time * 100.0)
+		return
 	if _warrior.carried_type:
 		_repair_hint.text = tr("Đang vác %s — click / E để đặt (không tốn tài nguyên)") % tr(_warrior.carried_type.display_name)
 		return
@@ -210,6 +214,15 @@ func _update_prompt() -> void:
 		_repair_hint.text = tr("Giữ E để sửa pháo đài")
 	else:
 		_repair_hint.text = tr("Kho hết %s — cần mang về để sửa") % tr(_fortress.repair_resource.display_name)
+
+
+# A downed teammate within reach of this player (groups span the tree, so same world only).
+func _downed_teammate_near() -> Warrior:
+	for other: Warrior in get_tree().get_nodes_in_group(&"players"):
+		if other != _warrior and other.downed and other.get_world_3d() == _warrior.get_world_3d() \
+				and other.global_position.distance_to(_warrior.global_position) <= Match.REVIVE_REACH + 0.5:
+			return other
+	return null
 
 
 func _helpers_text(structure: Structure) -> String:

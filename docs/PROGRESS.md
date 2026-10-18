@@ -24,6 +24,12 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 - [x] **M2.2a** Khung class (`classes/`: `PlayerClass` .tres + `PlayerClasses`), điểm mạnh thụ động: Công binh (búa ×1.5, sửa ×1.5, vác 2), Tiều phu (túi ×2, chạy ×1.25 khi rỗng), Võ tướng (máu ×1.5, sát thương ×1.3), Thầy pháp (công trình trong 8 m bắn ×1.3), Thợ máy (cả đội: tăng tốc tốn Than ×0.6, nâng cấp thành ×0.85). Chọn vai trò ở màn bắt đầu + phòng chờ (lưu trong SaveManager), gửi lên host qua `client_ready`, đồng bộ màu/class cho mọi máy. 8 test mới, 119 xanh; ảnh 1280×720 Việt + Anh vừa (đã thu gọn màn bắt đầu). Commit `04d6704`. Số liệu = Đề xuất.
 - [x] **M2.2b** 5 kỹ năng chủ động (R / LT, chạy trên host, `ClassSkills` + số liệu trong `PlayerClass`): Dựng tốc (bản vẽ trong 8 m ×3 trong 5 s, hồi 20 s), Bổ mạnh (lấy 3 đơn vị từ cây/mỏ phía trước, hồi 8 s), Hét trận (quái trong 10 m lao vào mình, nhận ½ sát thương 4 s, hồi 15 s), Bùa trận (vùng 5 m tại điểm ngắm: hồi 8 máu/s người, 12/s công trình, quái chậm ½, 6 s, hồi 20 s), Đốt lò (tăng tốc 8 s không tốn thêm Than, hồi 30 s). Không có gì để tác động thì không mất lượt. Ô kỹ năng + hồi chiêu trên HUD; client thấy vùng/xung. 7 test mới, 126 xanh, smoke OK. Commit `3cc5a11`. Số liệu = Đề xuất.
 
+**M2.3 — Đỡ đồng đội, ụ nỏ có người điều khiển, ping, kết hợp class** (bắt đầu 2026-10-18, người dùng: "cứ làm tiếp đi")
+
+- [x] **M2.3a** Đỡ đồng đội dậy: khi có đồng đội, 0 máu → **gục** 15 s (người dùng bảo tăng từ 10) (vẫn giữ đồ, quái bỏ qua), đồng đội đứng ≤ 2 m giữ E 3 s (nhiều người nhanh hơn, đang được đỡ thì ngừng đếm ngược) → dậy với 40% máu; hết giờ → ngã như cũ (rơi đồ, hồi sinh ở thành). Solo không đổi. Nhãn trên đầu + lời nhắc HUD. Kèm sửa mạng: snapshot **nén + chia gói ≤ 1200 B** (trước đó 5 người đã vượt MTU): 0 quái ≈ 0.3 KB, 300 quái ≈ 5.7 KB/lần. 6 test mới, 132 xanh, smoke OK. **Chưa commit — chờ duyệt.** Số liệu = Đề xuất.
+- [ ] **M2.3b — LÀM TIẾP Ở ĐÂY (phiên sau):** ụ nỏ có người điều khiển trên thành (đứng vào ô trên thành → ngắm bắn mạnh bằng chuột/stick; không ai đứng thì tự bắn yếu như nỏ liên châu hiện có). Cần chốt với người dùng: vị trí ụ, cách vào/ra (E?), sát thương/tốc độ, có nâng cấp ở điểm dừng không. Sau đó M2.3c ping, M2.3d kết hợp class, rồi M2.4 độ khó theo số người, M2.5 tổng kết MVP.
+- Người dùng **chưa chơi thử** từ M1.4b tới giờ (cả M2): nên nhắc chơi thử + cân bằng khi có dịp.
+
 ## Tiếp theo (M2, xem ROADMAP)
 
 - M2.1 Mạng co-op nền (host-authoritative, ENet, test 2–4 cửa sổ trên cùng máy), kho chung + túi riêng

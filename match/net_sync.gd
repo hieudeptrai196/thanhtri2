@@ -4,13 +4,16 @@ extends Node
 ## draw what the host sends back.
 ##   client → host: `client_input` every tick (unreliable, the next one replaces it) and
 ##                  `client_events` for one-off presses (reliable, carries the input of that tick).
-##   host → client: `server_snapshot` 20 times a second (fortress, noise, route, warriors),
+##   host → client: a snapshot 20 times a second (fortress, noise, route, warriors, enemies…),
+##                  compressed and cut into `server_snapshot_part`s that each fit one UDP packet,
 ##                  `begin_run` to load the same road, `run_finished` when the fortress falls,
 ##                  `fx` for one-off happenings (toasts, blasts, a tree losing wood, a bomb going off).
 ## The road and its content are generated from the shared seed on every machine, so only what
 ## changes during play travels.
 
 const SNAPSHOT_INTERVAL := 0.05
+## Bytes of compressed snapshot per packet, safely under ENet's MTU (1392) with RPC overhead.
+const SNAPSHOT_PART_BYTES := 1200
 ## Stop-panel actions a client may ask for (see Match.handle_request).
 const ALLOWED_REQUESTS: Array[StringName] = [&"tier", &"fortress", &"weapon", &"route", &"ready"]
 ## Events a client may send; anything else is dropped.
@@ -20,6 +23,12 @@ var _match: Match
 ## Host: peers whose match has loaded and that receive snapshots.
 var _ready_peers: Dictionary = {}
 var _snapshot_left: float = 0.0
+## Host: number of the next snapshot. Client: parts of the snapshot being collected.
+var _snapshot_seq: int = 0
+var _parts_seq: int = -1
+var _parts: Array = []
+var _parts_left: int = 0
+var _applied_seq: int = -1
 
 
 func setup(match_node: Match) -> void:
@@ -53,9 +62,7 @@ func _physics_process(delta: float) -> void:
 		_snapshot_left -= delta
 		if _snapshot_left <= 0.0:
 			_snapshot_left += SNAPSHOT_INTERVAL
-			var snapshot := _match.net_snapshot()
-			for id: int in _ready_peers:
-				server_snapshot.rpc_id(id, snapshot)
+			_send_snapshot(_match.net_snapshot())
 	elif _match.local_warrior:
 		var input := _match.local_warrior.input
 		var state := input.export_state()
@@ -103,9 +110,44 @@ func client_events(events: Array, state: Dictionary) -> void:
 	warrior.input.apply_remote_events(clean)
 
 
+## Host: compresses the snapshot and sends it in packet-sized parts to every ready client.
+func _send_snapshot(snapshot: Dictionary) -> void:
+	var raw := var_to_bytes(snapshot)
+	var packed := raw.compress(FileAccess.COMPRESSION_DEFLATE)
+	var count := ceili(float(packed.size()) / SNAPSHOT_PART_BYTES)
+	_snapshot_seq += 1
+	for i in count:
+		var part := packed.slice(i * SNAPSHOT_PART_BYTES, (i + 1) * SNAPSHOT_PART_BYTES)
+		for id: int in _ready_peers:
+			server_snapshot_part.rpc_id(id, _snapshot_seq, i, count, raw.size(), part)
+
+
+## Client: collects the parts of one snapshot; a newer snapshot replaces an incomplete older one
+## (a lost part only costs that snapshot — the next one is 50 ms away).
 @rpc("authority", "call_remote", "unreliable_ordered")
-func server_snapshot(snapshot: Dictionary) -> void:
-	_match.apply_net_snapshot(snapshot)
+func server_snapshot_part(seq: int, index: int, count: int, raw_size: int, part: PackedByteArray) -> void:
+	if seq <= _applied_seq or index < 0 or index >= count:
+		return
+	if seq != _parts_seq:
+		if seq < _parts_seq:
+			return
+		_parts_seq = seq
+		_parts = []
+		_parts.resize(count)
+		_parts_left = count
+	if _parts.size() != count or _parts[index] != null:
+		return
+	_parts[index] = part
+	_parts_left -= 1
+	if _parts_left > 0:
+		return
+	var packed := PackedByteArray()
+	for piece: PackedByteArray in _parts:
+		packed.append_array(piece)
+	_applied_seq = seq
+	var snapshot: Variant = bytes_to_var(packed.decompress(raw_size, FileAccess.COMPRESSION_DEFLATE))
+	if snapshot is Dictionary:
+		_match.apply_net_snapshot(snapshot)
 
 
 ## Client: asks the host for a stop-panel action for this player.

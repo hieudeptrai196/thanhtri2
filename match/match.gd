@@ -187,6 +187,7 @@ func _physics_process(delta: float) -> void:
 	for player in players:
 		_keep_on_leash(player)
 	_apply_structure_auras()
+	_tick_downed(delta)
 	_despawn_far_pickups()
 	_tick_respawns(delta)
 
@@ -198,7 +199,7 @@ func add_player(warrior: Warrior) -> void:
 	warrior.input.ready_requested.connect(request_departure.bind(warrior))
 	warrior.input.overdrive_requested.connect(request_overdrive)
 	warrior.input.divine_requested.connect(request_divine_crossbow)
-	warrior.health.died.connect(_on_player_died.bind(warrior))
+	warrior.fell.connect(_on_player_died.bind(warrior))
 	warrior.builder.network = _structures
 	warrior.builder.storage = _fortress.storage
 	warrior.builder.place_requested.connect(request_place.bind(warrior))
@@ -270,6 +271,9 @@ func _update_team_bonuses() -> void:
 			fuel = minf(fuel, warrior.player_class.overdrive_fuel_multiplier)
 			prices = minf(prices, warrior.player_class.upgrade_cost_multiplier)
 	_fortress.overdrive_fuel_multiplier = fuel
+	# With teammates around, 0 health downs a warrior so others can get them up.
+	for warrior in players:
+		warrior.downed_enabled = players.size() > 1
 	_fortress.upgrade_cost_multiplier = prices
 	_upgrade_panel.refresh()
 
@@ -286,14 +290,37 @@ func _apply_structure_auras() -> void:
 		structure.fire_rate_bonus = bonus
 
 
+## Distance at which a teammate holding interact helps a downed warrior up.
+const REVIVE_REACH := 2.0
+
+
+func _tick_downed(delta: float) -> void:
+	for downed in players:
+		if not downed.downed:
+			continue
+		for helper in players:
+			if helper != downed and helper.is_alive and helper.input.interact_held:
+				var offset := helper.global_position - downed.global_position
+				if Vector2(offset.x, offset.z).length() <= REVIVE_REACH:
+					downed.add_reviver()
+		downed.tick_downed(delta)
+
+
+# Downed > respawn countdown > nothing, for this machine's player.
+func _update_center_message(respawn_left: float) -> void:
+	if local_warrior and local_warrior.downed:
+		_hud.set_center_message(tr("Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)") % ceili(local_warrior.downed_left))
+	else:
+		_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(respawn_left) if respawn_left > 0.0 else "")
+
+
 func _tick_respawns(delta: float) -> void:
 	for warrior: Warrior in _respawns.keys():
 		_respawns[warrior] -= delta
 		if _respawns[warrior] <= 0.0:
 			_respawns.erase(warrior)
 			warrior.respawn_at(_fortress.global_transform * Vector3(8.0, 0.0, 0.0))
-	var local_left: float = _respawns.get(local_warrior, 0.0)
-	_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(local_left) if local_left > 0.0 else "")
+	_update_center_message(_respawns.get(local_warrior, 0.0))
 
 
 ## `player` is ready to leave the stop; the fortress departs once every player is (solo: at once).
@@ -635,7 +662,7 @@ func apply_net_snapshot(snapshot: Dictionary) -> void:
 			remove_player(warrior.peer_id)
 	if local_warrior:
 		var respawn_left: float = warriors[local_warrior.peer_id].back()
-		_hud.set_center_message(tr("Hồi sinh sau %d…") % ceili(respawn_left) if respawn_left > 0.0 else "")
+		_update_center_message(respawn_left)
 
 
 ## Shows a toast here and on every client, each in its own language (pass the untranslated text).

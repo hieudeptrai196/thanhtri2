@@ -39,6 +39,12 @@ func apply_damage(amount: float, _source: Node = null) -> void:
 		died.emit()
 
 
+## Brings a fallen owner back with `ratio` of max health (a teammate's revive). Host only.
+func revive(ratio: float) -> void:
+	current = max_health * ratio
+	health_changed.emit(current, max_health)
+
+
 func heal(amount: float) -> void:
 	if current <= 0.0 or amount <= 0.0 or current >= max_health:
 		return

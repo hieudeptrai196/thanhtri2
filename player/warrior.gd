@@ -14,8 +14,17 @@ extends CharacterBody3D
 @export var dash_cooldown: float = 1.2
 ## Seconds the warrior keeps facing what it just hit before turning back to its movement.
 @export var attack_facing_time: float = 0.35
+## Co-op: at 0 health the warrior lies downed this long, waiting for a teammate, before falling.
+@export var bleed_out_time: float = 15.0
+## Seconds of one teammate holding interact to get a downed warrior up (more helpers are faster).
+@export var revive_time: float = 3.0
+@export_range(0.05, 1.0) var revive_health_ratio: float = 0.4
 ## Online, on clients: how quickly a warrior glides to the position the host last sent.
 @export var net_smoothing: float = 15.0
+
+## Out of the fight for real (solo: at 0 health; co-op: after lying downed unrevived). The match then
+## drops what was carried and schedules the respawn.
+signal fell
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var health: HealthComponent = $Health
@@ -30,6 +39,14 @@ var skills: ClassSkills
 @onready var _carried_prop: Node3D = $CarriedProp
 
 var is_alive: bool = true
+## Set by the match while there are teammates: 0 health downs the warrior instead of felling it.
+var downed_enabled: bool = false
+var downed: bool = false
+## Seconds before a downed warrior falls, and revive progress (seconds of helping).
+var downed_left: float = 0.0
+var revive_progress: float = 0.0
+var _revivers: float = 0.0
+var _down_label: Label3D
 ## Folded structure on the warrior's back (null = hands free), and its health when folded.
 var carried_type: StructureType = null
 var carried_health: float = 0.0
@@ -48,6 +65,7 @@ var _base_max_health: float
 var _base_damage: float
 var _base_capacity: int
 var _base_color: Color
+var _body_height: float
 ## Multiplayer peer that controls this warrior (1 = the host, also used offline).
 var peer_id: int = 1
 ## False on clients: the host simulates and this warrior only shows what the host sends.
@@ -70,12 +88,22 @@ func _ready() -> void:
 	skills = ClassSkills.new()
 	skills.name = "Skills"
 	add_child(skills)
+	_down_label = Label3D.new()
+	_down_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_down_label.no_depth_test = true
+	_down_label.font_size = 64
+	_down_label.pixel_size = 0.012
+	_down_label.outline_size = 16
+	_down_label.position = Vector3(0.0, 1.8, 0.0)
+	_down_label.visible = false
+	add_child(_down_label)
 	weapon.swung.connect(_on_swung)
 	health.died.connect(_on_died)
 	_base_max_health = health.max_health
 	_base_damage = weapon.damage
 	_base_capacity = inventory.capacity
 	_base_color = ($Body.mesh.material as StandardMaterial3D).albedo_color
+	_body_height = $Body.position.y
 
 
 ## Gives this warrior a class (null = none): its passive strengths and placeholder colour.
@@ -101,7 +129,33 @@ func apply_class(new_class: PlayerClass) -> void:
 func respawn_at(spawn_position: Vector3) -> void:
 	global_position = spawn_position
 	health.reset()
+	_set_downed(false)
 	_set_alive(true)
+
+
+## A teammate holds interact next to this downed warrior this tick (`weight` > 1 counts for more).
+func add_reviver(weight: float = 1.0) -> void:
+	_revivers += weight
+
+
+## Host, every tick while downed: helpers raise the revive progress (and pause the bleed-out);
+## alone, the warrior bleeds out and falls.
+func tick_downed(delta: float) -> void:
+	if not downed:
+		return
+	if _revivers > 0.0:
+		revive_progress += delta * pow(_revivers, 0.85)
+		_revivers = 0.0
+		if revive_progress >= revive_time:
+			_set_downed(false)
+			health.revive(revive_health_ratio)
+			_set_alive(true)
+		return
+	downed_left -= delta
+	if downed_left <= 0.0:
+		_set_downed(false)
+		visible = false
+		fell.emit()
 
 
 ## Puts a folded structure on top of what is carried (check can_carry_more first).
@@ -140,7 +194,8 @@ func set_simulated(on: bool) -> void:
 ## What clients need to draw this warrior and the HUD of its owner.
 func net_state() -> Array:
 	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
-		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count(), skills.cooldown_left]
+		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count(), skills.cooldown_left,
+		downed, downed_left, revive_progress]
 
 
 func apply_net_state(state: Array) -> void:
@@ -152,6 +207,10 @@ func apply_net_state(state: Array) -> void:
 	rotation.y = state[1]
 	if state[2] != is_alive:
 		_set_alive(state[2])
+	downed_left = state[13]
+	revive_progress = state[14]
+	if state[12] != downed:
+		_set_downed(state[12])
 	health.set_net_state(state[3], state[4], 0.0, 0.0)
 	inventory.set_net_amounts(state[5])
 	skills.cooldown_left = state[11]
@@ -170,6 +229,10 @@ func apply_net_state(state: Array) -> void:
 
 
 func _process(delta: float) -> void:
+	if downed:
+		_down_label.text = tr("Đỡ dậy %d%%") % roundi(revive_progress / revive_time * 100.0) if revive_progress > 0.0 \
+			else tr("Gục — %ds") % ceili(downed_left)
+		_down_label.modulate = Color(0.6, 1.0, 0.6) if revive_progress > 0.0 else Color(1.0, 0.5, 0.4)
 	if not simulated and _net_position != null:
 		global_position = global_position.lerp(_net_position, 1.0 - exp(-net_smoothing * delta))
 
@@ -236,6 +299,23 @@ func _start_dash() -> void:
 
 func _on_died() -> void:
 	_set_alive(false)
+	if downed_enabled:
+		downed_left = bleed_out_time
+		revive_progress = 0.0
+		_set_downed(true)
+	else:
+		fell.emit()
+
+
+# Downed: lying on the ground, still visible, enemies ignore it (is_alive is false meanwhile).
+func _set_downed(on: bool) -> void:
+	downed = on
+	if on:
+		visible = true
+	$Body.rotation_degrees.x = 90.0 if on else 0.0
+	$Body.position.y = 0.35 if on else _body_height
+	$Nose.visible = not on
+	_down_label.visible = on
 
 
 func _set_alive(alive: bool) -> void:

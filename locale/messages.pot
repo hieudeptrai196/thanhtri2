@@ -9,84 +9,96 @@ msgstr ""
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:240
+#: match/match.gd:241
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:255
+#: match/match.gd:256
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:296
+#: match/match.gd:312
+msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
+msgstr ""
+
+#: match/match.gd:314
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:408
+#: match/match.gd:435
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:408
+#: match/match.gd:435
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:416
+#: match/match.gd:443
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:423
+#: match/match.gd:450
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:527
+#: match/match.gd:554
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:536
+#: match/match.gd:563
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:540
+#: match/match.gd:567
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:546
+#: match/match.gd:573
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:551
+#: match/match.gd:578
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:590
+#: match/match.gd:617
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:591
+#: match/match.gd:618
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:679
+#: match/match.gd:706
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr ""
 
-#: match/match.gd:681
+#: match/match.gd:708
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr ""
 
-#: match/match.gd:860
+#: match/match.gd:887
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr ""
 
-#: match/match.gd:874
+#: match/match.gd:901
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr ""
 
-#: match/match.gd:888
+#: match/match.gd:915
 msgid "Khởi hành — tuyến %s"
 msgstr ""
 
-#: match/match.gd:890
+#: match/match.gd:917
 msgid "Khởi hành!"
+msgstr ""
+
+#: player/warrior.gd:233
+msgid "Đỡ dậy %d%%"
+msgstr ""
+
+#: player/warrior.gd:234
+msgid "Gục — %ds"
 msgstr ""
 
 #: structures/structure.gd:221
@@ -157,47 +169,51 @@ msgstr ""
 msgid "%s — %ds"
 msgstr ""
 
-#: ui/hud.gd:189
+#: ui/hud.gd:190
+msgid "Giữ E để đỡ đồng đội dậy — %d%%"
+msgstr ""
+
+#: ui/hud.gd:193
 msgid "Đang vác %s — click / E để đặt (không tốn tài nguyên)"
 msgstr ""
 
-#: ui/hud.gd:195
+#: ui/hud.gd:199
 msgid "Hết tài nguyên để xây %s — mang thêm về hoặc góp từ túi"
 msgstr ""
 
-#: ui/hud.gd:197
+#: ui/hud.gd:201
 msgid "Giữ E để xây %s — %d%%"
 msgstr ""
 
-#: ui/hud.gd:202
+#: ui/hud.gd:206
 msgid "Giữ F để thu %s"
 msgstr ""
 
-#: ui/hud.gd:202
+#: ui/hud.gd:206
 msgid "Giữ F để dỡ bản vẽ %s"
 msgstr ""
 
-#: ui/hud.gd:210
+#: ui/hud.gd:214
 msgid "Giữ E để sửa pháo đài"
 msgstr ""
 
-#: ui/hud.gd:212
+#: ui/hud.gd:216
 msgid "Kho hết %s — cần mang về để sửa"
 msgstr ""
 
-#: ui/hud.gd:216
+#: ui/hud.gd:229
 msgid " · %d người"
 msgstr ""
 
-#: ui/hud.gd:232
+#: ui/hud.gd:245
 msgid "Mang %d/%d"
 msgstr ""
 
-#: ui/hud.gd:242
+#: ui/hud.gd:255
 msgid "Pháo đài %s %d/%d"
 msgstr ""
 
-#: ui/hud.gd:251
+#: ui/hud.gd:264
 msgid "Nộp vào kho: %s"
 msgstr ""
 

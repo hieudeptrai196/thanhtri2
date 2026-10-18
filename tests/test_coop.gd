@@ -361,3 +361,17 @@ func test_a_full_room_of_five_plays_together() -> void:
 	check(host.players.size() == 5, "five warriors on the host, got %d" % host.players.size())
 	for client: Match in matches.slice(1):
 		check(client.players.size() == 5 and client.local_warrior != null, "each client sees all five and plays its own")
+
+
+func test_crowded_snapshots_still_arrive() -> void:
+	var matches := await start_net_match(2)
+	var host: Match = matches[0]
+	var client: Match = matches[2]
+	var spawner: Spawner = host.get_node("Spawner")
+	for i in 300:
+		spawner.spawn_one()
+	var client_spawner: Spawner = client.get_node("Spawner")
+	check(await wait_until(func() -> bool: return client_spawner.alive_count() == spawner.alive_count(), 300),
+		"client shows all %d enemies (got %d)" % [spawner.alive_count(), client_spawner.alive_count()])
+	var packed := var_to_bytes(host.net_snapshot()).compress(FileAccess.COMPRESSION_DEFLATE)
+	check(packed.size() > NetSync.SNAPSHOT_PART_BYTES, "this snapshot really needs several parts (%d bytes)" % packed.size())
