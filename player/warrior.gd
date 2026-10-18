@@ -8,14 +8,28 @@ extends CharacterBody3D
 @export var turn_speed: float = 18.0
 
 @onready var input: PlayerInput = $PlayerInput
+@onready var health: HealthComponent = $Health
+@onready var _hurtbox: Hurtbox = $Hurtbox
 @onready var _weapon: MeleeWeapon = $Weapon
 @onready var _swing_fx: Node3D = $SwingFx
 
+var is_alive: bool = true
+
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var _body_layer: int
 
 
 func _ready() -> void:
+	_body_layer = collision_layer
 	_weapon.swung.connect(_on_swung)
+	health.died.connect(_on_died)
+
+
+## Brings the warrior back at full health. Who decides when and where is up to the match.
+func respawn_at(spawn_position: Vector3) -> void:
+	global_position = spawn_position
+	health.reset()
+	_set_alive(true)
 
 
 func _physics_process(delta: float) -> void:
@@ -35,6 +49,18 @@ func _physics_process(delta: float) -> void:
 		_weapon.try_attack(aim)
 
 	move_and_slide()
+
+
+func _on_died() -> void:
+	_set_alive(false)
+
+
+func _set_alive(alive: bool) -> void:
+	is_alive = alive
+	visible = alive
+	collision_layer = _body_layer if alive else 0
+	_hurtbox.set_deferred("monitorable", alive)
+	set_physics_process(alive)
 
 
 # Placeholder swing flash until there are real attack animations.

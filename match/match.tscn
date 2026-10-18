@@ -5,7 +5,8 @@
 [ext_resource type="PackedScene" path="res://fortress/fortress.tscn" id="3_fortress"]
 [ext_resource type="Script" path="res://camera/iso_camera.gd" id="4_camera"]
 [ext_resource type="PackedScene" path="res://player/warrior.tscn" id="5_warrior"]
-[ext_resource type="PackedScene" path="res://combat/training_dummy.tscn" id="6_dummy"]
+[ext_resource type="Script" path="res://match/spawner.gd" id="6_spawner"]
+[ext_resource type="PackedScene" path="res://enemies/enemy.tscn" id="7_enemy"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -104,14 +105,9 @@ mesh = SubResource("CylinderMesh_stop")
 [node name="Warrior" parent="." instance=ExtResource("5_warrior")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 
-[node name="Dummy1" parent="." instance=ExtResource("6_dummy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -3)
-
-[node name="Dummy2" parent="." instance=ExtResource("6_dummy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 3)
-
-[node name="Dummy3" parent="." instance=ExtResource("6_dummy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 8)
+[node name="Spawner" type="Node3D" parent="."]
+script = ExtResource("6_spawner")
+enemy_scene = ExtResource("7_enemy")
 
 [node name="IsoCamera" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
 size = 26.0
@@ -132,4 +128,11 @@ offset_left = 16.0
 offset_top = 50.0
 offset_right = 716.0
 offset_bottom = 82.0
+theme_override_font_sizes/font_size = 22
+
+[node name="PlayerInfo" type="Label" parent="DebugUI"]
+offset_left = 16.0
+offset_top = 84.0
+offset_right = 716.0
+offset_bottom = 116.0
 theme_override_font_sizes/font_size = 22

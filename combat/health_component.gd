@@ -24,5 +24,10 @@ func apply_damage(amount: float, _source: Node = null) -> void:
 		died.emit()
 
 
+func reset() -> void:
+	current = max_health
+	health_changed.emit(current, max_health)
+
+
 func get_ratio() -> float:
 	return current / max_health
