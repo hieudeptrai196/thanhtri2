@@ -49,7 +49,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | Thư mục | Nội dung |
 |---|---|
 | `match/` | `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thắng/thua → tạm dừng cây + màn kết quả, chơi lại = nạp lại scene), `spawner.gd` |
-| `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu, **nỏ liên châu** `$Crossbow`, **chông gai** `thorns_damage`), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
+| `fortress/` | `Fortress` (máu → tốc độ, kho + tài nguyên ban đầu, sửa, cấp vật liệu, **nỏ liên châu** `$Crossbow`, **chông gai** `thorns_damage`, nhiên liệu Than + tăng tốc, **nâng cấp** `FortressUpgrade` (.tres trong `upgrades/`: crossbow, boiling_oil, furnace, shield — giá trộn theo cấp) + module placeholder trên thân), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
 | `player/` | `Warrior` (tự đánh, dash, vác 1 công trình), `PlayerInput` (ý định), `Builder` (chế độ xây cục bộ: phím 1–4 / menu vòng tròn, bóng ma, giữ F thu hồi) |
 | `structures/` | `StructureType` (.tres trong `types/`) + `StructureTypes.ALL`, `Structure` (máu, bộ đệm, tiếp sức), `CrossbowTurret` (bắn, đòn cuối, nổ), rào gỗ (`Structure` không cần điện, hút quái), `StructureNetwork` (chứa công trình ở tọa độ thế giới, luật đặt, tiếp sức trong bán kính pháo đài, bản vẽ, dỡ/thu hồi). `Structure` bắt đầu là **bản vẽ**: `add_hammer` mỗi tick, trả dần (túi rồi kho), `add_recover_helper` cộng tiến độ thu hồi chung |
 | `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, `AutoShooter` (tự bắn mục tiêu gần nhất — dùng cho tháp nỏ và nỏ liên châu trên thành), bia thử |
@@ -77,6 +77,7 @@ Nguyên tắc:
 - Biểu tượng tài nguyên trên HUD: gán `icon` trong `resources/types/*.tres`; không có thì vẽ ô màu.
 - Ảnh minh họa thẻ vũ khí: gán `art` (Texture2D) trong `combat/upgrades/*.tres`; thẻ tự thay ô placeholder.
 - Khung thẻ: thả ảnh 9-slice vào `ui/art/card_frame.png` (viền không giãn 24 px, xem `UiStyle.CARD_FRAME_SLICE`).
+- Bảng ở điểm dừng chia 2 cột (pháo đài | thẻ vũ khí) để vừa 720p — khi thêm mục mới phải kiểm tra lại bằng ảnh chụp 1280×720.
 - Bố cục HUD / màn kết quả / thẻ: sửa `ui/hud.tscn`, `ui/result_screen.tscn`, `ui/weapon_card.tscn` trong editor. Màu/style chung: `ui/ui_style.gd`.
 - Khi thêm UI mới: tách thành scene riêng và chừa chỗ cho ảnh như trên.
 

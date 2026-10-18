@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FortressUpgrade" format=3]
+
+[ext_resource type="Script" path="res://fortress/fortress_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"boiling_oil"
+display_name = "Dầu sôi"
+description = "Mỗi khi thành mất thêm 20% máu, dội dầu sôi quanh thân."
+costs = Array[Dictionary]([{
+&"bronze": 5,
+&"coal": 5
+}])

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FortressUpgrade" format=3]
+
+[ext_resource type="Script" path="res://fortress/fortress_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"crossbow"
+display_name = "Nỏ liên châu"
+description = "Nỏ trên thành bắn mạnh hơn, nhanh hơn, xa hơn."
+costs = Array[Dictionary]([{
+&"bronze": 3,
+&"wood": 10
+}, {
+&"bronze": 6,
+&"wood": 15
+}, {
+&"bronze": 10,
+&"wood": 20
+}])

@@ -5,16 +5,11 @@
 
 ## Đang làm
 
-**M1.6b — Nâng cấp pháo đài trả giá trộn nguyên liệu** (bắt đầu 2026-10-18)
-
-- [ ] Dữ liệu nâng cấp (`FortressUpgrade`): cấp nỏ liên châu, dầu sôi, lò lửa đốt Than, khiên tự hồi; thân Đá đã có (Gỗ + Đồng)
-- [ ] Bảng ở điểm dừng hiện danh sách nâng cấp + giá trộn; module hiện trên thân thành
-- [ ] Test + người dùng chơi thử (cân bằng sau)
+(không có — M1.6b vừa commit; tiếp theo M1.7)
 
 ## Tiếp theo (M1, xem ROADMAP)
 
 - M1.5 Tự vệ cơ bản của pháo đài (nỏ liên châu + chông gai) + chơi thử câu hỏi cốt lõi + cân bằng
-- M1.6b Nâng cấp pháo đài trả giá trộn nguyên liệu (cấp nỏ, dầu sôi, lò lửa Than, khiên)
 - M1.7 Tiếng ồn/truy đuổi + Nỏ thần · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
@@ -41,7 +36,8 @@
 | M1.4 | `46b4449` | Công trình ngoài thực địa, nhảy cóc |
 | M1.4b | `22a9e29` | Xây chung |
 | M1.5 | `9970e8a` | Thành tự vệ cơ bản |
-| M1.6a | (commit này) | Than, tăng tốc, mỏ than, bỏ Đá |
+| M1.6a | `fc24be8` | Than, tăng tốc, mỏ than, bỏ Đá |
+| M1.6b | (commit này) | Nâng cấp pháo đài giá trộn: nỏ 3 cấp, dầu sôi, lò lửa Than, khiên 2 cấp; bảng điểm dừng 2 cột |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 

@@ -4,7 +4,9 @@ extends AnimatableBody3D
 ## coal it crawls) and slows down as it loses health; repaired with resources from its storage;
 ## upgraded through its body material tier. Starts with some resources in its storage.
 ## Defends itself a little: a weak crossbow on top hits enemies right at its walls, and thorns hurt
-## whatever strikes it. Holding the line is still the job of field structures and players.
+## whatever strikes it. Upgrades bought at stops (FortressUpgrades) strengthen the crossbow and add
+## boiling oil, a coal furnace and a regenerating shield. Holding the line is still the job of field
+## structures and players.
 
 ## Body material levels in order; the fortress starts at the first.
 const TIERS: Array[FortressTier] = [
@@ -32,6 +34,19 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 ## Speed multipliers per mode (combined with the health multiplier).
 @export var overdrive_speed: float = 1.6
 @export var out_of_fuel_speed: float = 0.35
+@export_group("Upgrades")
+## Crossbow damage / seconds between shots / range per level (index 0 = base).
+@export var crossbow_damage_levels: Array[float] = [6.0, 9.0, 12.0, 15.0]
+@export var crossbow_interval_levels: Array[float] = [1.2, 1.0, 0.85, 0.7]
+@export var crossbow_range_levels: Array[float] = [10.5, 12.0, 13.5, 15.0]
+@export var oil_damage: float = 40.0
+## Oil pours each time health drops past another step of this fraction.
+@export var oil_step: float = 0.2
+@export var furnace_damage: float = 15.0
+@export var furnace_interval: float = 2.0
+@export var shield_levels: Array[float] = [0.0, 100.0, 200.0]
+@export var shield_regen_per_second: float = 15.0
+@export var shield_regen_delay: float = 4.0
 
 @onready var health: HealthComponent = $Health
 @onready var follower: RouteFollower = $RouteFollower
@@ -39,16 +54,23 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @onready var service_zone: ServiceZone = $ServiceZone
 @onready var crossbow: AutoShooter = $Crossbow
 @onready var _hurtbox: Hurtbox = $Hurtbox
+@onready var _defense_area: Area3D = $DefenseArea
+@onready var _modules: Node3D = $Modules
 @onready var _body_mesh: MeshInstance3D = $Body
 
 var tier_index: int = 0
 ## Players toggle this; it only applies while there is fuel.
 var overdrive: bool = false
 var speed_mode: SpeedMode = SpeedMode.MARCH
+## Bought level per FortressUpgrade id (missing = 0).
+var upgrade_levels: Dictionary = {}
 
 var _repair_cooldown: float = 0.0
 ## Fuel burned but not yet taken out of storage (whole units are taken).
 var _fuel_owed: float = 0.0
+var _oil_step_reached: int = 0
+var _furnace_cooldown: float = 0.0
+var _since_hit: float = 0.0
 
 
 func _ready() -> void:
@@ -56,12 +78,16 @@ func _ready() -> void:
 	_apply_tier(TIERS[tier_index])
 	storage.add_all(starting_resources)
 	_hurtbox.hit_taken.connect(_on_hit_taken)
+	health.health_changed.connect(_check_boiling_oil)
+	_apply_upgrades()
 
 
 func _physics_process(delta: float) -> void:
 	_repair_cooldown = maxf(_repair_cooldown - delta, 0.0)
 	_burn_fuel(delta)
 	_update_speed()
+	_tick_furnace(delta)
+	_tick_shield(delta)
 
 
 func fuel_left() -> int:
@@ -117,6 +143,25 @@ func upgrade_tier() -> bool:
 	return true
 
 
+func upgrade_level(id: StringName) -> int:
+	return upgrade_levels.get(id, 0)
+
+
+## Cost of the next level of `upgrade`, or empty when maxed.
+func next_upgrade_cost(upgrade: FortressUpgrade) -> Dictionary:
+	var level := upgrade_level(upgrade.id)
+	return upgrade.costs[level] if level < upgrade.max_level() else {}
+
+
+func buy_upgrade(upgrade: FortressUpgrade) -> bool:
+	var cost := next_upgrade_cost(upgrade)
+	if cost.is_empty() or not storage.spend(cost):
+		return false
+	upgrade_levels[upgrade.id] = upgrade_level(upgrade.id) + 1
+	_apply_upgrades()
+	return true
+
+
 ## Called every tick while at least one player repairs; spends one unit per step.
 func tick_repair(_delta: float) -> void:
 	if _repair_cooldown > 0.0 or health.current >= health.max_health:
@@ -133,8 +178,59 @@ func _apply_tier(tier: FortressTier) -> void:
 	_body_mesh.material_override = material
 
 
+func _apply_upgrades() -> void:
+	var level := upgrade_level(&"crossbow")
+	crossbow.damage = crossbow_damage_levels[level]
+	crossbow.interval = crossbow_interval_levels[level]
+	crossbow.set_range(crossbow_range_levels[level])
+	health.set_max_shield(shield_levels[upgrade_level(&"shield")])
+	# Placeholder modules on the hull show what has been bought.
+	for module in _modules.get_children():
+		module.visible = upgrade_level(StringName(module.name.to_snake_case())) > 0
+	if upgrade_level(&"shield") > 0 and health.shield == 0.0:
+		health.restore_shield(health.max_shield)  # a new shield starts full
+
+
+func _damage_around(amount: float) -> int:
+	var hit := 0
+	for area in _defense_area.get_overlapping_areas():
+		if area is Hurtbox:
+			area.take_hit(amount, self)
+			hit += 1
+	return hit
+
+
+# Boiling oil pours once each time health falls past another `oil_step` of the maximum.
+func _check_boiling_oil(current: float, maximum: float) -> void:
+	var step := floori((1.0 - current / maximum) / oil_step + 0.0001)
+	if step > _oil_step_reached and upgrade_level(&"boiling_oil") > 0:
+		_damage_around.call_deferred(oil_damage)
+	# Repairs lower the step again, so the oil is ready for the next drop.
+	_oil_step_reached = step
+
+
+# The furnace burns one coal per burst, and only fires when an enemy is at the walls.
+func _tick_furnace(delta: float) -> void:
+	_furnace_cooldown = maxf(_furnace_cooldown - delta, 0.0)
+	if upgrade_level(&"furnace") == 0 or _furnace_cooldown > 0.0:
+		return
+	if not _defense_area.get_overlapping_areas().any(func(a: Area3D) -> bool: return a is Hurtbox):
+		return
+	if storage.spend({fuel_resource.id: 1}):
+		_furnace_cooldown = furnace_interval
+		_damage_around(furnace_damage)
+
+
+func _tick_shield(delta: float) -> void:
+	_since_hit += delta
+	if _since_hit >= shield_regen_delay:
+		health.restore_shield(shield_regen_per_second * delta)
+	$Modules/Shield.visible = health.shield > 0.0
+
+
 # Thorns: an attacker with a Hurtbox of its own takes a little damage back (bombs have none).
 func _on_hit_taken(_amount: float, source: Node) -> void:
+	_since_hit = 0.0
 	if thorns_damage <= 0.0 or not is_instance_valid(source) or source == self:
 		return
 	var attacker_hurtbox := source.get_node_or_null(^"Hurtbox") as Hurtbox

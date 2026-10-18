@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FortressUpgrade" format=3]
+
+[ext_resource type="Script" path="res://fortress/fortress_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"shield"
+display_name = "Khiên tự hồi"
+description = "Khiên hấp thụ sát thương, tự hồi khi không bị đánh."
+costs = Array[Dictionary]([{
+&"bronze": 8
+}, {
+&"bronze": 12,
+&"wood": 10
+}])

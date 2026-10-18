@@ -56,6 +56,7 @@ func _ready() -> void:
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(request_tier_upgrade)
+	_upgrade_panel.fortress_upgrade_requested.connect(request_fortress_upgrade)
 	_upgrade_panel.weapon_upgrade_requested.connect(request_weapon_upgrade)
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
@@ -100,6 +101,12 @@ func _on_ready_requested() -> void:
 
 
 ## Purchases are only allowed while stopped; in multiplayer this check runs on the server.
+func request_fortress_upgrade(upgrade: FortressUpgrade) -> bool:
+	var done := _follower.is_stopped and _fortress.buy_upgrade(upgrade)
+	_upgrade_panel.refresh()
+	return done
+
+
 func request_tier_upgrade() -> bool:
 	var done := _follower.is_stopped and _fortress.upgrade_tier()
 	_upgrade_panel.refresh()
