@@ -14,11 +14,12 @@
 - [ ] Người dùng chơi thử → chỉnh số → commit
 - Ghi chú: bot đánh tự động (scratchpad) bị kẹt sau pháo đài/cây nên **không dùng để cân bằng**; cần người chơi thật.
 
-## Tiếp theo (M1)
+## Tiếp theo (M1, xem ROADMAP)
 
-- M1.3 Điểm = số mét (HUD, màn kết quả so kỷ lục)
-- M1.4 Lưu kỷ lục + cài đặt (`user://`)
-- M1.5 Hạ tầng i18n (Việt + Anh) + màn chọn ngôn ngữ — **cần sửa `project.godot` → nhờ người dùng tắt Godot**
+- M1.3 Đòn thường tự đánh + dash
+- M1.4 Công trình ngoài thực địa (nhảy cóc, bộ đệm, đòn cuối)
+- M1.5 Chơi thử câu hỏi cốt lõi
+- M1.6 Tài nguyên Gỗ/Than/Đồng · M1.7 Tiếng ồn · M1.8 Chọn tuyến · M1.9 Điểm/kỷ lục/seed ngày · M1.10 i18n
 
 ## Đã xong
 
@@ -42,6 +43,7 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · Chọn ý tưởng 1,2,4,5,7–18 (19 ưu tiên thấp); co-op tối đa 4; roadmap viết lại (M1 vòng cốt lõi → M2 co-op…).
 - 2026-10-18 · **Endless + chọn 1/2 tuyến ở mỗi điểm dừng** (thay quyết định "một đường, ngã rẽ để M3").
 - 2026-10-18 · **Độ khó: quãng đường làm nền (M1.2 giữ lại) + thanh tiếng ồn / truy đuổi.**
 - 2026-10-18 · **Tài nguyên: Gỗ (xây/sửa), Than (nhiên liệu, tăng tốc), Đồng (vũ khí/kỹ năng/module); bỏ Đá.**
@@ -59,7 +61,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). Người dùng hướng tới chia vai trò co-op + xếp hạng; Claude đã đề xuất 20 ý tưởng trong [`IDEAS.md`](IDEAS.md). **Đang hỏi tiếp:** chọn ý tưởng + số người co-op tối đa → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
+- Đã chốt vòng nhảy cóc (phương án 1). Đã chọn ý tưởng + co-op 4 người; roadmap viết lại. **Chờ:** duyệt roadmap mới, commit M1.2, bắt đầu M1.3.
 
 ## Ghi chú cho phiên sau
 

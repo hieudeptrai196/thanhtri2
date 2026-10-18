@@ -103,12 +103,12 @@ Collision layer:
 - Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
 - Chiến binh ngã thì hồi sinh nhưng **rơi hết đồ đang mang**. Thua khi pháo đài bị phá.
 - Pháo đài không chỉ bằng gỗ. Nâng cấp ở điểm dừng theo 2 trục: **thân pháo đài lên cấp vật liệu** (gỗ → đá → …, tăng độ bền, đổi hình) + **ô quanh rìa gắn công trình tấn công** (tháp…). Prototype: 1 cấp gỗ → đá, 1 loại tháp tự bắn. Thẻ nâng cấp ngẫu nhiên có thể thêm khi làm endless.
-- Có cả solo và multiplayer (kiến trúc sẵn sàng; chưa làm networking).
+- **Co-op tối đa 4 người, chia vai trò rõ (class = vai trò)**; solo vẫn trọn vẹn. Kiến trúc sẵn sàng; networking làm ở M2.
+- Tính năng đã chọn (xem `docs/IDEAS.md`): class-vai trò, đỡ đồng đội, kết hợp class, ping, kho chung/túi riêng, độ khó theo số người, xếp hạng theo cỡ đội + bạn bè + seed ngày/tuần + mùa giải + chống gian lận, tổng kết MVP theo vai trò, thẻ hành trình, biome vùng miền, sự kiện truyền thuyết, boss; trang phục theo thời đại ưu tiên thấp.
 - Sau này: class nhân vật có chiêu riêng, dash; menu chọn ngôn ngữ lúc mới vào.
 - **Giao diện phải đẹp, có chất game** (thẻ, khung có style, hiệu ứng hover…), không dùng kiểu form mặc định (input, select box, nút xám trơn). Prototype được tạm, nhưng không làm UI kiểu form.
 - Asset: placeholder cho tới hết prototype; khi làm asset thì viết tiêu chuẩn asset để người dùng đưa họa sĩ.
 
-## Lộ trình prototype
+## Lộ trình
 
-0–7 đã xong: khung project → pháo đài + camera → di chuyển → máu/đánh → quái + spawner → tài nguyên/sửa/rơi đồ → điểm dừng nâng cấp (6a thân + tháp, 6b thẻ vũ khí, 6c bom ẩn) → vòng trận thắng/thua/chơi lại + HUD.
-Tiếp theo: **8** đo hiệu năng trên M1 + chơi thử · **9** làm đẹp: ánh sáng/hậu kỳ, vật liệu stylized, nền đất, juice (rung camera, hit-stop, số sát thương), hiệu ứng hạt, font tiếng Việt (cần người dùng đồng ý tải font OFL).
+Xem [`docs/ROADMAP.md`](docs/ROADMAP.md) (M1 vòng cốt lõi → M2 co-op & vai trò → M3 vertical slice đẹp → M4 nội dung → M5 Steam beta → M6 phát hành → M7–M8 di động) và [`docs/PROGRESS.md`](docs/PROGRESS.md).

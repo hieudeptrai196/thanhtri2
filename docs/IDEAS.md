@@ -1,7 +1,7 @@
 # THÀNH TRÌ — Ý tưởng tính năng (đề xuất, chờ chọn)
 
 Cập nhật 2026-10-18. Người dùng hướng tới: **chia vai trò rõ trong co-op** + **xếp hạng đội/người chơi đi xa nhất**.
-Tất cả dưới đây là **[Đề xuất]** của Claude; chỉ đưa vào roadmap những mục người dùng chọn.
+Tất cả dưới đây là đề xuất của Claude. **2026-10-18 người dùng chọn: 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18; 19 ưu tiên thấp (bỏ được nếu tốn công); không chọn 3, 6; 20 chưa quyết.** Co-op tối đa 4 người. Đã xếp vào `ROADMAP.md`.
 
 ## A. Chia vai trò trong co-op
 

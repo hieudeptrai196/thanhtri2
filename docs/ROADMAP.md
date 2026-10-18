@@ -1,107 +1,98 @@
 # THÀNH TRÌ — Roadmap
 
-Cập nhật: 2026-10-18. Ký hiệu: **[Chốt]** đã xác nhận · **[Đề xuất]** chờ duyệt · **[Mở]** chưa quyết định.
+Cập nhật: 2026-10-18 (viết lại theo vòng chơi mới). Ký hiệu: **[Chốt]** · **[Đề xuất]** · **[Mở]**.
+Tiến độ hằng ngày: [`PROGRESS.md`](PROGRESS.md) · Game tham khảo: [`REFERENCE.md`](REFERENCE.md) · Ý tưởng: [`IDEAS.md`](IDEAS.md).
 
-## 1. Mục tiêu
+## 1. Mục tiêu [Chốt]
 
-- **[Chốt]** Game nghiêm túc, phát hành trên **Steam**, và tối thiểu **Google Play + App Store**.
-- **[Chốt]** Chế độ chính: **endless**. Người chơi so xem **ai đi được xa hơn**.
-- **[Chốt]** Model/asset làm tử tế (họa sĩ làm theo tài liệu tiêu chuẩn asset), giao diện có chất game.
-- **[Chốt]** Đa ngôn ngữ (i18n) từ đầu; lần đầu vào game chọn ngôn ngữ.
-- **[Chốt]** Solo + multiplayer (kiến trúc giữ đường; làm networking sau).
-- **[Chốt]** **Làm xong bản PC (Steam) trước**, rồi mới port di động. Renderer: **Forward+ trên PC, Mobile trên điện thoại** (Godot đã tự chuyển: `rendering_method.mobile = mobile`).
+- Game nghiêm túc. **Steam trước (PC)**, sau đó Google Play + App Store. Forward+ trên PC, Mobile trên điện thoại.
+- **Endless**, so **đội / người chơi nào đi xa hơn**; bảng xếp hạng theo cỡ đội.
+- **Co-op tối đa 4 người, chia vai trò rõ** — đây là hướng chính của người dùng. Solo vẫn chơi trọn vẹn.
+- Tham khảo **Marcha de Ferro** (học nguyên tắc, không chép), thêm co-op và tính năng riêng.
+- Asset tử tế (nền KayKit/Kenney CC0 + phần bản sắc Việt do họa sĩ làm), UI có chất game, **i18n bắt buộc**.
 
-## 2. Hiện trạng (prototype, giai đoạn 0–8 xong)
+## 2. Vòng chơi đã chốt
 
-Pháo đài tự chạy theo lộ trình cố định (~250 m), chiến binh đánh chủ động ngắm theo chuột, 1 loại quái, Gỗ/Đá/Đồng,
-sửa thành, rơi đồ khi ngã, điểm dừng nâng cấp (thân gỗ → đá, tháp, thẻ vũ khí), bom ẩn, thắng/thua/chơi lại, HUD.
-Toàn bộ là hình khối placeholder. 39 test tự động (`tests/run.sh`), đo hiệu năng (`tools/benchmark.sh`).
+**Tiến → Lắp → Duy trì → Bỏ lại**, trên một con đường vô tận.
 
-## 3. Nguyên tắc cho bản phát hành
+- Pháo đài tự đi. Người chơi **đặt công trình ngoài thực địa** phía trước; công trình được **tiếp sức khi ở gần pháo đài**,
+  ra xa thì chạy bằng bộ đệm; **thu về mang lên trước** ("nhảy cóc") hoặc **bỏ lại kèm đòn cuối**.
+- **Đòn thường tự đánh**; **kỹ năng class bấm chủ động và ngắm**; dash.
+- Tài nguyên: **Gỗ** (xây, sửa) · **Than** (nhiên liệu, tăng tốc; hết than bò chậm) · **Đồng** (vũ khí, kỹ năng, module).
+- Độ khó: **quãng đường** (nền) + **tiếng ồn** (tăng tốc, khai thác, bắn…; đầy → truy đuổi; điểm dừng làm dịu).
+- Điểm dừng an toàn: **chọn 1/2 tuyến** (thưởng/rủi ro), nâng cấp, chuẩn bị, khởi hành.
+- Chết: hồi sinh / được đồng đội đỡ dậy, rơi đồ đang mang. Thua khi pháo đài bị phá.
 
-- Mỗi bước nhỏ, có test tự động + chơi thử; không bước nào làm hỏng bước trước.
-- **Chữ người chơi thấy luôn qua `tr()`**; không ghép chuỗi kiểu phụ thuộc trật tự từ tiếng Việt.
-- **Mọi input đi qua `PlayerInput`** để thêm cảm ứng / tay cầm mà không sửa gameplay.
-- Ưu tiên PC, nhưng **không khóa đường di động**: input qua `PlayerInput`, chữ qua `tr()`, UI co giãn; hiệu ứng chỉ có ở Forward+ phải có phương án thay thế khi chạy Mobile (game vẫn đọc rõ, chỉ kém đẹp hơn).
-- Asset thay được không cần sửa code (xem "Điểm gắn asset" trong `CLAUDE.md`).
-- Không plugin / API key / tài khoản / deploy nếu chưa được duyệt riêng.
+## 3. Đã có (prototype, xem PROGRESS)
 
-## 4. Các hạng mục
+Đường vô tận theo seed, pháo đài + máu → tốc độ, chiến binh di chuyển, đánh chủ động (sẽ chuyển thành kỹ năng), quái + spawner,
+độ khó theo quãng đường (M1.2), Gỗ/Đá/Đồng + khai thác/nộp/sửa/rơi đồ, điểm dừng + bảng nâng cấp + thẻ vũ khí, bom ẩn, HUD, màn kết quả,
+44+ test tự động, benchmark, F3. **Phần cần làm lại:** tài nguyên (bỏ Đá, thêm Than), tháp gắn pháo đài → công trình ngoài thực địa,
+đánh chủ động → tự đánh + kỹ năng.
 
-### A. Lối chơi endless (làm trước, vẫn placeholder)
+## 4. Cột mốc
 
-| # | Nội dung | Xong khi |
-|---|---|---|
-| A1 | **Lộ trình vô tận**: sinh đường theo đoạn phía trước, xóa phía sau; cây/đá/bom sinh theo đoạn; bỏ tường cố định | Chạy 30 phút không hết đường, bộ nhớ & FPS ổn định (test + benchmark) |
-| A2 | **Độ khó theo quãng đường**: mật độ/sức mạnh/loại quái tăng dần; điểm dừng mỗi X m | Có bảng/đồ thị độ khó theo mét; chơi thử thấy nhịp căng–nghỉ |
-| A3 | **Điểm = quãng đường**: số mét trên HUD, kỷ lục lưu máy, màn kết quả so kỷ lục | "1.240 m — kỷ lục mới!" |
-| A4 | **Nội dung**: 3–4 quái dân gian **[Mở: tên/cơ chế do người dùng chốt]**, quái tinh anh, **boss sau mỗi N điểm dừng**, thêm cấp vật liệu pháo đài, thêm loại tháp, thẻ pháo đài, **class nhân vật + chiêu riêng + dash**, biome đổi theo quãng đường | Mỗi trận khác nhau nhờ kết hợp thẻ/quái/biome |
-| A5 | **Cân bằng + tối ưu** (vật lý quái là điểm nóng đã đo) | Đạt mục tiêu FPS trên thiết bị yếu nhất (xem C1) |
-| A6 | **So quãng đường**: kỷ lục trên máy + **seed hằng ngày** (mọi người cùng lộ trình/quái trong ngày) → sau đó bảng xếp hạng nền tảng (C5) | So sánh công bằng giữa người chơi |
+Mỗi mốc chia thành bước nhỏ có test + chơi thử; người dùng duyệt từng bước.
 
-### B. Đồ họa & âm thanh
+### M1 — Vòng cốt lõi (solo, placeholder)
 
-| # | Nội dung |
+**Câu hỏi phải trả lời được: "nhảy cóc công trình trong khi pháo đài cứ đi và quái áp sát có vui không?"** Nếu chưa vui, sửa vòng này trước khi thêm nội dung.
+
+| Bước | Nội dung |
 |---|---|
-| B1 | **Hướng mỹ thuật + tài liệu tiêu chuẩn asset** (làm sớm nhất vì họa sĩ cần thời gian): phong cách, bảng màu; chiến binh theo class, quái, boss, **pháo đài dạng module theo cấp vật liệu**, bộ cảnh theo biome, props, UI kit (khung, nút, thẻ, icon), VFX; giới hạn polygon/texture **theo ngân sách di động**, danh sách animation, `.glb`, quy tắc đặt tên |
-| B2 | **Làm đẹp bằng code** (giai đoạn 9): ánh sáng/hậu kỳ, shader stylized, nền đất + cây cỏ (MultiMesh), hạt, juice (rung camera, hit-stop, số sát thương), font tiếng Việt (OFL, cần duyệt tải), làm mờ pháo đài khi che nhân vật |
-| B3 | **Lắp asset thật**: thay placeholder từng scene, AnimationTree, đo lại hiệu năng trên mọi nền tảng |
-| B4 | **Âm thanh** [Đề xuất]: SFX (chém, nổ, chặt), nhạc theo biome, âm lượng trong cài đặt |
+| M1.2 | Độ khó theo quãng đường (đã code, chờ commit) |
+| M1.3 | **Đòn thường tự đánh** (stick phải/chuột ưu tiên hướng) + **dash**; phần ngắm hiện có giữ cho kỹ năng sau |
+| M1.4 | **Công trình ngoài thực địa**: chế độ xây (chọn công trình, bóng ma xanh/vàng/đỏ), **tháp gập mang theo** (mang 1 cái), **chướng ngại cố định**; **bộ đệm tiếp sức** trong bán kính pháo đài; thu hồi; **đòn cuối** khi bỏ. Tháp gắn pháo đài cũ → bỏ (sau thành module) |
+| M1.5 | **Chơi thử câu hỏi cốt lõi** + cân bằng |
+| M1.6 | **Tài nguyên mới**: Gỗ / **Than** (tiêu hao theo tốc độ, tăng tốc, hết than bò chậm) / Đồng; bỏ Đá; thân pháo đài thành module trả Đồng |
+| M1.7 | **Tiếng ồn + truy đuổi** chồng lên độ khó quãng đường |
+| M1.8 | **Chọn 1/2 tuyến** ở điểm dừng (tham số đoạn đường: thưởng/rủi ro), theo seed |
+| M1.9 | **Điểm số = quãng đường**, kỷ lục, lưu cài đặt (`user://`); **seed hằng ngày/tuần** chơi được offline (10) |
+| M1.10 | **Hạ tầng i18n** (Việt + Anh), màn chọn ngôn ngữ lần đầu (cần tắt Godot khi sửa `project.godot`) |
 
-### C. Nền tảng & phát hành
+### M2 — Co-op & vai trò
 
-| # | Nội dung |
+| Bước | Nội dung |
 |---|---|
-| C1 | **Renderer & hiệu năng**: **[Chốt]** Forward+ trên PC, Mobile trên điện thoại. **[Mở]** cấu hình PC tối thiểu và mục tiêu FPS (đề xuất 60 FPS ở 1080p trên GPU tích hợp tầm trung); khi port: thiết bị di động yếu nhất + mục tiêu FPS, kiểm tra hình ảnh dưới renderer Mobile |
-| C2 | **Điều khiển**: cảm ứng (joystick ảo trái di chuyển, joystick/vùng phải ngắm-đánh, nút dash/chiêu/E/sẵn sàng), tay cầm (đã có cơ bản), chuột-bàn phím; chỉ sửa `PlayerInput` + lớp UI cảm ứng |
-| C3 | **i18n**: bật TranslationServer, file dịch (đề xuất gettext `.po` để giao cho người dịch; Godot sinh `.pot`), **màn chọn ngôn ngữ lần đầu**, tự nhận ngôn ngữ máy làm mặc định, đổi ngôn ngữ trong cài đặt, font dự phòng cho ngôn ngữ khác (CJK…), kiểm tra chữ dài không tràn khung. Bắt đầu: **Tiếng Việt + English** [Đề xuất], thêm ngôn ngữ sau |
-| C4 | **Lưu game & cài đặt**: kỷ lục, tiến trình, ngôn ngữ, âm lượng, điều khiển (`user://`); cloud save theo nền tảng sau |
-| C5 | **Dịch vụ nền tảng**: bảng xếp hạng + thành tựu qua **Steamworks**, **Google Play Games**, **Game Center** (đều cần plugin/SDK + tài khoản → duyệt riêng). Lớp trừu tượng `PlatformServices` để gameplay không phụ thuộc nền tảng |
-| C6 | **UI đa màn hình**: co giãn theo tỉ lệ (16:9 → 20:9 điện thoại, notch/safe area), cỡ chữ & nút đủ lớn cho ngón tay |
-| C7 | **Build & export**: preset cho macOS/Windows/Linux, Android (SDK, keystore), iOS (Xcode); loại `tests/` và `tools/` khỏi bản build; CI chạy `tests/run.sh` |
-| C8 | **Yêu cầu store**: tài khoản (Apple Developer ~99 USD/năm, Google Play ~25 USD một lần, Steamworks ~100 USD/game) — **người dùng tự đăng ký**; chính sách quyền riêng tư, phân loại độ tuổi, ảnh/video store theo từng ngôn ngữ, mô tả bản địa hóa |
-| C9 | **QA thiết bị**: danh sách máy test (Mac, Windows, Android tầm thấp/trung, iPhone đời cũ), TestFlight / Play internal testing / Steam Playtest |
+| M2.1 | **Mạng co-op nền** (host-authoritative, ENet; test 2–4 cửa sổ trên cùng máy / LAN): đồng bộ ý định từ `PlayerInput`, sinh/hủy entity, trạng thái trận; kho chung + túi riêng (7) |
+| M2.2 | **Class = vai trò** (1): Công binh, Tiều phu/Thợ mỏ, Võ tướng, Thầy pháp, Thợ máy — mỗi class 1 kỹ năng chủ động + 1 điểm mạnh thụ động |
+| M2.3 | **Đỡ đồng đội dậy** (2), **kết hợp giữa class** (4), **ping/đánh dấu** (5) |
+| M2.4 | **Độ khó theo số người**, vào/ra giữa trận (8) |
+| M2.5 | **Tổng kết cuối trận theo vai trò** (MVP xây / khuân / hạ quái / cứu người) (12) |
 
-### D. Multiplayer (sau khi bản solo ổn định)
+### M3 — Vertical slice đẹp
 
-Co-op online (host-authoritative), đồng bộ ý định từ `PlayerInput`, đếm sẵn sàng ở điểm dừng, chia kho; quyết định relay/NAT qua dịch vụ nền tảng (Steam Networking…) — duyệt riêng.
+B1 hướng mỹ thuật + **tài liệu tiêu chuẩn asset** (nền KayKit/Kenney CC0, phần Việt do họa sĩ) · B2 làm đẹp bằng code (ánh sáng, hậu kỳ,
+stylized, hạt, juice, font tiếng Việt, làm mờ pháo đài khi che) · 1 biome hoàn chỉnh · âm thanh cơ bản · đo lại hiệu năng.
 
-## 5. Cột mốc đề xuất
+### M4 — Nội dung
 
-**Giai đoạn PC (Steam) — làm trước**
+**Biome theo vùng miền** (16) + tuyến mang tên địa danh · **sự kiện truyền thuyết**: nước dâng, đêm trăng máu (17) · **boss truyền thuyết** theo mốc (18)
+· thêm quái, công trình, module, kỹ năng · *(ưu tiên thấp, có thể bỏ)* trang phục theo thời đại (19).
 
-| Mốc | Gồm | Kết quả |
-|---|---|---|
-| **M1 — Endless chơi được** | A1, A2, A3, C3 (hạ tầng i18n + chọn ngôn ngữ), C4 (lưu kỷ lục + cài đặt) | Endless bằng placeholder trên PC |
-| **M2 — Vertical slice PC** | B1, B2, 1 biome + batch asset đầu | 1 lát cắt "trông như game thật" |
-| **M3 — Nội dung** | A4, B3, B4 | Đủ quái/boss/class/biome cho trải nghiệm dài |
-| **M4 — Steam beta** | A5, A6, C5 (Steamworks), C7 (Windows/macOS/Linux), C8 (Steam), C9 (PC) | Steam Playtest |
-| **M5 — Phát hành Steam** | Sửa lỗi beta, store listing đa ngôn ngữ | Lên Steam |
+### M5 — Steam beta
 
-**Giai đoạn di động — sau khi PC xong**
+Steamworks: **bảng xếp hạng theo cỡ đội** Solo/2/3/4 (9), **bạn bè** (11), **seed hằng ngày/tuần online + thử thách** (10),
+**thẻ hành trình chia sẻ** (13), **mùa giải** (14), **chống gian lận** (seed + nhật ký rút gọn) (15), co-op qua Steam Networking,
+thành tựu, cloud save, build Windows/macOS/Linux, Steam Playtest.
 
-| Mốc | Gồm | Kết quả |
-|---|---|---|
-| **M6 — Port di động** | C1 (Mobile renderer, thiết bị yếu nhất), C2 (cảm ứng), C6 (safe area, cỡ nút), tối ưu | Chơi tốt trên điện thoại thật |
-| **M7 — Phát hành Google Play + App Store** | C5 (Google Play Games, Game Center), C7 (Android/iOS), C8, C9 (thiết bị) | Lên 2 store |
+### M6 — Phát hành Steam · M7 — Port di động · M8 — Google Play + App Store
 
-Song song từ M1: B1 (tài liệu cho họa sĩ) để asset kịp về ở M2–M3. Ngân sách asset vẫn tính tới di động để không phải làm lại khi port.
+M7: renderer Mobile, điều khiển cảm ứng, UI safe area; M8: Google Play Games, Game Center, store listing đa ngôn ngữ.
 
-## 6. Quyết định đang mở
+## 5. Quyết định đang mở
 
-1. Cấu hình PC tối thiểu + mục tiêu FPS (di động chốt khi tới M6).
-2. Nền tảng PC: Windows + macOS + Linux (Steam Deck)?
-3. Phong cách mỹ thuật (B1).
-4. Tên, cơ chế quái/boss/class; danh sách biome.
-5. Ngôn ngữ ngoài Việt/Anh, thứ tự ưu tiên.
-6. Mô hình kinh doanh (trả phí một lần / miễn phí + quảng cáo / mua trong game) — ảnh hưởng thiết kế và yêu cầu store.
-7. Bảng xếp hạng: đề xuất kỷ lục máy + seed hằng ngày trước, rồi bảng xếp hạng nền tảng (C5).
+1. Chi tiết công trình M1.4: số loại ban đầu, bộ đệm bao lâu, mang mấy cái, đòn cuối kích hoạt thế nào.
+2. Cách điều khiển xây (menu vòng tròn kiểu tay cầm, hay phím số + chuột).
+3. Tên/cơ chế quái, boss, class (đề xuất trong IDEAS.md).
+4. Cấu hình PC tối thiểu + mục tiêu FPS (đề xuất 60 FPS ở 1080p, GPU tích hợp tầm trung).
+5. Mô hình kinh doanh (ghi chú: nếu bán thì chỉ trang phục).
+6. Nền tảng PC: Windows + macOS + Linux/Steam Deck?
 
-## 7. Rủi ro
+## 6. Rủi ro
 
-- **Hiệu năng di động**: cảnh nhiều quái + Forward+ có thể quá nặng; cần chốt renderer và ngân sách asset sớm.
-- **Điều khiển cảm ứng** cho twin-stick hành động: cần chơi thử sớm trên điện thoại thật.
-- **Che khuất** bởi pháo đài lớn ở góc isometric.
-- **Gian lận bảng xếp hạng**: seed cố định giúp kiểm tra lại, nhưng bảng online vẫn cần chống gian lận.
-- **Khối lượng asset** lớn (module pháo đài × cấp vật liệu, nhiều quái, biome) → cần ngân sách và lịch họa sĩ.
-- Phụ thuộc plugin nền tảng (Steamworks, Google Play Games, Game Center) theo phiên bản Godot.
+- Vòng nhảy cóc thành "hộ tống nhàm chán" nếu thao tác bảo trì nhỏ lẻ, lặp liên tục → mỗi thao tác phải có kết quả lớn, rõ.
+- Xây trên tay cầm khó dùng → menu vòng tròn, làm chậm thời gian khi chọn, bắt lưới rộng.
+- Co-op online: đồng bộ nhiều quái + công trình; cần làm nền mạng sớm (M2.1) để không phải viết lại.
+- Hiệu năng bầy quái (vật lý quái là điểm nóng đã đo) → có thể cần thay CharacterBody bằng di chuyển đơn giản + spatial hash.
+- Che khuất bởi pháo đài; khối lượng asset; phụ thuộc plugin Steamworks theo phiên bản Godot.
