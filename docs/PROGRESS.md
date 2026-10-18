@@ -5,7 +5,7 @@
 
 ## Đang làm
 
-**M1.4b — Xây chung** (bắt đầu 2026-10-18; ý 1 + ý 5 trong phản hồi của người dùng, ý 2–4 sang M2)
+**M1.4b — Xây chung** (2026-10-18, **code xong, test 61/61, chờ chơi thử**; ý 1 + ý 5 trong phản hồi của người dùng, ý 2–4 sang M2)
 
 - Đặt **bản vẽ** miễn phí (ai cũng đặt); đặt tháp đang vác thì xong ngay (giữ nhịp nhảy cóc)
 - **Gõ**: giữ E cạnh bản vẽ (khi không ở chế độ xây); tháp nỏ 4 s, rào 2 s một người; nhiều người: tốc độ × n^0.85; không tự đánh khi gõ
@@ -13,8 +13,9 @@
 - Bản vẽ: mờ, không bắn, quái không đánh/không hút; giữ F trên bản vẽ = dỡ, hoàn Gỗ đã góp về kho
 - **Thu hồi chung**: tiến độ giữ F tính trên công trình (2 người = nhanh gấp đôi)
 
-- [ ] Code (`Structure` trạng thái xây, `StructureNetwork`, `Builder`, `Match`, HUD)
-- [ ] Test + chụp màn hình + người dùng chơi thử → commit
+- [x] Code (`Structure` trạng thái xây + trả dần + thu hồi chung, `StructureNetwork.place_blueprint/dismantle/nearest_blueprint`, `Builder` gõ/thu hồi chung, `Match`, HUD gợi ý)
+- [x] Test (gõ một mình, 2 người nhanh ~1.8×, trả từ túi trước, hết Gỗ thì dừng, bản vẽ không bắn/không bị đánh, dỡ hoàn Gỗ, 2 người thu hồi nhanh gấp đôi) — tổng 61/61
+- [x] Commit + push theo yêu cầu (người dùng **chưa chơi thử** M1.4b)
 
 ## Tiếp theo (M1, xem ROADMAP)
 
@@ -66,7 +67,10 @@
 
 ## Câu hỏi đang chờ người dùng
 
-- (không có — đang làm M1.4b)
+- **Bàn giao 2026-10-18 (người dùng sắp hết token, sẽ quay lại):** M1.4b đã commit + push nhưng **chưa được chơi thử**.
+  Khi quay lại: (1) nhờ người dùng chơi thử M1.4b — để ý việc phải giữ E mới xây có làm solo chậm quá không;
+  (2) làm **M1.5**: hỏi cảm nhận câu hỏi cốt lõi "nhảy cóc có vui không", rồi cân bằng (thời gian gõ, giá, bộ đệm, độ khó đầu game).
+- Tiếp sau M1.5: M1.6 tài nguyên Gỗ/Than/Đồng (bỏ Đá) → M1.7 tiếng ồn/truy đuổi → M1.8 chọn tuyến → M1.9 điểm/kỷ lục/seed ngày → M1.10 i18n.
 
 ## Ghi chú cho phiên sau
 

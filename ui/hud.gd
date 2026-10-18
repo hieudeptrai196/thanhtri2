@@ -104,9 +104,18 @@ func _update_prompt() -> void:
 	if _warrior.carried_type:
 		_repair_hint.text = tr("Đang vác %s — click / E để đặt (không tốn tài nguyên)") % tr(_warrior.carried_type.display_name)
 		return
+	var blueprint := builder.hammer_target if builder.hammer_target else builder.network.nearest_blueprint(_warrior.global_position, builder.recover_range)
+	if blueprint and not builder.is_placing():
+		var name_text := tr(blueprint.type.display_name)
+		if blueprint.starved and builder.hammer_target:
+			_repair_hint.text = tr("Hết tài nguyên để xây %s — mang thêm về hoặc góp từ túi") % name_text
+		else:
+			_repair_hint.text = tr("Giữ E để xây %s — %d%%") % [name_text, roundi(blueprint.build_fraction() * 100.0)] + _helpers_text(blueprint)
+		return
 	if builder.recover_target:
 		var progress := roundi(builder.recover_progress / builder.recover_hold_time * 100.0)
-		_repair_hint.text = tr("Giữ F để thu %s") % tr(builder.recover_target.type.display_name) + (" (%d%%)" % progress if progress > 0 else "")
+		var verb := tr("thu") if builder.recover_target.built else tr("dỡ bản vẽ")
+		_repair_hint.text = tr("Giữ F để %s %s") % [verb, tr(builder.recover_target.type.display_name)] + (" (%d%%)" % progress if progress > 0 else "") + _helpers_text(builder.recover_target)
 		return
 	var damaged := _fortress.health.current < _fortress.health.max_health
 	_repair_hint.visible = damaged and _fortress.service_zone.overlaps_body(_warrior)
@@ -116,6 +125,10 @@ func _update_prompt() -> void:
 		_repair_hint.text = tr("Giữ E để sửa pháo đài")
 	else:
 		_repair_hint.text = tr("Kho hết %s — cần mang về để sửa") % tr(_fortress.repair_resource.display_name)
+
+
+func _helpers_text(structure: Structure) -> String:
+	return tr(" · %d người") % structure.helpers if structure.helpers > 1 else ""
 
 
 func _make_counter_row(counters: Array[ResourceCounter]) -> HBoxContainer:

@@ -18,24 +18,125 @@ func test_run_starts_with_wood_in_storage() -> void:
 	check(m.get_node("Fortress").storage.get_amount(&"wood") == 30, "storage starts with 30 wood")
 
 
-func test_placing_costs_wood_and_obeys_rules() -> void:
+func test_placing_makes_a_free_blueprint_and_obeys_rules() -> void:
 	var m := await _setup()
 	var warrior: Warrior = m.get_node("Warrior")
 	var storage: Inventory = m.get_node("Fortress").storage
 	var network: StructureNetwork = m.get_node("Structures")
-	check(not m.request_place(TURRET, Vector3(17, 0, -10), warrior), "cannot build without wood")
-
-	storage.add(&"wood", 20)
-	check(m.request_place(TURRET, Vector3(17, 0, -10), warrior), "turret placed off the road")
-	check(storage.get_amount(&"wood") == 5, "turret costs 15 wood")
-	check(network.structures().size() == 1, "one structure in the network")
+	check(m.request_place(TURRET, Vector3(17, 0, -10), warrior), "blueprint placed even with an empty storage")
+	var blueprint: Structure = network.structures()[0]
+	check(not blueprint.built and blueprint.build_fraction() == 0.0, "it starts unbuilt")
+	check(storage.total() == 0, "placing a blueprint costs nothing")
 	await frames(2)
 	check(not m.request_place(BARRICADE, Vector3(17.5, 0, -10), warrior), "cannot overlap another structure")
 	check(not m.request_place(BARRICADE, Vector3(2, 0, -10), warrior), "cannot build on the road")
 	check(not m.request_place(BARRICADE, Vector3(30, 0, -10), warrior), "cannot build out of reach")
-	check(storage.get_amount(&"wood") == 5, "failed placements cost nothing")
-	check(m.request_place(BARRICADE, Vector3(14, 0, -15), warrior), "barricade placed")
-	check(storage.get_amount(&"wood") == 0, "barricade costs 5 wood")
+	check(network.structures().size() == 1, "failed placements add nothing")
+
+
+func test_hammering_builds_and_pays_purse_first() -> void:
+	var m := await _setup()
+	var warrior: Warrior = m.get_node("Warrior")
+	var storage: Inventory = m.get_node("Fortress").storage
+	var network: StructureNetwork = m.get_node("Structures")
+	var blueprint := network.place_blueprint(TURRET, warrior.global_position + Vector3(2, 0, 0))
+	storage.add(&"wood", 20)
+	warrior.inventory.add(&"wood", 10)  # covers the first half (8 of 15) on its own
+	await seconds(1.0)
+	check(blueprint.build_fraction() == 0.0, "nothing happens without hammering")
+
+	Input.action_press(&"interact")
+	await seconds(blueprint.build_time * 0.5)
+	check_near(blueprint.build_fraction(), 0.5, 0.05, "one player builds at the base speed")
+	check(warrior.inventory.get_amount(&"wood") < 10, "the hammerer's own wood is used first")
+	check(storage.get_amount(&"wood") == 20, "storage untouched while the purse pays")
+	await seconds(blueprint.build_time * 0.5 + 0.2)
+	Input.action_release(&"interact")
+	check(blueprint.built, "the blueprint is finished")
+	check(warrior.inventory.get_amount(&"wood") + storage.get_amount(&"wood") == 30 - 15, "total cost paid: 15 wood")
+	check(blueprint.get_node("Hurtbox").monitorable, "a finished structure can be attacked")
+
+
+func test_more_hammers_build_faster() -> void:
+	var m := await _setup()
+	var warrior: Warrior = m.get_node("Warrior")
+	var network: StructureNetwork = m.get_node("Structures")
+	var storage: Inventory = m.get_node("Fortress").storage
+	storage.add(&"wood", 30)
+	var helper: Warrior = preload("res://player/warrior.tscn").instantiate()
+	m.add_child(helper)
+	helper.global_position = warrior.global_position + Vector3(0, 0, 3)
+	helper.builder.network = network
+	helper.builder.storage = storage
+	var blueprint := network.place_blueprint(TURRET, warrior.global_position + Vector3(1.5, 0, 1.5))
+	Input.action_press(&"interact")  # both warriors read the same device in this test
+	await seconds(1.0)
+	Input.action_release(&"interact")
+	var expected := pow(2.0, blueprint.team_exponent) / blueprint.build_time
+	check_near(blueprint.build_fraction(), expected, 0.06, "two hammers build ~%.1f× as fast" % pow(2.0, blueprint.team_exponent))
+	check(blueprint.helpers == 0 or blueprint.helpers == 2, "helpers are counted")
+
+
+func test_running_out_of_wood_pauses_building() -> void:
+	var m := await _setup()
+	var warrior: Warrior = m.get_node("Warrior")
+	var storage: Inventory = m.get_node("Fortress").storage
+	var blueprint: Structure = m.get_node("Structures").place_blueprint(BARRICADE, warrior.global_position + Vector3(2, 0, 0))
+	storage.add(&"wood", 2)
+	Input.action_press(&"interact")
+	await seconds(blueprint.build_time + 0.5)
+	check(not blueprint.built and blueprint.starved, "building stops when the wood runs out")
+	var stuck := blueprint.build_fraction()
+	check_near(stuck, 2.0 / 5.0, 0.01, "progress matches what was paid")
+	storage.add(&"wood", 3)
+	await seconds(blueprint.build_time)
+	Input.action_release(&"interact")
+	check(blueprint.built, "adding wood lets it finish")
+
+
+func test_blueprint_is_inert_and_can_be_taken_down_with_refund() -> void:
+	var m := await _setup()
+	var warrior: Warrior = m.get_node("Warrior")
+	var storage: Inventory = m.get_node("Fortress").storage
+	var network: StructureNetwork = m.get_node("Structures")
+	var blueprint := network.place_blueprint(TURRET, warrior.global_position + Vector3(2, 0, 0))
+	storage.add(&"wood", 15)
+	Input.action_press(&"interact")
+	await seconds(blueprint.build_time * 0.4)
+	Input.action_release(&"interact")
+	var spent := 15 - storage.get_amount(&"wood")
+	check(spent > 0, "some wood went in")
+	check(not blueprint.get_node("Hurtbox").monitorable, "a blueprint cannot be attacked")
+	check(not blueprint.is_in_group(&"structures"), "a blueprint does not lure enemies")
+	var enemy: Enemy = m.get_node("Spawner").spawn_one()
+	enemy.global_position = blueprint.global_position + Vector3(6, 0, 0)
+	await seconds(1.5)
+	check(enemy.get_node("Health").current == enemy.get_node("Health").max_health, "an unbuilt turret does not shoot")
+	enemy.queue_free()
+
+	Input.action_press(&"recover")
+	await seconds(1.2)
+	Input.action_release(&"recover")
+	check(not is_instance_valid(blueprint), "holding recover takes the blueprint down")
+	check(storage.get_amount(&"wood") == 15, "what was paid goes back to the storage")
+
+
+func test_helpers_recover_faster_together() -> void:
+	var m := await _setup()
+	var warrior: Warrior = m.get_node("Warrior")
+	var network: StructureNetwork = m.get_node("Structures")
+	var helper: Warrior = preload("res://player/warrior.tscn").instantiate()
+	m.add_child(helper)
+	helper.global_position = warrior.global_position + Vector3(0, 0, 2.5)
+	helper.builder.network = network
+	helper.builder.storage = m.get_node("Fortress").storage
+	var turret := network.place(TURRET, warrior.global_position + Vector3(1.5, 0, 1.2))
+	Input.action_press(&"recover")
+	await seconds(0.6)
+	Input.action_release(&"recover")
+	check(not is_instance_valid(turret), "two helpers fold it in about half the time")
+	check(warrior.carried_type == TURRET or helper.carried_type == TURRET, "one of them carries it")
+	check(not (warrior.carried_type == TURRET and helper.carried_type == TURRET), "only one gets it")
 
 
 func test_supply_near_fortress_and_buffer_away_from_it() -> void:
@@ -143,8 +244,6 @@ func test_fallen_warrior_drops_carried_turret() -> void:
 func test_build_mode_with_number_key_and_click() -> void:
 	var m := await _setup()
 	var warrior: Warrior = m.get_node("Warrior")
-	var storage: Inventory = m.get_node("Fortress").storage
-	storage.add(&"wood", 15)
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_1
 	key.pressed = true
@@ -157,8 +256,7 @@ func test_build_mode_with_number_key_and_click() -> void:
 	Input.action_press(&"attack")
 	await frames(2)
 	Input.action_release(&"attack")
-	check(m.get_node("Structures").structures().size() == 1, "clicking places it")
-	check(storage.get_amount(&"wood") == 0, "and pays for it")
+	check(m.get_node("Structures").structures().size() == 1, "clicking places a blueprint")
 
 	Input.action_press(&"cancel")
 	await frames(2)

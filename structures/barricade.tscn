@@ -21,6 +21,7 @@ size = Vector3(3.4, 1.8, 1.4)
 script = ExtResource("1_structure")
 needs_power = false
 lure_radius = 10.0
+build_time = 2.0
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
@@ -44,3 +45,12 @@ health = NodePath("../Health")
 [node name="Collision" type="CollisionShape3D" parent="Hurtbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("BoxShape3D_hurt")
+
+[node name="Status" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+visible = false
+pixel_size = 0.02
+billboard = 1
+no_depth_test = true
+font_size = 40
+outline_size = 10

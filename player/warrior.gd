@@ -2,7 +2,7 @@ class_name Warrior
 extends CharacterBody3D
 ## On-foot warrior. Moves and dashes according to its PlayerInput intent; the basic attack is
 ## automatic (enemies first, then trees/rocks), with the aim direction only prioritising targets.
-## Can carry one folded structure: slower, no attacks while carrying.
+## Can carry one folded structure: slower, no attacks while carrying (or while hammering).
 
 ## Metres per second.
 @export var move_speed: float = 7.0
@@ -85,7 +85,7 @@ func _physics_process(delta: float) -> void:
 		var speed := carry_speed if carried_type else move_speed
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
-		if carried_type == null:
+		if carried_type == null and builder.hammer_target == null:
 			_auto_attack()
 	velocity.y = 0.0 if is_on_floor() else velocity.y - _gravity * delta
 

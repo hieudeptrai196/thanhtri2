@@ -15,16 +15,18 @@ enum Placement { VALID, UNPOWERED, BLOCKED }
 
 var _fortress: Node3D
 var _route: EndlessRoute
+var _storage: Inventory
 
 
-func setup(fortress: Node3D, route: EndlessRoute) -> void:
+func setup(fortress: Node3D, route: EndlessRoute, storage: Inventory) -> void:
 	_fortress = fortress
 	_route = route
+	_storage = storage
 
 
 func _physics_process(delta: float) -> void:
 	for structure in structures():
-		structure.supply(delta, is_in_service(structure.global_position))
+		structure.supply(delta, is_in_service(structure.global_position), _storage)
 
 
 func structures() -> Array[Structure]:
@@ -47,10 +49,40 @@ func check_placement(type: StructureType, point: Vector3) -> Placement:
 	return Placement.VALID if is_in_service(point) else Placement.UNPOWERED
 
 
-## Spawns a structure. `health_value` >= 0 restores a recovered structure's health.
+## Spawns a finished structure. `health_value` >= 0 restores a recovered structure's health.
 func place(type: StructureType, point: Vector3, health_value: float = -1.0) -> Structure:
+	return _spawn(type, point, health_value, false)
+
+
+## Spawns a blueprint that players build together; its cost is paid while hammering.
+func place_blueprint(type: StructureType, point: Vector3) -> Structure:
+	return _spawn(type, point, -1.0, true)
+
+
+## Nearest unfinished blueprint within `max_distance` of `point`, or null.
+func nearest_blueprint(point: Vector3, max_distance: float) -> Structure:
+	var best: Structure = null
+	var best_distance := max_distance
+	for structure in structures():
+		var distance := Vector2(point.x - structure.global_position.x, point.z - structure.global_position.z).length()
+		if not structure.built and distance <= best_distance:
+			best = structure
+			best_distance = distance
+	return best
+
+
+## Takes down an unfinished blueprint and returns what was put into it to the shared storage.
+func dismantle(structure: Structure) -> void:
+	_storage.add_all(structure.paid)
+	remove_child(structure)
+	structure.queue_free()
+
+
+func _spawn(type: StructureType, point: Vector3, health_value: float, as_blueprint: bool) -> Structure:
 	var structure: Structure = type.scene.instantiate()
 	structure.type = type
+	if as_blueprint:
+		structure.start_as_blueprint()
 	add_child(structure)
 	structure.global_position = Vector3(point.x, 0.0, point.z)
 	if health_value >= 0.0:

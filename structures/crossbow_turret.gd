@@ -32,6 +32,8 @@ func can_recover() -> bool:
 
 
 func _physics_process(delta: float) -> void:
+	if not built:
+		return
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if is_overloading():
 		_last_shot_left -= delta

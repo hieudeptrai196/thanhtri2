@@ -67,7 +67,7 @@ func _ready() -> void:
 	_spawner.setup(rng, _fortress, _follower, players)
 	_spawner.active = true
 	_follower.start(_route)
-	_structures.setup(_fortress, _route)
+	_structures.setup(_fortress, _route, _fortress.storage)
 	_warrior.builder.network = _structures
 	_warrior.builder.storage = _fortress.storage
 	_warrior.builder.place_requested.connect(request_place.bind(_warrior))
@@ -117,8 +117,9 @@ func request_weapon_upgrade(index: int) -> bool:
 	return true
 
 
-## Places a structure for `player`: in their build range, not blocked, and either carried (free)
-## or paid from the shared fortress storage. In multiplayer this check runs on the server.
+## Places a structure for `player` (in their build range, not blocked): a carried one goes down
+## finished; otherwise a blueprint the team builds together, paid while hammering.
+## In multiplayer this check runs on the server.
 func request_place(type: StructureType, point: Vector3, player: Warrior) -> bool:
 	if result != Result.NONE or not player.is_alive:
 		return false
@@ -127,22 +128,25 @@ func request_place(type: StructureType, point: Vector3, player: Warrior) -> bool
 		return false
 	if _structures.check_placement(type, point) == StructureNetwork.Placement.BLOCKED:
 		return false
-	var from_carry := player.carried_type == type
-	if not from_carry and not _fortress.storage.spend(type.cost):
-		return false
-	_structures.place(type, point, player.carried_health if from_carry else -1.0)
-	if from_carry:
+	if player.carried_type == type:
+		_structures.place(type, point, player.carried_health)
 		player.clear_carried()
+	else:
+		_structures.place_blueprint(type, point)
 	return true
 
 
-## Folds a structure onto `player`'s back: hands free, in reach, and the structure allows it.
+## Takes down an unfinished blueprint (refunding what was paid), or folds a finished foldable
+## structure onto `player`'s back if their hands are free.
 func request_recover(structure: Structure, player: Warrior) -> bool:
-	if result != Result.NONE or not player.is_alive or player.carried_type != null:
-		return false
-	if not is_instance_valid(structure) or not structure.can_recover():
+	if result != Result.NONE or not player.is_alive or not is_instance_valid(structure) or not structure.can_recover():
 		return false
 	if structure.global_position.distance_to(player.global_position) > player.builder.recover_range + 0.5:
+		return false
+	if not structure.built:
+		_structures.dismantle(structure)
+		return true
+	if player.carried_type != null:
 		return false
 	var data := _structures.recover(structure)
 	player.carry(data.type, data.health)

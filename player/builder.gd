@@ -25,6 +25,8 @@ var selected: StructureType = null
 var recover_progress: float = 0.0
 ## The recoverable structure in reach this tick, if any (for HUD prompts).
 var recover_target: Structure = null
+## The blueprint this player is hammering this tick, if any.
+var hammer_target: Structure = null
 var radial_open: bool = false
 ## Radial entry under the stick while the menu is open, or -1.
 var radial_highlight: int = -1
@@ -81,15 +83,16 @@ func _physics_process(delta: float) -> void:
 	if type:
 		var point := ghost_point()
 		placement = network.check_placement(type, point)
-		var affordable := _warrior.carried_type == type or storage.has_all(type.cost)
-		var shown := placement if affordable else StructureNetwork.Placement.BLOCKED
+		# Blueprints are paid while hammering, so an empty storage does not block placing one.
+		var shown := placement
 		_ghost_material.albedo_color = GHOST_COLORS[shown]
 		_ghost.global_position = Vector3(point.x, 0.05, point.z)
 		_ghost.scale = Vector3(type.footprint_radius, 1.0, type.footprint_radius)
 		if input.place_pressed and shown != StructureNetwork.Placement.BLOCKED and not radial_open:
 			place_requested.emit(type, point)
 
-	_update_recover(input, delta)
+	_update_hammer(input)
+	_update_recover(input)
 
 
 # Gamepad: hold the build button, tilt the right stick toward an entry, release to pick it.
@@ -108,14 +111,26 @@ func _update_radial(input: PlayerInput) -> void:
 		radial_highlight = -1
 
 
-func _update_recover(input: PlayerInput, delta: float) -> void:
-	recover_target = null
-	if _warrior.carried_type == null:
-		recover_target = network.nearest_recoverable(_warrior.global_position, recover_range)
-	if recover_target and input.recover_held:
-		recover_progress += delta
-		if recover_progress >= recover_hold_time:
-			recover_progress = 0.0
-			recover_requested.emit(recover_target)
-	else:
-		recover_progress = 0.0
+# Hold interact next to a blueprint (outside build mode) to help finish it.
+func _update_hammer(input: PlayerInput) -> void:
+	hammer_target = null
+	if is_placing() or _warrior.carried_type != null:
+		return
+	var blueprint := network.nearest_blueprint(_warrior.global_position, recover_range)
+	if blueprint and input.interact_held:
+		hammer_target = blueprint
+		blueprint.add_hammer(_warrior.inventory)
+
+
+# Recover progress lives on the structure, so helpers holding recover together finish sooner.
+# With hands full only blueprints can be taken down.
+func _update_recover(input: PlayerInput) -> void:
+	recover_target = network.nearest_recoverable(_warrior.global_position, recover_range)
+	if recover_target and recover_target.built and _warrior.carried_type != null:
+		recover_target = null
+	recover_progress = recover_target.recover_progress if recover_target else 0.0
+	if recover_target == null or not input.recover_held:
+		return
+	recover_target.add_recover_helper()
+	if recover_target.recover_progress >= recover_hold_time:
+		recover_requested.emit(recover_target)
