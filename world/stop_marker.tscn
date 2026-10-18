@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stop"]
+albedo_color = Color(0.95, 0.8, 0.2, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stop"]
+material = SubResource("StandardMaterial3D_stop")
+top_radius = 8.0
+bottom_radius = 8.0
+height = 0.1
+
+[node name="StopMarker" type="Node3D"]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("CylinderMesh_stop")

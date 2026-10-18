@@ -1,44 +1,28 @@
 class_name RouteFollower
 extends Node
-## Moves the parent Node3D along a Path3D, pausing at every Marker3D child of the route.
+## Moves the parent Node3D along an EndlessRoute, pausing at every stop the route defines.
+## `distance` is the total route distance travelled (the run's score).
 
 signal reached_stop(index: int)
 signal departed
-signal reached_end
 
 ## Metres per second at full speed.
 @export var base_speed: float = 3.0
-## Scales base_speed; later driven by fortress state (e.g. damage).
+## Scales base_speed; driven by fortress state (e.g. damage).
 @export_range(0.0, 2.0, 0.05) var speed_multiplier: float = 1.0
 
-var progress: float = 0.0
+var distance: float = 0.0
 var is_stopped: bool = false
-var is_finished: bool = false
 
-var _route: Path3D
+var _route: EndlessRoute
 var _body: Node3D
-var _stop_offsets: Array[float] = []
 var _next_stop: int = 0
 
 
-func start(route: Path3D) -> void:
-	assert(route.curve != null, "RouteFollower: route has no curve")
+func start(route: EndlessRoute) -> void:
 	_route = route
 	_body = get_parent() as Node3D
-	for child in route.get_children():
-		if child is Marker3D:
-			_stop_offsets.append(route.curve.get_closest_offset(route.to_local(child.global_position)))
-	_stop_offsets.sort()
 	_apply_transform()
-
-
-func get_length() -> float:
-	return _route.curve.get_baked_length() if _route else 0.0
-
-
-## Distances along the route where the fortress stops.
-func get_stop_offsets() -> Array[float]:
-	return _stop_offsets.duplicate()
 
 
 func depart() -> void:
@@ -47,30 +31,29 @@ func depart() -> void:
 		departed.emit()
 
 
+func next_stop_distance() -> float:
+	return _route.stop_distance(_next_stop)
+
+
+func previous_stop_distance() -> float:
+	return _route.stop_distance(_next_stop - 1) if _next_stop > 0 else 0.0
+
+
 func _physics_process(delta: float) -> void:
-	if _route == null or is_stopped or is_finished:
+	if _route == null or is_stopped:
 		return
-
-	progress += base_speed * speed_multiplier * delta
-
-	if _next_stop < _stop_offsets.size() and progress >= _stop_offsets[_next_stop]:
-		progress = _stop_offsets[_next_stop]
+	distance += base_speed * speed_multiplier * delta
+	var stop := next_stop_distance()
+	if distance >= stop:
+		distance = stop
 		is_stopped = true
 		_apply_transform()
 		reached_stop.emit(_next_stop)
 		_next_stop += 1
 		return
-
-	var length := _route.curve.get_baked_length()
-	if progress >= length:
-		progress = length
-		is_finished = true
-		_apply_transform()
-		reached_end.emit()
-		return
-
 	_apply_transform()
 
 
 func _apply_transform() -> void:
-	_body.global_transform = _route.global_transform * _route.curve.sample_baked_with_rotation(progress)
+	_route.ensure_ahead(distance)
+	_body.global_transform = _route.sample(distance)

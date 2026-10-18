@@ -1,19 +1,24 @@
 extends Node3D
-## Root of one run: wires the route, fortress, players and spawner together and owns the match flow:
-## stops, purchases, respawns and the final result.
+## Root of one endless run: wires the route, fortress, players and spawner together and owns the
+## match flow: stops, purchases, respawns and the end of the run (fortress destroyed).
 
-enum Result { NONE, WON, LOST }
+enum Result { NONE, LOST }
 
 ## 0 picks a random seed each run.
 @export var rng_seed: int = 0
 ## Seconds before a fallen warrior returns next to the fortress.
 @export var respawn_delay: float = 3.0
+## The warrior cannot get farther than this from the fortress.
+@export var leash_radius: float = 90.0
+## Loose pickups farther than this from the fortress are removed.
+@export var pickup_despawn_radius: float = 150.0
 
 const PICKUP_SCENE := preload("res://resources/pickup.tscn")
 ## Colour for piles holding more than one resource type.
 const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 
-@onready var _route: Path3D = $Route
+@onready var _route: EndlessRoute = $Route
+@onready var _content: RouteContent = $RouteContent
 @onready var _fortress: Fortress = $Fortress
 @onready var _follower: RouteFollower = $Fortress/RouteFollower
 @onready var _warrior: Warrior = $Warrior
@@ -23,7 +28,10 @@ const MIXED_PILE_COLOR := Color(0.9, 0.85, 0.7)
 @onready var _upgrade_panel: UpgradePanel = $UI/UpgradePanel
 @onready var _result_screen: ResultScreen = $UI/ResultScreen
 
+## Gameplay randomness (enemy spawns, weapon cards). The road has its own RNGs derived from
+## run_seed so the same seed always gives the same road, whatever happens in play.
 var rng := RandomNumberGenerator.new()
+var run_seed: int = 0
 var result: Result = Result.NONE
 var elapsed: float = 0.0
 var kills: int = 0
@@ -36,12 +44,11 @@ var _respawn_left: float = 0.0
 
 
 func _ready() -> void:
-	if rng_seed != 0:
-		rng.seed = rng_seed
+	run_seed = rng_seed if rng_seed != 0 else randi()
+	rng.seed = run_seed
 	_follower.reached_stop.connect(_on_reached_stop)
 	_follower.departed.connect(_on_departed)
-	_follower.reached_end.connect(_finish.bind(true))
-	_fortress.health.died.connect(_finish.bind(false))
+	_fortress.health.died.connect(_finish)
 	_warrior.input.ready_requested.connect(_on_ready_requested)
 	_warrior.health.died.connect(_on_warrior_died)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
@@ -52,21 +59,25 @@ func _ready() -> void:
 	_upgrade_panel.depart_requested.connect(_on_ready_requested)
 	_upgrade_panel.hide()
 	_result_screen.restart_requested.connect(restart)
-	for bomb: HiddenBomb in $Bombs.get_children():
-		bomb.exploded.connect(_on_bomb_exploded)
+	_content.bomb_exploded.connect(_on_bomb_exploded)
+	_content.setup(_route, _seeded_rng("content"))
+	_route.setup(_seeded_rng("route"))
 
 	var players: Array[Node3D] = [_warrior]
 	_spawner.setup(rng, _fortress, players)
 	_spawner.active = true
 	_follower.start(_route)
 	_hud.setup(_fortress, _warrior)
-	_hud.show_toast(tr("Bảo vệ thành trì tới đích!"))
+	_hud.show_toast(tr("Bảo vệ thành trì — đi càng xa càng tốt!"))
 
 
 func _physics_process(delta: float) -> void:
 	if result != Result.NONE:
 		return
 	elapsed += delta
+	_content.despawn_before(_follower.distance)
+	_keep_warrior_on_leash()
+	_despawn_far_pickups()
 	if _respawn_left > 0.0:
 		_respawn_left -= delta
 		if _respawn_left <= 0.0:
@@ -112,16 +123,35 @@ func restart() -> void:
 	get_tree().reload_current_scene()
 
 
-func _finish(won: bool) -> void:
+func _finish() -> void:
 	if result != Result.NONE:
 		return
-	result = Result.WON if won else Result.LOST
-	print("Match: %s" % ("thắng" if won else "thua"))
+	result = Result.LOST
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
-	_result_screen.show_result(won, elapsed, kills, _fortress.health.current, _fortress.health.max_health)
+	_result_screen.show_result(_follower.distance, elapsed, kills)
 	get_tree().paused = true
+
+
+func _seeded_rng(purpose: String) -> RandomNumberGenerator:
+	var generator := RandomNumberGenerator.new()
+	generator.seed = hash("%s:%d" % [purpose, run_seed])
+	return generator
+
+
+func _keep_warrior_on_leash() -> void:
+	var offset := _warrior.global_position - _fortress.global_position
+	offset.y = 0.0
+	if offset.length() > leash_radius:
+		var pulled := _fortress.global_position + offset.normalized() * leash_radius
+		_warrior.global_position = Vector3(pulled.x, _warrior.global_position.y, pulled.z)
+
+
+func _despawn_far_pickups() -> void:
+	for pickup in _pickups.get_children():
+		if pickup.global_position.distance_to(_fortress.global_position) > pickup_despawn_radius:
+			pickup.queue_free()
 
 
 func _on_warrior_died() -> void:

@@ -4,6 +4,8 @@ extends SceneTree
 ## Exits with code 1 if any test fails. Usage: tests/run.sh [filter]
 
 const TEST_DIR := "res://tests/"
+## Physics frames a single test may take before it counts as hung (2 minutes of game time).
+const TIMEOUT_FRAMES := 60 * 120
 
 
 func _initialize() -> void:
@@ -22,6 +24,12 @@ func _run() -> void:
 		if not (file.begins_with("test_") and file.ends_with(".gd")):
 			continue
 		var script: GDScript = load(TEST_DIR + file)
+		if script == null or not script.can_instantiate():
+			failed += 1
+			print("  FAIL  %s (script does not load — parse error?)" % file.get_basename())
+			for error in errors.take_errors():
+				print("        - ", error)
+			continue
 		for method in script.get_script_method_list():
 			var test_name: String = method.name
 			var full_name := "%s::%s" % [file.get_basename(), test_name]
@@ -30,7 +38,13 @@ func _run() -> void:
 			errors.take_errors()
 			var test: GameTest = script.new()
 			test.tree = self
-			await test.call(test_name)
+			test.run(test_name)
+			var waited := 0
+			while not test.finished and waited < TIMEOUT_FRAMES:
+				await physics_frame
+				waited += 1
+			if not test.finished:
+				test.failures.append("timed out after %d frames (hung?)" % TIMEOUT_FRAMES)
 			test.cleanup()
 			await physics_frame
 			for error in errors.take_errors():

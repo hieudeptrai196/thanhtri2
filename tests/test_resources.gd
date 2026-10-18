@@ -5,12 +5,12 @@ func test_chopping_and_mining_fill_inventory() -> void:
 	var m := await start_match()
 	m.get_node("Fortress").follower.base_speed = 0.0
 	var warrior: Warrior = m.get_node("Warrior")
-	var tree_node: ResourceNode = m.get_node("Resources/Tree1")
+	var tree_node := spawn_resource(m, TREE_SCENE, Vector3(-30, 0, 20))
 	warrior.global_position = tree_node.global_position + Vector3(1.6, 0.1, 0)
 	check(await attack_until_freed(warrior, tree_node), "tree is used up")
 	check(warrior.inventory.get_amount(&"wood") == 5, "tree gives 5 wood, got %d" % warrior.inventory.get_amount(&"wood"))
 
-	var rock: ResourceNode = m.get_node("Resources/Rock1")
+	var rock := spawn_resource(m, ROCK_SCENE, Vector3(-40, 0, 40))
 	warrior.global_position = rock.global_position + Vector3(2.0, 0.1, 0)
 	check(await attack_until_freed(warrior, rock), "rock is used up")
 	check(warrior.inventory.get_amount(&"stone") == 5, "rock gives 5 stone")
@@ -20,7 +20,7 @@ func test_full_inventory_takes_nothing_more() -> void:
 	var m := await start_match()
 	m.get_node("Fortress").follower.base_speed = 0.0
 	var warrior: Warrior = m.get_node("Warrior")
-	var rock: ResourceNode = m.get_node("Resources/Rock1")
+	var rock := spawn_resource(m, ROCK_SCENE, Vector3(-40, 0, 40))
 	warrior.global_position = rock.global_position + Vector3(2.0, 0.1, 0)
 	await frames(2)  # leave the fortress service zone first, or it deposits what we add
 	warrior.inventory.add(&"wood", warrior.inventory.capacity - 1)

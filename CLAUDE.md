@@ -26,6 +26,7 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 - Test nằm ở `tests/test_*.gd`, kế thừa `GameTest` (`tests/game_test.gd`): `start_match()`, `frames()`, `seconds()`, `check()`, `check_near()`, `aim_at()`, `attack_until_freed()`, `spawn_dummy()`.
 - Mỗi giai đoạn mới **phải thêm test** cho hành vi mới và chạy lại toàn bộ trước khi báo xong.
 - Khi có kết quả trận, cây scene bị tạm dừng; `GameTest.cleanup()` tự bỏ tạm dừng. Nút Chơi lại gọi `reload_current_scene()`, harness không có current scene nên test phải ngắt `m.restart` trước khi bấm.
+- Runner: file test không nạp được → FAIL; test chạy quá 7200 frame → FAIL "timed out". Test cần vật thể cố định thì tự đặt (`spawn_resource`, `RouteContent.place_bomb`) thay vì dựa vào bố trí ngẫu nhiên.
 - Bẫy hay gặp khi viết test: dịch chuyển chiến binh ra khỏi vùng quanh pháo đài rồi `await frames(2)` trước khi nhét đồ vào túi, nếu không `ServiceZone` sẽ nộp mất.
 - Kiểm tra cú pháp nhanh: `Godot --headless --path . --quit`.
 
@@ -47,12 +48,13 @@ GODOT=/đường/dẫn/Godot tests/run.sh        # nếu Godot không ở /Users
 | Thư mục | Nội dung |
 |---|---|
 | `match/` | `match.gd` (gốc một trận: nối mọi hệ thống, giữ RNG theo seed, luồng dừng/khởi hành/hồi sinh, thắng/thua → tạm dừng cây + màn kết quả, chơi lại = nạp lại scene), `spawner.gd` |
-| `fortress/` | `Fortress` (máu → tốc độ, kho, sửa), `RouteFollower` (chạy theo `Path3D`, dừng tại `Marker3D`), `ServiceZone` (nộp đồ, giữ interact để sửa) |
+| `fortress/` | `Fortress` (máu → tốc độ, kho, sửa, cấp vật liệu, ô tháp), `RouteFollower` (chạy theo `EndlessRoute`, `distance` = tổng mét = điểm), `ServiceZone` (nộp đồ, giữ interact để sửa), `Tower` |
 | `player/` | `Warrior`, `PlayerInput` |
 | `combat/` | `HealthComponent`, `Hurtbox`, `MeleeWeapon`, bia thử |
 | `enemies/` | `Enemy` |
 | `resources/` | `ResourceType` (.tres trong `types/`), `ResourceTypes.ALL`, `Inventory`, `ResourceNode` (cây/đá), `Pickup` |
-| `camera/`, `world/` | Camera isometric orthographic, shader nền |
+| `world/` | `EndlessRoute` (đường vô tận theo đoạn, RNG riêng theo seed, địa chỉ bằng quãng đường tuyệt đối), `RouteContent` (dải đường, cây/đá/bom/vòng điểm dừng theo đoạn, dọn phía sau), `ground_follow.gd`, `HiddenBomb`, shader nền |
+| `camera/` | Camera isometric orthographic |
 | `ui/` | `UiStyle` (style chung), `Hud` (HUD trong trận), `ResultScreen`, `UpgradePanel` (bảng ở điểm dừng), `WeaponCard`, `ResourceCounter`, `RouteProgress` |
 | `tests/` | Test harness |
 | `tools/` | `benchmark.sh` (không thuộc bản build) |
@@ -62,6 +64,7 @@ Nguyên tắc:
 - **Mọi sát thương đi qua `HealthComponent.apply_damage()`**, mọi thay đổi tài nguyên qua `Inventory`. Trạng thái chỉ đổi ở một nơi để sau này chỉ server được gọi.
 - "Gọi xuống, signal lên": `Match` nối hệ thống; hệ con không tìm nhau bằng đường dẫn toàn cục. Chưa dùng autoload.
 - Người chơi được nhận diện kiểu duck typing (`is_alive`, `inventory`, `input`), quái không phụ thuộc trực tiếp vào `Warrior`.
+- **Tất định theo seed:** đường + nội dung dùng RNG riêng sinh từ `run_seed` (`Match._seeded_rng`), không dùng chung RNG gameplay — cần cho seed hằng ngày.
 - Tài nguyên/chi phí là dữ liệu dạng `{ &"wood": 3 }`. Thêm loại tài nguyên = thêm `.tres` + khai báo trong `ResourceTypes.ALL`.
 - **Chữ người chơi thấy phải đi qua `tr()`** (game đa ngôn ngữ). Nhãn debug được viết cứng.
 - Sinh node trong lúc đang ở callback vật lý (ví dụ khi có thứ chết) thì dùng deferred.

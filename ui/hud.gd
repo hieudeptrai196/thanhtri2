@@ -88,6 +88,7 @@ func _update_warrior_bar() -> void:
 	if _warrior_bar.visible:
 		var head := camera.unproject_position(_warrior.global_position + Vector3(0.0, WARRIOR_BAR_HEIGHT, 0.0))
 		_warrior_bar.position = head - _warrior_bar.size * 0.5
+		_warrior_bar.visible = get_viewport_rect().has_point(head)
 
 
 func _update_repair_hint() -> void:

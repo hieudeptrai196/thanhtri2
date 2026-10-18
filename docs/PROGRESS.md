@@ -5,16 +5,18 @@
 
 ## Đang làm
 
-**M1.1 — Lộ trình vô tận** (bắt đầu 2026-10-18, chưa commit)
+**M1.1 — Lộ trình vô tận** (2026-10-18) — **code xong, test 44/44 xanh, chờ người dùng chơi thử rồi commit**
 
 - [x] `world/endless_route.gd`: đường sinh theo đoạn 20 m, xóa phía sau, địa chỉ bằng quãng đường tuyệt đối, RNG riêng theo seed
-- [ ] `RouteFollower` dùng `EndlessRoute` (quãng đường `distance` tăng mãi, điểm dừng mỗi 350 m)
-- [ ] `world/route_content.gd`: rải cây/đá/bom/điểm dừng theo đoạn (30 m đầu trống), xóa vật thể ở xa phía sau
-- [ ] Mặt đất đi theo pháo đài; bỏ tường biên, thay bằng giới hạn chiến binh cách pháo đài ≤ 90 m
-- [ ] Bỏ điều kiện thắng (endless chỉ thua); Spawner bỏ giới hạn hình chữ nhật đấu trường
-- [ ] HUD: dải tiến trình hiển thị từ điểm dừng trước → điểm dừng kế tiếp
-- [ ] Viết lại test phụ thuộc bản đồ cố định; test mới cho đường (tất định theo seed, không quay đầu, giới hạn số điểm) và nội dung
-- [ ] Chạy `tests/run.sh` + benchmark, chụp màn hình, người dùng chơi thử, commit
+- [x] `RouteFollower` dùng `EndlessRoute` (`distance` tăng mãi, điểm dừng mỗi 350 m)
+- [x] `world/route_content.gd`: dải đường đất + cây/đá/bom/vòng điểm dừng theo đoạn (30 m đầu trống), xóa vật thể xa phía sau
+- [x] Mặt đất đi theo pháo đài (`world/ground_follow.gd`); bỏ tường biên → chiến binh bị giữ trong 90 m quanh pháo đài
+- [x] Bỏ điều kiện thắng (endless chỉ thua); màn kết quả hiện quãng đường; Spawner bỏ giới hạn đấu trường
+- [x] HUD: dải tiến trình điểm dừng trước → kế tiếp + "Điểm dừng: X m"; thanh máu chiến binh ẩn khi ra khỏi màn hình
+- [x] Test mới `test_route.gd` (tất định theo seed, không quay đầu, giới hạn số điểm, bố trí nội dung, chạy 4 km số node không tăng, giới hạn 90 m); viết lại test fortress/bombs/resources/match_flow
+- [x] Harness: file test không nạp được → FAIL; mỗi test có giới hạn 7200 frame (treo → FAIL)
+- [x] Benchmark lại: không giảm hiệu năng
+- [x] Người dùng chơi thử → commit
 
 ## Tiếp theo (M1)
 
@@ -53,7 +55,7 @@
 
 ## Câu hỏi đang chờ người dùng
 
-- (không có — đang thực hiện M1.1)
+- (không có)
 
 ## Ghi chú cho phiên sau
 

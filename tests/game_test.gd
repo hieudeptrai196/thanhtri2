@@ -6,10 +6,14 @@ extends RefCounted
 
 const MAIN_SCENE := preload("res://scenes/main.tscn")
 const DUMMY_SCENE := preload("res://combat/training_dummy.tscn")
+const TREE_SCENE := preload("res://resources/tree.tscn")
+const ROCK_SCENE := preload("res://resources/rock.tscn")
 const AIM_ACTIONS: Array[StringName] = [&"aim_left", &"aim_right", &"aim_up", &"aim_down"]
 
 var tree: SceneTree
 var failures: PackedStringArray = []
+## Set when the test method returns (the runner uses it to detect hangs).
+var finished: bool = false
 
 var _scene: Node
 
@@ -25,6 +29,12 @@ func start_match(rng_seed: int = 1, spawn_enemies: bool = false) -> Node:
 	await frames(1)
 	match_node.get_node("Spawner").active = spawn_enemies
 	return match_node
+
+
+## Runs one test method and flags completion; the runner watches `finished` with a timeout.
+func run(test_name: String) -> void:
+	await call(test_name)
+	finished = true
 
 
 func cleanup() -> void:
@@ -80,6 +90,14 @@ func attack_until_freed(who: Node3D, target: Node3D, max_frames: int = 300) -> b
 		await frames(1)
 	Input.action_release(&"attack")
 	return not is_instance_valid(target)
+
+
+## A tree or rock placed by the test, so it does not depend on the random road layout.
+func spawn_resource(match_node: Node, scene: PackedScene, at: Vector3) -> ResourceNode:
+	var node: ResourceNode = scene.instantiate()
+	match_node.add_child(node)
+	node.global_position = at
+	return node
 
 
 func spawn_dummy(match_node: Node, at: Vector3) -> Node3D:

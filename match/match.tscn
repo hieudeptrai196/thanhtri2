@@ -7,13 +7,13 @@
 [ext_resource type="PackedScene" path="res://player/warrior.tscn" id="5_warrior"]
 [ext_resource type="Script" path="res://match/spawner.gd" id="6_spawner"]
 [ext_resource type="PackedScene" path="res://enemies/enemy.tscn" id="7_enemy"]
-[ext_resource type="PackedScene" path="res://resources/tree.tscn" id="8_tree"]
-[ext_resource type="PackedScene" path="res://resources/rock.tscn" id="9_rock"]
 [ext_resource type="Script" path="res://ui/upgrade_panel.gd" id="10_panel"]
-[ext_resource type="PackedScene" path="res://world/hidden_bomb.tscn" id="11_bomb"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="12_hud"]
 [ext_resource type="PackedScene" path="res://ui/result_screen.tscn" id="13_result"]
 [ext_resource type="Script" path="res://ui/debug_overlay.gd" id="14_debug"]
+[ext_resource type="Script" path="res://world/endless_route.gd" id="15_route"]
+[ext_resource type="Script" path="res://world/route_content.gd" id="16_content"]
+[ext_resource type="Script" path="res://world/ground_follow.gd" id="17_ground"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 
@@ -31,32 +31,10 @@ shader = ExtResource("2_ground")
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
 material = SubResource("ShaderMaterial_ground")
-size = Vector2(400, 400)
+size = Vector2(1000, 1000)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(400, 1, 400)
-
-[sub_resource type="Curve3D" id="Curve3D_route"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, -20, 0, 0, 0, 0, 0, 20, 0, 0, -20, 0, 0, -60, 0, 0, 20, 0, 0, -20, 40, 0, -110, 0, 0, 20, 0, 0, -20, 40, 0, -170, 0, 0, 20, 0, 0, 0, 0, 0, -220),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
-}
-point_count = 5
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stop"]
-albedo_color = Color(0.95, 0.8, 0.2, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_stop"]
-material = SubResource("StandardMaterial3D_stop")
-top_radius = 8.0
-bottom_radius = 8.0
-height = 0.1
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_wall_x"]
-size = Vector3(400, 10, 2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_wall_z"]
-size = Vector3(2, 10, 400)
+size = Vector3(1000, 1, 1000)
 
 [node name="Match" type="Node3D"]
 script = ExtResource("1_match")
@@ -68,8 +46,9 @@ environment = SubResource("Environment_main")
 rotation = Vector3(-0.872665, 0.523599, 0)
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -110)
+[node name="Ground" type="StaticBody3D" parent="." node_paths=PackedStringArray("target")]
+script = ExtResource("17_ground")
+target = NodePath("../Fortress")
 
 [node name="Mesh" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("PlaneMesh_ground")
@@ -78,34 +57,11 @@ mesh = SubResource("PlaneMesh_ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_ground")
 
-[node name="Bounds" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -110)
-
-[node name="North" type="CollisionShape3D" parent="Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -200)
-shape = SubResource("BoxShape3D_wall_x")
-
-[node name="South" type="CollisionShape3D" parent="Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 200)
-shape = SubResource("BoxShape3D_wall_x")
-
-[node name="West" type="CollisionShape3D" parent="Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200, 5, 0)
-shape = SubResource("BoxShape3D_wall_z")
-
-[node name="East" type="CollisionShape3D" parent="Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 5, 0)
-shape = SubResource("BoxShape3D_wall_z")
-
 [node name="Route" type="Path3D" parent="."]
-curve = SubResource("Curve3D_route")
+script = ExtResource("15_route")
 
-[node name="Stop1" type="Marker3D" parent="Route"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -140)
-
-[node name="Mesh" type="MeshInstance3D" parent="Route/Stop1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
-mesh = SubResource("CylinderMesh_stop")
+[node name="RouteContent" type="Node3D" parent="."]
+script = ExtResource("16_content")
 
 [node name="Fortress" parent="." instance=ExtResource("3_fortress")]
 
@@ -115,61 +71,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 [node name="Spawner" type="Node3D" parent="."]
 script = ExtResource("6_spawner")
 enemy_scene = ExtResource("7_enemy")
-
-[node name="Resources" type="Node3D" parent="."]
-
-[node name="Tree1" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -10)
-
-[node name="Tree2" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -25)
-
-[node name="Tree3" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -30)
-
-[node name="Tree4" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -50)
-
-[node name="Tree5" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -70)
-
-[node name="Tree6" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -100)
-
-[node name="Tree7" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -115)
-
-[node name="Tree8" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -150)
-
-[node name="Tree9" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 0, -160)
-
-[node name="Tree10" parent="Resources" instance=ExtResource("8_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -190)
-
-[node name="Rock1" parent="Resources" instance=ExtResource("9_rock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, -20)
-
-[node name="Rock2" parent="Resources" instance=ExtResource("9_rock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, -40)
-
-[node name="Rock3" parent="Resources" instance=ExtResource("9_rock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0, -120)
-
-[node name="Rock4" parent="Resources" instance=ExtResource("9_rock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85, 0, -140)
-
-[node name="Rock5" parent="Resources" instance=ExtResource("9_rock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -200)
-
-[node name="Bombs" type="Node3D" parent="."]
-
-[node name="Bomb1" parent="Bombs" instance=ExtResource("11_bomb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
-
-[node name="Bomb2" parent="Bombs" instance=ExtResource("11_bomb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -160)
 
 [node name="Pickups" type="Node3D" parent="."]
 

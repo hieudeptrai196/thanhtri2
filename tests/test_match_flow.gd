@@ -1,25 +1,25 @@
 extends GameTest
 
-const WON := 1
-const LOST := 2
+const LOST := 1
 
 
-func test_reaching_the_end_wins_and_pauses() -> void:
+func test_endless_run_continues_past_stops() -> void:
 	var m := await start_match()
 	var follower: RouteFollower = m.get_node("Fortress/RouteFollower")
-	var result_screen: ResultScreen = m.get_node("UI/ResultScreen")
-	check(not result_screen.visible, "no result screen during play")
 	follower.base_speed = 300.0
+	var stops := 0
 	for i in 600:
 		await frames(1)
 		if follower.is_stopped:
+			stops += 1
 			follower.depart()
-		if m.result != 0:
+		if stops == 2:
 			break
-	check(m.result == WON, "reaching the end wins, result=%d" % m.result)
-	check(tree.paused, "the world pauses on the result")
-	check(result_screen.visible, "result screen is shown")
-	check(not m.get_node("Spawner").active, "no more spawning after the result")
+	await frames(10)
+	check(stops == 2, "passes stops one after another, got %d" % stops)
+	check(m.result == 0, "an endless run has no win")
+	check(not tree.paused and not m.get_node("UI/ResultScreen").visible, "the run keeps going")
+	check(follower.distance > 700.0, "distance keeps growing: %.0f m" % follower.distance)
 
 
 func test_fortress_destroyed_loses() -> void:
@@ -51,7 +51,8 @@ func test_result_counts_kills_and_offers_restart() -> void:
 	result_screen.restart_requested.connect(func() -> void: restarts[0] += 1)
 	m.get_node("Fortress").health.apply_damage(9999.0)
 	await frames(1)
-	check(result_screen.get_node("%Stats").text.contains("1"), "stats mention the kill")
+	check(result_screen.get_node("%Stats").text.contains(tr("Quãng đường")), "stats show the distance")
+	check(result_screen.get_node("%Stats").text.contains(": 1"), "stats mention the kill")
 	result_screen.get_node("%Restart").pressed.emit()
 	check(restarts[0] == 1, "restart button asks for a restart")
 
@@ -93,6 +94,7 @@ func test_hud_hints_repair_and_shows_respawn() -> void:
 	await frames(3)
 	check(not hint.visible, "repair hint hides away from the fortress")
 
+	await seconds(1.5)  # let the camera catch up with the teleported warrior
 	check(hud.get_node("%WarriorBar").visible, "warrior bar shows while alive")
 	warrior.health.apply_damage(1000.0)
 	await frames(2)
@@ -102,17 +104,14 @@ func test_hud_hints_repair_and_shows_respawn() -> void:
 	check(not hud.get_node("%CenterMessage").visible, "countdown clears after respawn")
 
 
-func test_bomb_and_stop_show_toasts() -> void:
+func test_stop_shows_toast() -> void:
 	var m := await start_match()
 	var hud: Hud = m.get_node("UI/HUD")
-	var toasts := []
-	m.get_node("Bombs/Bomb1").exploded.connect(func(_at: Vector3) -> void: toasts.append(hud.get_node("%Toast").text))
 	var follower: RouteFollower = m.get_node("Fortress/RouteFollower")
-	follower.base_speed = 60.0
+	follower.base_speed = 120.0
 	for i in 900:
 		await frames(1)
 		if follower.is_stopped:
 			break
 	await frames(1)
 	check(hud.get_node("%Toast").text.contains(tr("Điểm dừng")), "stop toast shown, got '%s'" % hud.get_node("%Toast").text)
-	check(toasts.size() == 1, "the bomb exploded on the way")

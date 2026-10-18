@@ -10,8 +10,6 @@ signal enemy_dropped(contents: Dictionary, at: Vector3)
 @export var interval: float = 3.0
 @export var ring_radius: float = 35.0
 @export var max_alive: int = 30
-## Spawn points are clamped into this XZ rectangle (the arena).
-@export var bounds: Rect2 = Rect2(-175, -305, 390, 390)
 
 var active: bool = false
 
@@ -42,8 +40,6 @@ func _physics_process(delta: float) -> void:
 func spawn_one() -> Enemy:
 	var angle := _rng.randf() * TAU
 	var spawn_position := _fortress.global_position + Vector3(cos(angle), 0.0, sin(angle)) * ring_radius
-	spawn_position.x = clampf(spawn_position.x, bounds.position.x, bounds.end.x)
-	spawn_position.z = clampf(spawn_position.z, bounds.position.y, bounds.end.y)
 	var enemy: Enemy = enemy_scene.instantiate()
 	add_child(enemy)
 	enemy.global_position = spawn_position

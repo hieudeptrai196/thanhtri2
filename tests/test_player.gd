@@ -18,15 +18,6 @@ func test_moves_up_the_screen_at_move_speed() -> void:
 	check_near(moved.length(), warrior.move_speed, 0.3, "distance in one second")
 
 
-func test_walls_keep_player_in_arena() -> void:
-	var m := await start_match()
-	var warrior: Warrior = m.get_node("Warrior")
-	warrior.global_position = Vector3(215, 0.1, -110)
-	Input.action_press(&"move_right")
-	await seconds(4.0)
-	check(warrior.global_position.x < 219.0, "east wall stops the player, x=%.2f" % warrior.global_position.x)
-
-
 func test_fortress_blocks_player() -> void:
 	var m := await start_match()
 	var fortress: Fortress = m.get_node("Fortress")

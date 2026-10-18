@@ -20,9 +20,9 @@ func _ready() -> void:
 	hide()
 
 
-func show_result(won: bool, seconds: float, kills: int, fortress_health: float, fortress_max: float) -> void:
-	_title.text = tr("Thành trì đã tới đích!") if won else tr("Thành trì đã thất thủ")
-	_title.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT if won else Color(0.9, 0.35, 0.3))
-	_stats.text = tr("Thời gian: %d:%02d\nQuái đã hạ: %d\nMáu pháo đài: %d/%d") % [
-		int(seconds) / 60, int(seconds) % 60, kills, fortress_health, fortress_max]
+func show_result(distance: float, seconds: float, kills: int) -> void:
+	_title.text = tr("Thành trì đã thất thủ")
+	_title.add_theme_color_override("font_color", Color(0.9, 0.35, 0.3))
+	_stats.text = tr("Quãng đường: %d m\nThời gian: %d:%02d\nQuái đã hạ: %d") % [
+		floori(distance), int(seconds) / 60, int(seconds) % 60, kills]
 	show()
