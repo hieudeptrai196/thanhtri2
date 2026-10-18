@@ -5,22 +5,17 @@
 
 ## Đang làm
 
-**M1.1 — Lộ trình vô tận** (2026-10-18) — **code xong, test 44/44 xanh, chờ người dùng chơi thử rồi commit**
+**M1.2 — Độ khó tăng theo quãng đường** (2026-10-18) — **code xong, test 47/47, chờ người dùng chơi thử để cân bằng rồi commit**
 
-- [x] `world/endless_route.gd`: đường sinh theo đoạn 20 m, xóa phía sau, địa chỉ bằng quãng đường tuyệt đối, RNG riêng theo seed
-- [x] `RouteFollower` dùng `EndlessRoute` (`distance` tăng mãi, điểm dừng mỗi 350 m)
-- [x] `world/route_content.gd`: dải đường đất + cây/đá/bom/vòng điểm dừng theo đoạn (30 m đầu trống), xóa vật thể xa phía sau
-- [x] Mặt đất đi theo pháo đài (`world/ground_follow.gd`); bỏ tường biên → chiến binh bị giữ trong 90 m quanh pháo đài
-- [x] Bỏ điều kiện thắng (endless chỉ thua); màn kết quả hiện quãng đường; Spawner bỏ giới hạn đấu trường
-- [x] HUD: dải tiến trình điểm dừng trước → kế tiếp + "Điểm dừng: X m"; thanh máu chiến binh ẩn khi ra khỏi màn hình
-- [x] Test mới `test_route.gd` (tất định theo seed, không quay đầu, giới hạn số điểm, bố trí nội dung, chạy 4 km số node không tăng, giới hạn 90 m); viết lại test fortress/bombs/resources/match_flow
-- [x] Harness: file test không nạp được → FAIL; mỗi test có giới hạn 7200 frame (treo → FAIL)
-- [x] Benchmark lại: không giảm hiệu năng
-- [x] Người dùng chơi thử → commit
+- [x] `match/difficulty.gd` + `difficulty_default.tres`: khoảng sinh quái (4.5 s, ×0.7/km, tối thiểu 0.6 s), quái tối đa (30 +30/km, trần 200), máu quái +40%/km, sát thương +25%/km, cỡ đàn 1 +0.75/km (trần 6) [Đề xuất]
+- [x] Spawner sinh theo đợt quanh một hướng, theo Difficulty + quãng đường; `Enemy.apply_scaling`
+- [x] Cân bằng đầu game: sát thương quái 10 → 5, khoảng sinh đầu 3 → 4.5 s (đứng yên: thành trụ ~49 s / ~127 m, trước là 31 s / 80 m)
+- [x] Test `test_difficulty.gd`; ErrorCatcher bỏ qua cảnh báo Jolt ở cả `code` lẫn `rationale`
+- [ ] Người dùng chơi thử → chỉnh số → commit
+- Ghi chú: bot đánh tự động (scratchpad) bị kẹt sau pháo đài/cây nên **không dùng để cân bằng**; cần người chơi thật.
 
 ## Tiếp theo (M1)
 
-- M1.2 Độ khó tăng theo quãng đường
 - M1.3 Điểm = số mét (HUD, màn kết quả so kỷ lục)
 - M1.4 Lưu kỷ lục + cài đặt (`user://`)
 - M1.5 Hạ tầng i18n (Việt + Anh) + màn chọn ngôn ngữ — **cần sửa `project.godot` → nhờ người dùng tắt Godot**
@@ -42,6 +37,8 @@
 | 7 | `5df4522` | Thắng/thua/chơi lại, HUD |
 | 8 | `6c2ba01` | Benchmark M1 Pro, F3, roadmap |
 | — | `a254fbd` | Roadmap: PC trước, di động sau |
+| — | `ef650ec` | `docs/PROGRESS.md` |
+| M1.1 | `ab03fb0` | Lộ trình vô tận, nội dung theo đoạn, harness timeout |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
@@ -55,7 +52,8 @@
 
 ## Câu hỏi đang chờ người dùng
 
-- (không có)
+- Chơi thử M1.2 (độ khó) và cho phép commit.
+- Game tham khảo **Marcha de Ferro** đã đọc → tóm tắt + so sánh trong [`REFERENCE.md`](REFERENCE.md). Chờ chốt: lấy vòng "đặt tháp ngoài thực địa / nhảy cóc" hay giữ tháp gắn pháo đài; và các khác biệt khác (đánh tự động, tài nguyên, Trail, cấu trúc lượt).
 
 ## Ghi chú cho phiên sau
 
