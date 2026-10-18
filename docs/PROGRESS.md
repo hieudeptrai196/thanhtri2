@@ -42,6 +42,7 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Endless + chọn 1/2 tuyến ở mỗi điểm dừng** (thay quyết định "một đường, ngã rẽ để M3").
 - 2026-10-18 · **Độ khó: quãng đường làm nền (M1.2 giữ lại) + thanh tiếng ồn / truy đuổi.**
 - 2026-10-18 · **Tài nguyên: Gỗ (xây/sửa), Than (nhiên liệu, tăng tốc), Đồng (vũ khí/kỹ năng/module); bỏ Đá.**
 - 2026-10-18 · **Đòn thường tự đánh, kỹ năng class bấm chủ động + ngắm.**
@@ -58,7 +59,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** endless/cổng cuối + rẽ nhánh → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
+- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** danh sách tính năng riêng của người dùng → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
 
 ## Ghi chú cho phiên sau
 

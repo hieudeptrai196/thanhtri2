@@ -97,6 +97,7 @@ Collision layer:
 - **[2026-10-18] Đòn thường tự đánh** (chuột / stick phải chỉ ưu tiên hướng mục tiêu); **kỹ năng class bấm chủ động và ngắm** (dùng lại phần ngắm/quạt chém hiện có). Tháp/công trình là lực sát thương chính. *(Code hiện vẫn là đánh chủ động — sẽ đổi khi làm vòng mới.)*
 - Pháo đài chạy liên tục, **hư càng nhiều càng chậm**. Thỉnh thoảng dẫm **bom ẩn** (ít). Có **điểm dừng nâng cấp**: vùng an toàn, không quái, khởi hành khi người chơi sẵn sàng.
 - **Quái di chuyển, đánh cả người chơi lẫn pháo đài.**
+- **[2026-10-18] Endless + chọn 1 trong 2 tuyến ở mỗi điểm dừng** (mỗi tuyến có thưởng/rủi ro, vd rừng già: nhiều Gỗ + đông quái; mỏ than: nhiều Than + đường hẹp; đền hoang: chắc có module + ít tài nguyên). Tuyến sinh theo seed (seed hằng ngày vẫn công bằng). Chế độ Hành trình có cổng cuối: để sau phát hành nếu cần.
 - **[2026-10-18] Độ khó = quãng đường (nền, `Difficulty`) + tiếng ồn** (tăng theo thời gian và việc ồn: tăng tốc, chặt cây, bắn…; đầy thanh → truy đuổi, quái dồn từ phía sau; điểm dừng làm dịu).
 - **[2026-10-18] Tài nguyên mới (3 loại):** **Gỗ** = xây công trình + sửa thành; **Than** (mới) = nhiên liệu pháo đài (đủ than chạy thường, **tăng tốc** tốn than + kéo thêm quái, hết than bò chậm); **Đồng** = vũ khí, kỹ năng, module pháo đài. **Bỏ Đá** (nâng thân pháo đài chuyển thành module trả Đồng). *(Code hiện vẫn Gỗ/Đá/Đồng — đổi khi làm vòng mới.)* Mang về pháo đài; người chơi chia việc giữ thành / đi kiếm.
 - Nâng cấp vũ khí: **ở điểm dừng, chọn 1 trong 3 thẻ**, trả bằng Đồng.
