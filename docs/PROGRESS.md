@@ -59,7 +59,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** danh sách tính năng riêng của người dùng → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
+- Đã chốt vòng nhảy cóc (phương án 1). Người dùng hướng tới chia vai trò co-op + xếp hạng; Claude đã đề xuất 20 ý tưởng trong [`IDEAS.md`](IDEAS.md). **Đang hỏi tiếp:** chọn ý tưởng + số người co-op tối đa → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó theo quãng đường) được giữ làm nền, chờ chơi thử rồi commit.
 
 ## Ghi chú cho phiên sau
 
