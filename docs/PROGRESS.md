@@ -42,6 +42,8 @@
 
 ## Nhật ký quyết định (mới nhất ở trên)
 
+- 2026-10-18 · **Lấy vòng chính của Marcha de Ferro: đặt công trình ngoài thực địa, tiếp sức gần pháo đài, nhảy cóc / bỏ lại.** Các chi tiết khác đang hỏi tiếp.
+- 2026-10-18 · Game tham khảo: Marcha de Ferro (+ co-op + tính năng riêng). Xem `REFERENCE.md`.
 - 2026-10-18 · Lộ trình endless: **một con đường uốn lượn ngẫu nhiên**, điểm dừng ~350 m; ngã rẽ để M3 nếu cần.
 - 2026-10-18 · **Forward+ trên PC, Mobile trên điện thoại; làm xong PC (Steam) trước.**
 - 2026-10-18 · Mục tiêu: game nghiêm túc, Steam + Google Play + App Store, endless so quãng đường, i18n bắt buộc.
@@ -53,7 +55,7 @@
 ## Câu hỏi đang chờ người dùng
 
 - Chơi thử M1.2 (độ khó) và cho phép commit.
-- Game tham khảo **Marcha de Ferro** đã đọc → tóm tắt + so sánh trong [`REFERENCE.md`](REFERENCE.md). Chờ chốt: lấy vòng "đặt tháp ngoài thực địa / nhảy cóc" hay giữ tháp gắn pháo đài; và các khác biệt khác (đánh tự động, tài nguyên, Trail, cấu trúc lượt).
+- Đã chốt vòng nhảy cóc (phương án 1). **Đang hỏi tiếp:** đánh tự động hay chủ động → tài nguyên → Trail → endless/cổng cuối → chi tiết công trình (mang theo, bộ đệm, đòn cuối, số loại). M1.2 (độ khó) tạm giữ chưa commit, có thể bị thay bởi Trail.
 
 ## Ghi chú cho phiên sau
 
