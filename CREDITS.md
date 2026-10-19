@@ -22,6 +22,14 @@ file of each pack is kept next to its files under `assets/`.
 | Impact Sounds | Kenney | https://kenney.nl/assets/impact-sounds | CC0 1.0 | `assets/audio/kenney/impact-sounds/` |
 | Interface Sounds | Kenney | https://kenney.nl/assets/interface-sounds | CC0 1.0 | `assets/audio/kenney/interface-sounds/` |
 | Music Jingles | Kenney | https://kenney.nl/assets/music-jingles | CC0 1.0 | `assets/audio/kenney/music-jingles/` |
+| Zombies March (battle music) | yd | https://opengameart.org/content/zombies-march | CC0 1.0 | `assets/audio/oga/music/` |
+| Dark Forest Theme (stop music) | cynicmusic | https://opengameart.org/content/dark-forest-theme | CC0 1.0 | `assets/audio/oga/music/` |
+| The 9th Circle (menu music) | Joth | https://opengameart.org/content/the-9th-circle | CC0 1.0 | `assets/audio/oga/music/` |
+| Rain and Thunders (rain ambience) | kindland | https://opengameart.org/content/rain-and-thunders | CC0 1.0 | `assets/audio/oga/ambience/` |
+| Dungeon Ambience | yd | https://opengameart.org/content/dungeon-ambience | CC0 1.0 | `assets/audio/oga/ambience/` |
+| 80 CC0 creature SFX | rubberduck | https://opengameart.org/content/80-cc0-creature-sfx | CC0 1.0 | `assets/audio/oga/creature/` |
+| 100 CC0 metal and wood SFX | rubberduck | https://opengameart.org/content/100-cc0-metal-and-wood-sfx | CC0 1.0 | `assets/audio/oga/woodmetal/` |
+| 100 CC0 SFX #2 | rubberduck | https://opengameart.org/content/100-cc0-sfx-2 | CC0 1.0 | `assets/audio/oga/sfx100v2/` |
 
 ## Fonts
 

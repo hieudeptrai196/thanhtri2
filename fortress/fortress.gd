@@ -98,6 +98,7 @@ var _furnace_cooldown: float = 0.0
 var _since_hit: float = 0.0
 var _stoked_applied: bool = false
 var _look: FortressLook
+var _rumble: AudioStreamPlayer3D
 
 
 func _ready() -> void:
@@ -251,11 +252,17 @@ func tick_repair(_delta: float, rate: float = 1.0) -> void:
 	_repair_cooldown = repair_interval / rate
 	if storage.spend({repair_resource.id: 1}):
 		health.heal(repair_per_unit)
+		Sfx.play(self, &"repair", global_position)
 
 
 func _process(delta: float) -> void:
+	var ground_speed := 0.0 if follower.is_stopped else follower.base_speed * follower.speed_multiplier
 	if _look:
-		_look.roll(0.0 if follower.is_stopped else follower.base_speed * follower.speed_multiplier, delta)
+		_look.roll(ground_speed, delta)
+	if _rumble:
+		# The wheels rumble louder and higher the faster the fortress goes.
+		_rumble.volume_db = lerpf(-60.0, -9.0, clampf(ground_speed / 3.0, 0.0, 1.0))
+		_rumble.pitch_scale = clampf(0.55 + ground_speed * 0.08, 0.5, 1.2)
 
 
 # Kit-built look over the gameplay box (see FortressLook); the box and placeholder meshes hide.
@@ -276,6 +283,14 @@ func _build_look() -> void:
 	crossbow_model.rotation_degrees.y = 180.0
 	_crossbow_mesh.mesh = null
 	_crossbow_mesh.add_child(crossbow_model)
+	_rumble = AudioStreamPlayer3D.new()
+	_rumble.name = "Rumble"
+	_rumble.stream = MusicPlayer._looping("res://assets/audio/oga/sfx100v2/sfx100v2_loop_machine_01.ogg")
+	_rumble.unit_size = 14.0
+	_rumble.max_distance = 60.0
+	_rumble.position.y = 1.0
+	add_child(_rumble)
+	_rumble.play()
 
 
 func _apply_tier(tier: FortressTier) -> void:
@@ -411,6 +426,7 @@ func _tick_shield(delta: float) -> void:
 # Thorns: an attacker with a Hurtbox of its own takes a little damage back (bombs have none).
 func _on_hit_taken(_amount: float, source: Node) -> void:
 	_since_hit = 0.0
+	Sfx.play(self, &"fort_hit", global_position + Vector3(0.0, 2.0, 0.0))
 	if thorns_damage <= 0.0 or not is_instance_valid(source) or source == self:
 		return
 	var attacker_hurtbox := source.get_node_or_null(^"Hurtbox") as Hurtbox

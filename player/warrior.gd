@@ -97,6 +97,7 @@ var _slash: SlashFx
 var _ring_material: StandardMaterial3D
 var _last_visual_position: Vector3
 var _visual_speed: float = 0.0
+var _step_left: float = 0.0
 var _running: bool = false
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -137,6 +138,7 @@ func _ready() -> void:
 	health.health_changed.connect(func(current: float, _maximum: float) -> void:
 		if current < last_health[0] - 0.5:
 			_shake(0.18)
+			Sfx.play(self, &"hurt", global_position)
 		last_health[0] = current)
 
 
@@ -404,6 +406,8 @@ func _set_downed(on: bool) -> void:
 	_down_label.visible = on
 	if _model:
 		_model.play(&"Lie_Down" if on else &"Lie_StandUp", 1.0, 0.1, true)
+	if is_inside_tree():
+		Sfx.play(self, &"downed" if on else &"revive", global_position)
 
 
 func _set_alive(alive: bool) -> void:
@@ -438,7 +442,8 @@ func _flash_swing(yaw: float, from_network: bool = false) -> void:
 		MeleeWeapon.Style.PROJECTILE:
 			if from_network:
 				weapon.launch(direction, null, 0.0)
-	Sfx.play(self, &"swing", global_position)
+	Sfx.play(self, {MeleeWeapon.Style.ARC: &"swing", MeleeWeapon.Style.SMASH: &"smash"}.get(weapon.style,
+		&"magic" if weapon.projectile_kind == &"orb" else (&"throw" if weapon.projectile_kind == &"axe" else &"shoot")), global_position)
 	if _model:
 		var clip := player_class.attack_clip if player_class else &"1H_Melee_Attack_Slice_Diagonal"
 		_model.play(clip, maxf(_model.clip_length(clip) / (weapon.cooldown * 0.9), 1.0), 0.05, true)
@@ -528,7 +533,15 @@ func _update_animation(delta: float) -> void:
 		return
 	if _running:
 		_model.play(&"Running_B" if carried_type else &"Running_A", clampf(_visual_speed / RUN_CLIP_SPEED, 0.7, 1.6))
+		_step_left -= delta * clampf(_visual_speed / RUN_CLIP_SPEED, 0.7, 1.6)
+		if _step_left <= 0.0:
+			_step_left = 0.33
+			Sfx.play(self, &"step", global_position)
 	elif builder.hammer_target:
 		_model.play(&"Interact", 1.3)
+		_step_left -= delta
+		if _step_left <= 0.0:
+			_step_left = 0.45
+			Sfx.play(self, &"hammer", global_position)
 	else:
 		_model.play(&"Idle")

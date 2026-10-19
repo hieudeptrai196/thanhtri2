@@ -4,25 +4,44 @@ extends RefCounted
 ## caller's 3D world, `play_ui` a flat one; each picks a random variant and a slight pitch change so
 ## repeats do not grate, and each sound is capped at a few voices so a crowd of 300 does not roar.
 
-const DIR := "res://assets/audio/kenney/"
-## name -> [files, volume dB, max voices]
+const DIR := "res://assets/audio/"
+## name -> [files under DIR, volume dB, max voices]
 const SOUNDS := {
-	&"swing": [["rpg-audio/drawKnife1", "rpg-audio/drawKnife2", "rpg-audio/drawKnife3"], -8.0, 4],
-	&"hit": [["impact-sounds/impactPunch_medium_000", "impact-sounds/impactPunch_medium_001", "impact-sounds/impactPunch_medium_002"], -6.0, 5],
-	&"enemy_die": [["impact-sounds/impactPunch_heavy_000", "impact-sounds/impactWood_heavy_000"], -5.0, 4],
-	&"chop": [["rpg-audio/chop", "impact-sounds/impactWood_medium_000", "impact-sounds/impactWood_medium_001"], -4.0, 3],
-	&"mine": [["impact-sounds/impactMining_000", "impact-sounds/impactMining_001", "impact-sounds/impactMining_002"], -4.0, 3],
-	&"shoot": [["impact-sounds/impactGeneric_light_000", "impact-sounds/impactGeneric_light_001", "rpg-audio/metalLatch"], -10.0, 4],
-	&"boom": [["impact-sounds/impactPlate_heavy_000", "impact-sounds/impactWood_heavy_000"], 0.0, 3],
-	&"divine": [["impact-sounds/impactBell_heavy_000"], 0.0, 1],
-	&"coins": [["rpg-audio/handleCoins", "rpg-audio/handleCoins2"], -6.0, 2],
-	&"build": [["rpg-audio/creak1", "rpg-audio/dropLeather"], -6.0, 2],
-	&"click": [["interface-sounds/click_002"], -8.0, 2],
-	&"confirm": [["interface-sounds/confirmation_002"], -6.0, 1],
-	&"error": [["interface-sounds/error_004"], -8.0, 1],
-	&"stop": [["music-jingles/jingles_STEEL00"], -6.0, 1],
-	&"depart": [["music-jingles/jingles_STEEL04"], -6.0, 1],
-	&"lost": [["music-jingles/jingles_STEEL09"], -4.0, 1],
+	&"swing": [["kenney/rpg-audio/drawKnife1", "kenney/rpg-audio/drawKnife2", "kenney/rpg-audio/drawKnife3"], -8.0, 4],
+	&"hit": [["kenney/impact-sounds/impactPunch_medium_000", "kenney/impact-sounds/impactPunch_medium_001", "kenney/impact-sounds/impactPunch_medium_002"], -6.0, 5],
+	&"enemy_die": [["kenney/impact-sounds/impactPunch_heavy_000", "oga/creature/hurt_01", "oga/creature/hurt_02", "oga/creature/hurt_03"], -5.0, 4],
+	&"chop": [["kenney/rpg-audio/chop", "oga/woodmetal/wood_hit_01", "oga/woodmetal/wood_hit_02", "oga/woodmetal/wood_hit_03"], -4.0, 3],
+	&"mine": [["kenney/impact-sounds/impactMining_000", "kenney/impact-sounds/impactMining_001", "kenney/impact-sounds/impactMining_002"], -4.0, 3],
+	&"tree_fall": [["oga/woodmetal/wood_cracking_01", "oga/woodmetal/wood_falling_01", "oga/woodmetal/wood_falling_02"], -2.0, 2],
+	&"shoot": [["kenney/impact-sounds/impactGeneric_light_000", "kenney/impact-sounds/impactGeneric_light_001", "kenney/rpg-audio/metalLatch"], -10.0, 4],
+	&"throw": [["oga/sfx100v2/sfx100v2_air_01", "oga/sfx100v2/sfx100v2_air_02"], -6.0, 3],
+	&"magic": [["oga/sfx100v2/sfx100v2_air_02", "kenney/impact-sounds/impactBell_heavy_000"], -10.0, 2],
+	&"smash": [["oga/woodmetal/wood_slam_01", "oga/woodmetal/wood_slam_02", "kenney/impact-sounds/impactWood_heavy_000"], -2.0, 2],
+	&"boom": [["kenney/impact-sounds/impactPlate_heavy_000", "oga/sfx100v2/sfx100v2_thunder_01"], 0.0, 3],
+	&"divine": [["kenney/impact-sounds/impactBell_heavy_000"], 0.0, 1],
+	&"coins": [["kenney/rpg-audio/handleCoins", "kenney/rpg-audio/handleCoins2"], -6.0, 2],
+	&"build": [["oga/woodmetal/wood_slam_01", "kenney/rpg-audio/creak1"], -4.0, 2],
+	&"hammer": [["oga/woodmetal/wood_hammer_01", "oga/woodmetal/wood_hammer_02", "oga/woodmetal/hammer_01", "oga/woodmetal/hammer_02"], -8.0, 3],
+	&"break": [["oga/woodmetal/wood_breaking_01", "oga/woodmetal/wood_breaking_02"], -2.0, 2],
+	&"fort_hit": [["oga/woodmetal/metal_slam_01", "oga/woodmetal/wood_slam_02", "oga/woodmetal/metal_hit_01"], -8.0, 2],
+	&"hurt": [["oga/woodmetal/metal_hit_02", "oga/woodmetal/metal_hit_03", "oga/sfx100v2/sfx100v2_metal_hit_01"], -6.0, 2],
+	&"downed": [["oga/woodmetal/metal_sheet_01", "oga/creature/breath"], -4.0, 1],
+	&"step": [["oga/sfx100v2/sfx100v2_footstep_wet_01", "oga/sfx100v2/sfx100v2_footstep_wet_02", "oga/sfx100v2/sfx100v2_footstep_wet_03"], -20.0, 3],
+	&"groan": [["oga/creature/monster_01", "oga/creature/monster_02", "oga/creature/monster_03", "oga/creature/monster_04",
+		"oga/creature/monster_05", "oga/creature/grunt_01", "oga/creature/grunt_02", "oga/creature/grunt_03", "oga/creature/troll_01", "oga/creature/troll_02"], -10.0, 3],
+	&"roar": [["oga/creature/roar_01", "oga/creature/roar_02", "oga/creature/roar_03"], -2.0, 1],
+	&"howl": [["oga/creature/howl"], -14.0, 1],
+	&"thunder": [["oga/sfx100v2/sfx100v2_thunder_01"], -10.0, 1],
+	&"war_cry": [["oga/creature/roar_02", "oga/creature/troll_03"], -2.0, 1],
+	&"repair": [["oga/woodmetal/tools_01", "oga/woodmetal/tools_02", "oga/woodmetal/tools_03"], -10.0, 1],
+	&"click": [["kenney/interface-sounds/click_002"], -8.0, 2],
+	&"confirm": [["kenney/interface-sounds/confirmation_002"], -6.0, 1],
+	&"error": [["kenney/interface-sounds/error_004"], -8.0, 1],
+	&"ping": [["kenney/interface-sounds/drop_002"], -6.0, 2],
+	&"revive": [["kenney/interface-sounds/confirmation_002"], -4.0, 1],
+	&"stop": [["kenney/music-jingles/jingles_STEEL00"], -6.0, 1],
+	&"depart": [["kenney/music-jingles/jingles_STEEL04"], -6.0, 1],
+	&"lost": [["kenney/music-jingles/jingles_STEEL09"], -4.0, 1],
 }
 ## Sounds this far beyond the listener's view are not worth a voice.
 const MAX_DISTANCE := 45.0

@@ -80,3 +80,29 @@ func test_sounds_are_capped() -> void:
 	for i in cap + 5:
 		Sfx.play(m, &"hit", Vector3.ZERO)
 	check(Sfx._voices[&"hit"] == cap, "no more than %d hit sounds at once (%d)" % [cap, Sfx._voices[&"hit"]])
+
+
+func test_music_follows_the_run() -> void:
+	var m: Match = await start_match()
+	check(m.music.current == &"battle", "march music while travelling")
+	var follower: RouteFollower = m.get_node("Fortress/RouteFollower")
+	clear_random_bombs(m)
+	follower.base_speed = 300.0
+	await wait_until(func() -> bool: return follower.is_stopped, 300)
+	follower.base_speed = 0.0
+	check(m.music.current == &"stop", "calmer music at a stop")
+	follower.depart()
+	await frames(2)
+	check(m.music.current == &"battle", "back to the march on departure")
+
+
+func test_fortress_rumbles_with_speed() -> void:
+	var m: Match = await start_match()
+	var fortress: Fortress = m.get_node("Fortress")
+	clear_random_bombs(m)
+	await frames(5)
+	var rumble: AudioStreamPlayer3D = fortress.get_node("Rumble")
+	check(rumble.playing and rumble.volume_db > -30.0, "wheels rumble while moving (%.1f dB)" % rumble.volume_db)
+	fortress.follower.base_speed = 0.0
+	await frames(5)
+	check(rumble.volume_db < -50.0, "quiet when still")

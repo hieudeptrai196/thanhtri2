@@ -321,5 +321,7 @@ func _on_buffer_empty() -> void:
 
 
 func _on_died() -> void:
+	Sfx.play(self, &"break", global_position)
+	Burst.spawn(self, &"chips", global_position + Vector3(0.0, 1.0, 0.0))
 	destroyed.emit(self)
 	queue_free()

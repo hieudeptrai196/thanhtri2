@@ -58,6 +58,9 @@ var elapsed: float = 0.0
 var kills: int = 0
 ## Who did what this run (host keeps it; clients get it with the result).
 var team_stats := TeamStats.new()
+## Background music and ambience (local to this machine).
+var music: MusicPlayer
+var _groan_left: float = 3.0
 
 ## Route types offered at the current stop, the pick (-1 = none yet), and the stretch being driven.
 var route_offers: Array[RouteType] = []
@@ -124,8 +127,12 @@ func _ready() -> void:
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_spawner.enemy_slain.connect(_on_enemy_slain)
 	# Jingles on every machine (clients run the follower too).
-	_follower.reached_stop.connect(func(_index: int) -> void: Sfx.play_ui(self, &"stop"))
-	_follower.departed.connect(func() -> void: Sfx.play_ui(self, &"depart"))
+	_follower.reached_stop.connect(func(_index: int) -> void:
+		Sfx.play_ui(self, &"stop")
+		music.play(&"stop"))
+	_follower.departed.connect(func() -> void:
+		Sfx.play_ui(self, &"depart")
+		music.play(&"battle"))
 	_structures.structure_built.connect(func(structure: Structure) -> void: Sfx.play(self, &"build", structure.global_position))
 	_fortress.service_zone.player_deposited.connect(func(player: Node3D, contents: Dictionary) -> void:
 		if player is Warrior:
@@ -190,12 +197,17 @@ func _ready() -> void:
 		_in_lobby = true
 		_start_menu.open()
 		get_tree().paused = true
+	music = MusicPlayer.new()
+	music.name = "Music"
+	add_child(music)
+	music.play(&"menu" if _in_lobby else &"battle")
 
 
 func _physics_process(delta: float) -> void:
 	if result != Result.NONE:
 		return
 	elapsed += delta
+	_groan_nearby(delta)
 	_content.despawn_before(_follower.distance)
 	if not _is_host():
 		return
@@ -421,7 +433,11 @@ func _check_all_ready() -> void:
 # Stop panel presses: the host acts for its own player; a client asks the host.
 func _panel_request(kind: StringName, index: int) -> void:
 	if _is_host():
+		var stored_before := _fortress.storage.total()
 		handle_request(kind, index, local_warrior)
+		if kind in [&"tier", &"fortress", &"weapon"]:
+			# A purchase spends from the storage; nothing spent means it could not be bought.
+			Sfx.play_ui(self, &"confirm" if _fortress.storage.total() < stored_before else &"error")
 	elif _net and local_warrior:
 		_net.send_request(kind, index)
 
@@ -586,6 +602,7 @@ func _show_ping(peer: int, kind: StringName, subject: String, point: Vector3) ->
 	var previous: Node = _pings.get(peer)
 	if is_instance_valid(previous):
 		previous.queue_free()
+	Sfx.play_ui(self, &"ping")
 	var marker := PingMarker.new()
 	marker.peer_id = peer
 	marker.kind = kind
@@ -611,6 +628,7 @@ func request_divine_crossbow() -> bool:
 
 func _on_noise_level_changed(level: NoiseMeter.Level) -> void:
 	if level == NoiseMeter.Level.PURSUIT:
+		Sfx.play_ui(self, &"roar")
 		_hud.show_toast(tr("TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"))
 
 
@@ -680,6 +698,7 @@ func _finish() -> void:
 		return
 	result = Result.LOST
 	Sfx.play_ui(self, &"lost")
+	music.play(&"")
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
@@ -924,7 +943,25 @@ func _on_skill_used(skill_id: StringName, at: Vector3, warrior: Warrior) -> void
 
 
 # Bùa trận is a real area on the host and a picture on clients; other skills get a pulse.
+# Every few seconds one of the monsters near this machine's player groans.
+func _groan_nearby(delta: float) -> void:
+	_groan_left -= delta
+	if _groan_left > 0.0 or local_warrior == null:
+		return
+	_groan_left = randf_range(1.5, 4.0)
+	var near := _spawner.get_children().filter(func(e: Node) -> bool:
+		return e is Node3D and not e.is_queued_for_deletion() and e.global_position.distance_to(local_warrior.global_position) < 22.0)
+	if not near.is_empty():
+		var enemy: Node3D = near.pick_random()
+		Sfx.play(self, &"groan", enemy.global_position)
+
+
+## The sound of each class skill.
+const SKILL_SOUNDS := {&"general": &"war_cry", &"shaman": &"magic", &"engineer": &"hammer", &"woodcutter": &"tree_fall", &"mechanic": &"boom"}
+
+
 func _show_skill(skill_id: StringName, at: Vector3, simulated: bool) -> void:
+	Sfx.play(self, SKILL_SOUNDS.get(skill_id, &"magic"), at)
 	var player_class := PlayerClasses.find(skill_id)
 	if player_class == null:
 		return

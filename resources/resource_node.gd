@@ -55,6 +55,7 @@ func _instance_model(path: String) -> Node3D:
 
 # A stump (or the like) stays where the tree stood for a while; it is only decoration.
 func _leave_depleted() -> void:
+	Sfx.play(self, &"tree_fall" if resource_type and resource_type.id == &"wood" else &"smash", global_position)
 	if depleted_path == "" or get_parent() == null:
 		return
 	var left := _instance_model(depleted_path)
