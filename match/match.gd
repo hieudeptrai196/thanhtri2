@@ -61,6 +61,7 @@ var team_stats := TeamStats.new()
 ## Background music and ambience (local to this machine).
 var music: MusicPlayer
 var _groan_left: float = 3.0
+var _motes: AmbientMotes
 
 ## Route types offered at the current stop, the pick (-1 = none yet), and the stretch being driven.
 var route_offers: Array[RouteType] = []
@@ -293,6 +294,11 @@ func remove_player(id: int) -> void:
 func _set_local_warrior(warrior: Warrior) -> void:
 	local_warrior = warrior
 	$IsoCamera.target = warrior
+	if _motes == null:
+		_motes = AmbientMotes.new()
+		_motes.name = "AmbientMotes"
+		add_child(_motes)
+	_motes.target = warrior
 	_hud.setup(_fortress, warrior, noise, best_before)
 
 
@@ -629,6 +635,9 @@ func request_divine_crossbow() -> bool:
 func _on_noise_level_changed(level: NoiseMeter.Level) -> void:
 	if level == NoiseMeter.Level.PURSUIT:
 		Sfx.play_ui(self, &"roar")
+		music.play(&"pursuit")
+	elif music.current == &"pursuit" and not _follower.is_stopped:
+		music.play(&"battle")
 		_hud.show_toast(tr("TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"))
 
 

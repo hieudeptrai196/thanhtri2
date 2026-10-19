@@ -200,6 +200,7 @@ func _add_road_strip(from_distance: float, to_distance: float) -> void:
 func _add_scenery(from_distance: float, to_distance: float) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([_scenery_seed, roundi(from_distance * 10.0)])
+	_add_grass(from_distance, to_distance, rng)
 	var trees := route_type.tree_multiplier if route_type else 1.0
 	var rocks := route_type.coal_multiplier if route_type else 1.0
 	for side in [-1.0, 1.0]:
@@ -211,6 +212,55 @@ func _add_scenery(from_distance: float, to_distance: float) -> void:
 		for i in rng.randi_range(near_per_side.x, near_per_side.y):
 			_add_decor(_pick(NEAR_PIECES, rng, trees, rocks), rng, rng.randf_range(from_distance, to_distance),
 				side * rng.randf_range(near_band.x, near_band.y))
+
+
+## Grass clumps per segment (both sides, off the road), one MultiMesh draw each.
+@export var grass_per_segment: int = 140
+
+static var _grass_mesh: ArrayMesh
+static var _grass_material: ShaderMaterial
+
+
+func _add_grass(from_distance: float, to_distance: float, rng: RandomNumberGenerator) -> void:
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.use_colors = true
+	multimesh.mesh = _grass()
+	multimesh.instance_count = grass_per_segment
+	for i in grass_per_segment:
+		var road := _route.sample(rng.randf_range(from_distance, to_distance))
+		var lateral := rng.randf_range(road_visual_width * 0.5 + 0.5, far_band.y) * (1.0 if rng.randf() < 0.5 else -1.0)
+		var at := road.origin + road.basis.x.normalized() * lateral
+		var size := rng.randf_range(0.6, 1.4)
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(size, size * rng.randf_range(0.7, 1.3), size))
+		multimesh.set_instance_transform(i, Transform3D(basis, at))
+		multimesh.set_instance_color(i, Color(rng.randf(), 0, 0))
+	var grass := MultiMeshInstance3D.new()
+	grass.multimesh = multimesh
+	grass.material_override = _grass_material
+	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	grass.add_to_group(&"scenery")
+	add_child(grass)
+	_spawned.append([grass, to_distance, 0])
+
+
+# Two crossed quads (1.2 m wide, 0.9 m tall) shaped into blades by the grass shader.
+static func _grass() -> ArrayMesh:
+	if _grass_mesh == null:
+		var tool := SurfaceTool.new()
+		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for angle in [0.0, PI * 0.5]:
+			var side := Vector3(cos(angle), 0, sin(angle)) * 0.6
+			var corners := [[-side, Vector2(0, 1)], [-side + Vector3(0, 0.9, 0), Vector2(0, 0)],
+				[side + Vector3(0, 0.9, 0), Vector2(1, 0)], [side, Vector2(1, 1)]]
+			for index in [0, 1, 2, 0, 2, 3]:
+				tool.set_normal(Vector3.UP)
+				tool.set_uv(corners[index][1])
+				tool.add_vertex(corners[index][0])
+		_grass_mesh = tool.commit()
+		_grass_material = ShaderMaterial.new()
+		_grass_material.shader = preload("res://fx/grass.gdshader")
+	return _grass_mesh
 
 
 # Flags along the safe zone and a small camp beside the road at a stop.

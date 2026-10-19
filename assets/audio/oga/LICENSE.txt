@@ -3,8 +3,8 @@ CC0 1.0 (public domain dedication): http://creativecommons.org/publicdomain/zero
 Files were renamed for the game; contents are unchanged. Credit is not required but given here.
 
 music/battle_zombies_are_coming.ogg  "Zombies March" by yd            https://opengameart.org/content/zombies-march
-music/stop_dark_forest_theme.mp3     "Dark Forest Theme" by cynicmusic https://opengameart.org/content/dark-forest-theme
-music/menu_the_9th_circle.mp3        "The 9th Circle" by Joth          https://opengameart.org/content/the-9th-circle
+music/menu_the_9th_circle.mp3        "The 9th Circle" by Joth          https://opengameart.org/content/the-9th-circle (used for the march)
+music/menu_forgotten_tombs.mp3       "Forgoten Tomb Ambience" by kindland https://opengameart.org/content/forgoten-tomb-ambience
 ambience/dark_rainy_night.ogg        "Rain and Thunders" by kindland   https://opengameart.org/content/rain-and-thunders
 ambience/dungeon_ambience.ogg        "Dungeon Ambience" by yd          https://opengameart.org/content/dungeon-ambience
 creature/*                           "80 CC0 creature SFX" by rubberduck https://opengameart.org/content/80-cc0-creature-sfx

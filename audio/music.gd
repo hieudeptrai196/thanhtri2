@@ -4,10 +4,13 @@ extends Node
 ## crossfade between tracks (menu, march, stop), plus night ambience — rain all the time, thunder
 ## and a far howl now and then. Local to each machine.
 
+## Darkest when calm, heaviest when hunted: tombs at the menu, the 9th circle on the march, a
+## dungeon hush at stops, the zombie march when the horde gives chase.
 const TRACKS := {
-	&"menu": ["res://assets/audio/oga/music/menu_the_9th_circle.mp3", -12.0],
-	&"battle": ["res://assets/audio/oga/music/battle_zombies_are_coming.ogg", -11.0],
-	&"stop": ["res://assets/audio/oga/music/stop_dark_forest_theme.mp3", -12.0],
+	&"menu": ["res://assets/audio/oga/music/menu_forgotten_tombs.mp3", -10.0],
+	&"battle": ["res://assets/audio/oga/music/menu_the_9th_circle.mp3", -11.0],
+	&"stop": ["res://assets/audio/oga/ambience/dungeon_ambience.ogg", -8.0],
+	&"pursuit": ["res://assets/audio/oga/music/battle_zombies_are_coming.ogg", -10.0],
 }
 const RAIN := "res://assets/audio/oga/ambience/dark_rainy_night.ogg"
 const FADE_SECONDS := 1.5
