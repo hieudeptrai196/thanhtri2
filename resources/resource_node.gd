@@ -99,6 +99,8 @@ func set_net_amount(value: int) -> void:
 
 
 func _bump() -> void:
-	Sfx.play(self, &"chop" if resource_type and resource_type.id == &"wood" else &"mine", global_position)
+	var is_wood := resource_type != null and resource_type.id == &"wood"
+	Sfx.play(self, &"chop" if is_wood else &"mine", global_position)
+	Burst.spawn(self, &"chips" if is_wood else &"dust", global_position + Vector3(0.0, 1.2, 0.0))
 	_visual.scale = Vector3.ONE * 1.12
 	create_tween().tween_property(_visual, "scale", Vector3.ONE, 0.12)

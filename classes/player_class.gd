@@ -37,6 +37,18 @@ extends Resource
 @export var attack_clip: StringName = &"1H_Melee_Attack_Slice_Diagonal"
 @export var skill_clip: StringName = &"Use_Item"
 
+@export_group("Attack")
+## How the basic attack works (MeleeWeapon.Style: 0 arc, 1 smash, 2 projectile) and its numbers.
+@export_enum("Arc", "Smash", "Projectile") var attack_style: int = 0
+## Reach for melee, range for projectiles (metres).
+@export var attack_range: float = 2.5
+@export var attack_arc: float = 120.0
+@export var attack_cooldown: float = 0.5
+## Smash radius / projectile splash (0 = none).
+@export var attack_splash: float = 0.0
+@export var projectile_kind: StringName = &"bolt"
+@export var projectile_speed: float = 22.0
+
 @export_group("Warrior")
 @export var max_health_multiplier: float = 1.0
 @export var damage_multiplier: float = 1.0

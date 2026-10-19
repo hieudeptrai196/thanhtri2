@@ -77,6 +77,9 @@ var _carried_stack: Array = []
 var _base_max_health: float
 var _base_damage: float
 var _base_capacity: int
+var _base_reach: float
+var _base_cooldown: float
+var _base_arc: float
 var _base_color: Color
 var _body_height: float
 ## Multiplayer peer that controls this warrior (1 = the host, also used offline).
@@ -90,6 +93,7 @@ var _swing_yaw: float = 0.0
 # Rigged model, the class-coloured ring under the feet, and where the model was last frame (to
 # animate movement the same way on the host and on clients).
 var _model: CharacterModel
+var _slash: SlashFx
 var _ring_material: StandardMaterial3D
 var _last_visual_position: Vector3
 var _visual_speed: float = 0.0
@@ -122,10 +126,18 @@ func _ready() -> void:
 	_base_max_health = health.max_health
 	_base_damage = weapon.damage
 	_base_capacity = inventory.capacity
+	_base_reach = weapon.get_reach()
+	_base_cooldown = weapon.cooldown
+	_base_arc = weapon.arc_degrees
 	_base_color = ($Body.mesh.material as StandardMaterial3D).albedo_color
 	_body_height = $Body.position.y
 	_build_look()
 	skills.used.connect(func(_id: StringName, _at: Vector3) -> void: _play_skill_clip())
+	var last_health := [health.current]
+	health.health_changed.connect(func(current: float, _maximum: float) -> void:
+		if current < last_health[0] - 0.5:
+			_shake(0.18)
+		last_health[0] = current)
 
 
 ## Gives this warrior a class (null = none): its passive strengths and placeholder colour.
@@ -137,6 +149,11 @@ func apply_class(new_class: PlayerClass) -> void:
 	health.set_max_health(_base_max_health * c.max_health_multiplier)
 	health.reset()
 	weapon.damage = _base_damage * c.damage_multiplier
+	if new_class:
+		weapon.configure(new_class.attack_style as MeleeWeapon.Style, new_class.attack_range, new_class.attack_arc,
+			new_class.attack_cooldown, new_class.attack_splash, new_class.projectile_kind, new_class.projectile_speed)
+	else:
+		weapon.configure(MeleeWeapon.Style.ARC, _base_reach, _base_arc, _base_cooldown)
 	inventory.capacity = roundi(_base_capacity * c.capacity_multiplier)
 	carry_capacity = c.carry_capacity
 	hammer_multiplier = c.hammer_multiplier
@@ -279,7 +296,7 @@ func apply_net_state(state: Array) -> void:
 		_carried_stack.append([carried_type, 0.0])
 	if state[7] != _swing_count:
 		_swing_count = state[7]
-		_flash_swing(state[8])
+		_flash_swing(state[8], true)
 
 
 func _process(delta: float) -> void:
@@ -353,7 +370,7 @@ func _auto_attack() -> void:
 	if to_target.length() > 0.01:
 		_facing = to_target.normalized()
 	_attack_facing_left = attack_facing_time
-	weapon.try_attack(_facing)
+	weapon.try_attack(_facing, target)
 
 
 # Short burst along the movement (or facing) direction; the warrior cannot be hit meanwhile.
@@ -405,17 +422,41 @@ func _on_swung(direction: Vector3, _hit_count: int) -> void:
 	_flash_swing(_swing_yaw)
 
 
-func _flash_swing(yaw: float) -> void:
-	_swing_fx.global_rotation.y = yaw
-	_swing_fx.visible = true
-	get_tree().create_timer(0.1).timeout.connect(_swing_fx.hide)
+# What an attack looks like, per style. `from_network`: a client showing a host's attack, so a
+# projectile is fired as a picture only (the host's real one deals the damage).
+func _flash_swing(yaw: float, from_network: bool = false) -> void:
+	var direction := Vector3(-sin(yaw), 0.0, -cos(yaw))
+	var tint := (player_class.color if player_class else _base_color).lerp(Color(1, 0.95, 0.8), 0.6)
+	match weapon.style:
+		MeleeWeapon.Style.ARC:
+			_slash.play(yaw, weapon.arc_degrees, weapon.get_reach(), tint)
+		MeleeWeapon.Style.SMASH:
+			var impact := weapon.smash_point(direction)
+			Burst.ring(self, impact, weapon.splash_radius, tint)
+			Burst.spawn(self, &"dust", impact)
+			_shake(0.25)
+		MeleeWeapon.Style.PROJECTILE:
+			if from_network:
+				weapon.launch(direction, null, 0.0)
 	Sfx.play(self, &"swing", global_position)
 	if _model:
 		var clip := player_class.attack_clip if player_class else &"1H_Melee_Attack_Slice_Diagonal"
 		_model.play(clip, maxf(_model.clip_length(clip) / (weapon.cooldown * 0.9), 1.0), 0.05, true)
 
 
+# Shakes the camera only on the machine whose camera follows this warrior.
+func _shake(strength: float) -> void:
+	var camera := get_viewport().get_camera_3d()
+	if camera and camera.has_method(&"shake") and camera.get(&"target") == self:
+		camera.shake(strength)
+
+
 func _build_look() -> void:
+	_swing_fx.visible = false  # the old flat placeholder; the arc below replaces it
+	_slash = SlashFx.new()
+	_slash.name = "Slash"
+	_slash.position.y = 0.9
+	add_child(_slash)
 	_model = CharacterModel.new()
 	_model.name = "Model"
 	add_child(_model)

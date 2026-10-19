@@ -211,6 +211,7 @@ func _on_health_changed(_current: float, _maximum: float) -> void:
 	_material.albedo_color = Color.WHITE
 	create_tween().tween_property(_material, "albedo_color", _base_color, 0.15)
 	Sfx.play(self, &"enemy_die" if _current <= 0.0 else &"hit", global_position)
+	Burst.spawn(self, &"bone" if _current <= 0.0 else &"spark", global_position + Vector3(0.0, 1.0, 0.0))
 	if _model == null or _current <= 0.0:
 		return
 	# White flash over the model, only while it lasts (an overlay costs a draw per mesh).
