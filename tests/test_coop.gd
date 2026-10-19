@@ -371,7 +371,8 @@ func test_crowded_snapshots_still_arrive() -> void:
 	for i in 300:
 		spawner.spawn_one()
 	var client_spawner: Spawner = client.get_node("Spawner")
-	check(await wait_until(func() -> bool: return client_spawner.alive_count() == spawner.alive_count(), 300),
+	# Three machines building 300 rigged models each takes a while in one process: wait generously.
+	check(await wait_until(func() -> bool: return client_spawner.alive_count() == spawner.alive_count(), 600),
 		"client shows all %d enemies (got %d)" % [spawner.alive_count(), client_spawner.alive_count()])
 	var packed := var_to_bytes(host.net_snapshot()).compress(FileAccess.COMPRESSION_DEFLATE)
 	check(packed.size() > NetSync.SNAPSHOT_PART_BYTES, "this snapshot really needs several parts (%d bytes)" % packed.size())
