@@ -29,11 +29,12 @@ extends Resource
 @export var art: Texture2D
 
 @export_group("Look")
-## Rigged model (glTF) and the accessory meshes to show on it; an optional weapon for the right hand.
+## Rigged model (KayKit 2.0 Rig_Medium glTF), meshes to remove from it, and what the hands hold.
 @export_file("*.glb", "*.gltf") var model_path: String = ""
-@export var model_parts: PackedStringArray = []
+@export var model_hide: PackedStringArray = []
 @export_file("*.glb", "*.gltf") var weapon_path: String = ""
-## Clips for the basic attack and the class skill.
+@export_file("*.glb", "*.gltf") var offhand_path: String = ""
+## Clips for the basic attack and the class skill (names from the Character Animations pack).
 @export var attack_clip: StringName = &"1H_Melee_Attack_Slice_Diagonal"
 @export var skill_clip: StringName = &"Use_Item"
 

@@ -34,27 +34,30 @@ const STOP_MARKER_SCENE := preload("res://world/stop_marker.tscn")
 @export var road_color: Color = Color(0.33, 0.26, 0.19)
 @export_group("Scenery")
 ## Decoration only (no collision, no gameplay): far woods / hills, near rocks and camp props.
-@export var far_band: Vector2 = Vector2(26.0, 60.0)
+@export var far_band: Vector2 = Vector2(18.0, 45.0)
 @export var near_band: Vector2 = Vector2(10.0, 24.0)
-@export var far_per_side: Vector2i = Vector2i(2, 4)
-@export var near_per_side: Vector2i = Vector2i(1, 2)
+@export var far_per_side: Vector2i = Vector2i(3, 6)
+@export var near_per_side: Vector2i = Vector2i(2, 4)
 
-const KIT := "res://assets/kaykit/"
-## [piece (under KIT), scale, weight] for the far and near bands; route types shift the weights
-## (trees by tree_multiplier, rock-like pieces by coal_multiplier). A cursed, war-torn land.
-const FAR_PIECES := [["halloween/tree_dead_large.gltf", 1.3, 3], ["halloween/tree_dead_large_decorated.gltf", 1.3, 1],
-	["halloween/tree_pine_orange_large.gltf", 1.0, 2], ["halloween/tree_pine_yellow_medium.gltf", 1.1, 2],
-	["medieval/hills_A_trees.gltf", 4.0, 1.5], ["medieval/mountain_A_grass_trees.gltf", 5.0, 0.8],
-	["halloween/crypt.gltf", 0.9, 0.25]]
-const NEAR_PIECES := [["halloween/tree_dead_medium.gltf", 1.1, 2], ["halloween/tree_dead_small.gltf", 1.2, 2],
-	["halloween/gravestone.gltf", 0.9, 1.2], ["halloween/grave_A_destroyed.gltf", 0.8, 0.8],
-	["halloween/gravemarker_A.gltf", 1.0, 1], ["halloween/skull.gltf", 0.6, 0.8], ["halloween/ribcage.gltf", 0.9, 0.6],
-	["halloween/bone_C.gltf", 1.0, 0.8], ["halloween/fence_broken.gltf", 1.0, 1], ["halloween/post_skull.gltf", 0.9, 0.5],
-	["halloween/post_lantern.gltf", 0.9, 0.5], ["dungeon/rubble_half.glb", 0.6, 0.6],
-	["dungeon/barrel_large.glb", 0.5, 0.4], ["dungeon/sword_shield_broken.glb", 0.8, 0.4],
-	["medieval/rock_single_A.gltf", 6.0, 1, Color(0.42, 0.44, 0.4)], ["medieval/rock_single_B.gltf", 6.0, 1, Color(0.38, 0.4, 0.37)]]
+const KIT := "res://assets/"
+## [piece (under KIT), scale, weight, optional tint] for the far and near bands; route types shift the
+## weights (trees by tree_multiplier, rock-like pieces by coal_multiplier). A dark, overgrown and
+## war-torn land: foliage is tinted down to the night palette.
+const FAR_PIECES := [["kaykit2/forest/Tree_1_C_Color1.gltf", 1.0, 3, Color(0.55, 0.6, 0.5)], ["kaykit2/forest/Tree_2_C_Color1.gltf", 1.0, 3, Color(0.55, 0.6, 0.5)],
+	["kaykit2/forest/Tree_1_B_Color1.gltf", 1.1, 2, Color(0.55, 0.6, 0.5)], ["kaykit2/forest/Tree_Bare_1_C_Color1.gltf", 1.2, 2],
+	["kaykit2/forest/Tree_Bare_2_C_Color1.gltf", 1.0, 1.5], ["kaykit2/forest/Rock_3_G_Color1.gltf", 1.6, 1, Color(0.5, 0.52, 0.5)],
+	["kaykit2/forest/Bush_1_F_Color1.gltf", 1.5, 2, Color(0.55, 0.6, 0.5)], ["kaykit/halloween/crypt.gltf", 0.9, 0.2]]
+const NEAR_PIECES := [["kaykit2/forest/Bush_1_D_Color1.gltf", 1.2, 2, Color(0.55, 0.6, 0.5)], ["kaykit2/forest/Bush_2_C_Color1.gltf", 1.2, 2, Color(0.55, 0.6, 0.5)],
+	["kaykit2/forest/Tree_Bare_1_A_Color1.gltf", 1.2, 1.5], ["kaykit2/forest/Tree_Bare_2_A_Color1.gltf", 1.2, 1],
+	["kaykit2/forest/Rock_1_E_Color1.gltf", 1.4, 1.5, Color(0.5, 0.52, 0.5)], ["kaykit2/forest/Rock_2_D_Color1.gltf", 1.4, 1, Color(0.5, 0.52, 0.5)],
+	["kaykit2/forest/Rock_3_C_Color1.gltf", 1.4, 1, Color(0.5, 0.52, 0.5)],
+	["kaykit/halloween/gravestone.gltf", 0.9, 0.8], ["kaykit/halloween/grave_A_destroyed.gltf", 0.8, 0.5],
+	["kaykit/halloween/skull.gltf", 0.6, 0.5], ["kaykit/halloween/ribcage.gltf", 0.9, 0.4], ["kaykit/halloween/fence_broken.gltf", 1.0, 0.7],
+	["kaykit/halloween/post_skull.gltf", 0.9, 0.4], ["kaykit/halloween/post_lantern.gltf", 0.9, 0.5],
+	["kaykit/dungeon/rubble_half.glb", 0.6, 0.4], ["kaykit/dungeon/sword_shield_broken.glb", 0.8, 0.3],
+	["kaykit2/resources/Wood_Log_A.gltf", 1.0, 0.6]]
 ## Pieces that carry a warm light (lanterns, torches): [piece, light height].
-const LIT_PIECES := {"halloween/post_lantern.gltf": 3.4, "dungeon/torch_lit.glb": 1.2}
+const LIT_PIECES := {"kaykit/halloween/post_lantern.gltf": 3.4, "kaykit/dungeon/torch_lit.glb": 1.2}
 
 var _route: EndlessRoute
 var _rng: RandomNumberGenerator
@@ -217,8 +220,8 @@ func _add_scenery(from_distance: float, to_distance: float) -> void:
 ## Grass clumps per segment (both sides, off the road), one MultiMesh draw each.
 @export var grass_per_segment: int = 140
 
-static var _grass_mesh: ArrayMesh
-static var _grass_material: ShaderMaterial
+static var _grass_mesh: Mesh
+static var _grass_material: Material
 
 
 func _add_grass(from_distance: float, to_distance: float, rng: RandomNumberGenerator) -> void:
@@ -244,22 +247,19 @@ func _add_grass(from_distance: float, to_distance: float, rng: RandomNumberGener
 	_spawned.append([grass, to_distance, 0])
 
 
-# Two crossed quads (1.2 m wide, 0.9 m tall) shaped into blades by the grass shader.
-static func _grass() -> ArrayMesh:
+# The Forest pack's grass clump mesh, tinted down to the night palette (one shared material).
+const GRASS_PIECE := "res://assets/kaykit2/forest/Grass_2_C_Color1.gltf"
+
+
+static func _grass() -> Mesh:
 	if _grass_mesh == null:
-		var tool := SurfaceTool.new()
-		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-		for angle in [0.0, PI * 0.5]:
-			var side := Vector3(cos(angle), 0, sin(angle)) * 0.6
-			var corners := [[-side, Vector2(0, 1)], [-side + Vector3(0, 0.9, 0), Vector2(0, 0)],
-				[side + Vector3(0, 0.9, 0), Vector2(1, 0)], [side, Vector2(1, 1)]]
-			for index in [0, 1, 2, 0, 2, 3]:
-				tool.set_normal(Vector3.UP)
-				tool.set_uv(corners[index][1])
-				tool.add_vertex(corners[index][0])
-		_grass_mesh = tool.commit()
-		_grass_material = ShaderMaterial.new()
-		_grass_material.shader = preload("res://fx/grass.gdshader")
+		var holder: Node = load(GRASS_PIECE).instantiate()
+		var source: MeshInstance3D = holder.find_children("*", "MeshInstance3D", true, false).front()
+		_grass_mesh = source.mesh
+		var material := source.get_active_material(0).duplicate() as StandardMaterial3D
+		material.albedo_color = Color(0.5, 0.55, 0.42)
+		_grass_material = material
+		holder.free()
 	return _grass_mesh
 
 
@@ -269,11 +269,11 @@ func _add_stop_camp(at: float) -> void:
 	rng.seed = hash([_scenery_seed, "camp", roundi(at)])
 	for offset in [-8.0, 8.0]:
 		for side in [-1.0, 1.0]:
-			_add_decor(["dungeon/torch_lit.glb", 1.6, 1], rng, at + offset, side * 9.0, false)
+			_add_decor(["kaykit/dungeon/torch_lit.glb", 1.6, 1], rng, at + offset, side * 9.0, false)
 	for side in [-1.0, 1.0]:
-		_add_decor(["dungeon/banner_patternA_red.glb", 0.9, 1], rng, at, side * 9.5, false)
-		_add_decor(["medieval/tent.gltf", 5.0, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 14.0)
-		_add_decor(["dungeon/crates_stacked.glb", 0.6, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 12.0)
+		_add_decor(["kaykit/dungeon/banner_patternA_red.glb", 0.9, 1], rng, at, side * 9.5, false)
+		_add_decor(["kaykit/medieval/tent.gltf", 5.0, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 14.0)
+		_add_decor(["kaykit/dungeon/crates_stacked.glb", 0.6, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 12.0)
 
 
 func _pick(pieces: Array, rng: RandomNumberGenerator, trees: float, rocks: float) -> Array:

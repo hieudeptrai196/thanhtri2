@@ -16,11 +16,11 @@ var color: Color = Color.WHITE
 
 ## Model per resource (the pile's colour tells which, also on clients); mixed piles get a sack.
 const LOOKS := {
-	&"wood": ["res://assets/kaykit/medieval/resource_lumber.gltf", 1.3, Color.WHITE],
-	&"coal": ["res://assets/kaykit/medieval/resource_stone.gltf", 1.6, Color(0.3, 0.28, 0.32)],
-	&"bronze": ["res://assets/kaykit/medieval/crate_A_small.gltf", 4.0, Color(1.0, 0.75, 0.4)],
+	&"wood": ["res://assets/kaykit2/resources/Wood_Log_A.gltf", 0.8, Color.WHITE],
+	&"coal": ["res://assets/kaykit2/resources/Stone_Chunks_Small.gltf", 0.7, Color(0.25, 0.24, 0.27)],
+	&"bronze": ["res://assets/kaykit2/resources/Copper_Nuggets.gltf", 1.1, Color.WHITE],
 }
-const MIXED_LOOK := ["res://assets/kaykit/medieval/sack.gltf", 5.0, Color.WHITE]
+const MIXED_LOOK := ["res://assets/kaykit2/resources/Parts_Pile_Small.gltf", 0.8, Color.WHITE]
 
 
 func set_color(new_color: Color) -> void:

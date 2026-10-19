@@ -21,12 +21,14 @@ signal slain(killer: Node)
 ## Online, on clients: how quickly the enemy glides to the position the host last sent.
 @export var net_smoothing: float = 12.0
 
-## Looks, picked by net_id so every machine shows the same one: [model, accessories].
+## Looks, picked by net_id so every machine shows the same one: [model, right hand, left hand].
+## No hooded / hatted skeletons: they read like the Thầy pháp or Thợ máy players.
 const VARIANTS := [
-	["res://assets/kaykit/skeletons/Skeleton_Minion.glb", []],
-	["res://assets/kaykit/skeletons/Skeleton_Minion.glb", []],
-	["res://assets/kaykit/skeletons/Skeleton_Warrior.glb", ["Skeleton_Warrior_Helmet"]],
-]  # no hooded / hatted skeletons: they read like the Thầy pháp or Thợ máy players
+	["res://assets/kaykit2/skeletons/Skeleton_Minion.glb", "res://assets/kaykit2/skeletons/Skeleton_Blade.gltf", ""],
+	["res://assets/kaykit2/skeletons/Skeleton_Minion.glb", "", ""],
+	["res://assets/kaykit2/skeletons/Skeleton_Warrior.glb", "res://assets/kaykit2/skeletons/Skeleton_Axe.gltf",
+		"res://assets/kaykit2/skeletons/Skeleton_Shield_Small_A.gltf"],
+]
 const MODEL_SCALE := 0.75
 ## Ground speed at which the run clip plays at normal speed.
 const RUN_CLIP_SPEED := 4.0
@@ -153,7 +155,7 @@ func _physics_process(delta: float) -> void:
 				_cooldown = attack_interval
 				hurtbox.take_hit(damage, self)
 				if _model:
-					_model.play(&"Unarmed_Melee_Attack_Punch_A", 1.6, 0.05, true)
+					_model.play(&"Melee_1H_Attack_Chop", 1.6, 0.05, true)
 		else:
 			var direction := to_target.normalized()
 			var speed := move_speed * (_slow if _slow_left > 0.0 else 1.0)
@@ -229,7 +231,7 @@ func _build_look() -> void:
 	_model = CharacterModel.new()
 	_model.name = "Model"
 	add_child(_model)
-	_model.setup(load(variant[0]), MODEL_SCALE, PackedStringArray(variant[1]), null, Color.WHITE, false, true)
+	_model.setup(load(variant[0]), MODEL_SCALE, {"right": variant[1], "left": variant[2], "shadows": false, "merge": true})
 	_model.set_crowd(1, net_id)
 	_flash = StandardMaterial3D.new()
 	_flash.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -237,7 +239,8 @@ func _build_look() -> void:
 	_flash.albedo_color = Color(1, 1, 1, 0)
 	$Body.visible = false
 	$Eyes.visible = false
-	_model.play(&"Idle")
+	# Monsters claw their way out of the ground when they appear.
+	_model.play(&"Skeletons_Spawn_Ground", 1.4, 0.0, true)
 
 
 func _set_overlay(material: Material) -> void:
@@ -266,7 +269,7 @@ func _animate(delta: float) -> void:
 	if _running:
 		_model.play(&"Running_A", clampf(_visual_speed / RUN_CLIP_SPEED, 0.6, 1.6))
 	else:
-		_model.play(&"Idle_Combat")
+		_model.play(&"Skeletons_Idle")
 
 
 # The body falls over where the enemy died, then goes; the enemy itself is gone at once.
@@ -280,5 +283,5 @@ func _leave_corpse() -> void:
 	corpse.global_transform = global_transform
 	corpse.reset_physics_interpolation()
 	_model.reparent(corpse, false)
-	_model.play(&"Death_A", 1.3, 0.05, true)
+	_model.play(&"Skeletons_Death", 1.3, 0.05, true)
 	corpse.get_tree().create_timer(CORPSE_SECONDS).timeout.connect(corpse.queue_free)

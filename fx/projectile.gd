@@ -5,8 +5,8 @@ extends Node3D
 ## shots the host fires. Damage is dealt on arrival, on the host only; an orb also splashes.
 
 const LOOKS := {
-	&"axe": ["res://assets/kaykit/adventurers/axe_1handed.gltf", 1.3],
-	&"bolt": ["res://assets/kaykit/adventurers/arrow.gltf", 1.6],
+	&"axe": ["res://assets/kaykit2/tools/axe.gltf", 1.4],
+	&"bolt": ["res://assets/kaykit2/weapons/arrow_A.gltf", 1.5],
 }
 ## Enemy hurtboxes (layer 3) take splash damage.
 const SPLASH_MASK := 4

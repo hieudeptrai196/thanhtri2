@@ -14,6 +14,18 @@ file of each pack is kept next to its files under `assets/`.
 | KayKit Halloween Bits 1.0 | Kay Lousberg | https://github.com/KayKit-Game-Assets/KayKit-Halloween-Bits-1.0 | CC0 1.0 | `assets/kaykit/halloween/` |
 | KayKit Dungeon Remastered 1.0 | Kay Lousberg | https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0 | CC0 1.0 | `assets/kaykit/dungeon/` |
 
+| KayKit Character Pack: Adventurers 2.0 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/kaykit-adventurers | CC0 1.0 | `assets/kaykit2/adventurers/` |
+| KayKit Character Animations 1.1 | Kay Lousberg | https://kaylousberg.itch.io/kaykit-character-animations | CC0 1.0 | `assets/kaykit2/animations/` |
+| KayKit Character Pack: Skeletons 1.1 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/kaykit-skeletons | CC0 1.0 | `assets/kaykit2/skeletons/` |
+| KayKit Forest Nature Pack 1.0 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/kaykit-forest | CC0 1.0 | `assets/kaykit2/forest/` |
+| KayKit Resource Bits 1.0 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/resource-bits | CC0 1.0 | `assets/kaykit2/resources/` |
+| KayKit RPG Tools Bits 1.0 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/rpg-tools-bits | CC0 1.0 | `assets/kaykit2/tools/` |
+| KayKit Fantasy Weapons Bits 1.0 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/fantasy-weapons-bits | CC0 1.0 | `assets/kaykit2/weapons/` |
+| KayKit Dungeon Pack 1.1 (FREE) | Kay Lousberg | https://kaylousberg.itch.io/kaykit-dungeon-pack | CC0 1.0 | `assets/kaykit2/dungeon/` |
+
+Only the FREE tiers of these packs are used (downloaded 2026-10-19). The EXTRA / source tiers are paid
+and are not in this project.
+
 ## Sound
 
 | Asset | Author | Source | License | Folder |

@@ -33,9 +33,10 @@ height = 3.0
 [node name="Tree" type="StaticBody3D"]
 script = ExtResource("1_node")
 resource_type = ExtResource("2_wood")
-model_paths = PackedStringArray("res://assets/kaykit/halloween/tree_pine_orange_medium.gltf", "res://assets/kaykit/halloween/tree_pine_yellow_medium.gltf", "res://assets/kaykit/halloween/tree_dead_large.gltf")
-model_scale = 0.8
-depleted_path = "res://assets/kaykit/medieval/tree_single_A_cut.gltf"
+model_paths = PackedStringArray("res://assets/kaykit2/forest/Tree_1_A_Color1.gltf", "res://assets/kaykit2/forest/Tree_2_A_Color1.gltf", "res://assets/kaykit2/forest/Tree_Bare_1_B_Color1.gltf")
+model_scale = 1.0
+model_tint = Color(0.62, 0.68, 0.55, 1)
+depleted_path = "res://assets/kaykit2/resources/Wood_Log_A.gltf"
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)

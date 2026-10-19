@@ -27,7 +27,7 @@ func test_warrior_runs_and_rests() -> void:
 	check(model.current in [&"Running_A", &"Running_B"], "running while moving (%s)" % model.current)
 	Input.action_release(&"move_right")
 	await seconds(0.6)
-	check(model.current == &"Idle", "idle when still (%s)" % model.current)
+	check(model.current == &"Idle_A", "idle when still (%s)" % model.current)
 
 
 func test_enemies_are_skeletons_with_merged_bodies() -> void:
@@ -38,7 +38,7 @@ func test_enemies_are_skeletons_with_merged_bodies() -> void:
 		var model: CharacterModel = enemy.get_node("Model")
 		var names := model.find_children("*", "MeshInstance3D", true, false).map(func(n: Node) -> String: return String(n.name))
 		check(names.has("MergedBody"), "body merged into one mesh")
-		check(names.size() <= 3, "few meshes per enemy (%d)" % names.size())
+		check(names.size() <= 4, "few meshes per enemy: merged body + held items (%d)" % names.size())
 		check(not names.any(func(n: String) -> bool: return n.contains("Hat") or n.contains("Hood")), "no hats or hoods that look like players")
 
 

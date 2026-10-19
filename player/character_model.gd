@@ -1,14 +1,32 @@
 class_name CharacterModel
 extends Node3D
-## The look of a rigged character (KayKit rig for now) under a gameplay body: loads the model,
-## keeps only the chosen accessories, loops the clips that loop and plays clips by name with a
-## short blend. Gameplay never depends on it — bodies keep their collision shapes and work
-## without a model (tests run with whatever is set up).
+## The look of a rigged character under a gameplay body (KayKit 2.0 "Rig_Medium" models for now):
+## loads the model, shares the animation libraries of the KayKit Character Animations pack with it,
+## hangs held items on the hand bones, hides unwanted meshes, loops the clips that loop and plays
+## clips by name with a short blend. Gameplay never depends on it — bodies keep their collision
+## shapes and work without a model.
 
+## Animation sets every humanoid model gets (same Rig_Medium skeleton).
+const LIBRARIES: Array[String] = [
+	"res://assets/kaykit2/animations/Rig_Medium_General.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_MovementBasic.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_MovementAdvanced.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_CombatMelee.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_CombatRanged.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_Tools.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_Special.glb",
+	"res://assets/kaykit2/animations/Rig_Medium_Simulation.glb",
+]
 ## Clips that repeat until something else plays.
-const LOOPING: Array[StringName] = [&"Idle", &"Idle_B", &"Idle_Combat", &"2H_Melee_Idle", &"Unarmed_Idle",
-	&"Running_A", &"Running_B", &"Running_C", &"Walking_A", &"Walking_B", &"Walking_C", &"Walking_D_Skeletons",
-	&"Lie_Idle", &"Interact", &"Spellcasting", &"1H_Ranged_Aiming", &"2H_Ranged_Aiming", &"Blocking"]
+const LOOPING: Array[StringName] = [&"Idle_A", &"Idle_B", &"Running_A", &"Running_B", &"Walking_A", &"Walking_B",
+	&"Walking_C", &"Running_HoldingRifle", &"Running_HoldingBow", &"Crouching", &"Sneaking", &"Lie_Idle",
+	&"Hammering", &"Chopping", &"Pickaxing", &"Digging", &"Sawing", &"Working_A", &"Working_B", &"Working_C",
+	&"Holding_A", &"Holding_B", &"Holding_C", &"Melee_2H_Idle", &"Melee_Unarmed_Idle", &"Melee_Blocking",
+	&"Ranged_1H_Aiming", &"Ranged_2H_Aiming", &"Ranged_Bow_Idle", &"Ranged_Magic_Spellcasting",
+	&"Skeletons_Idle", &"Skeletons_Walking", &"Skeletons_Inactive_Standing_Pose", &"Sit_Floor_Idle"]
+## Hand bones held items hang from.
+const RIGHT_HAND := "handslot.r"
+const LEFT_HAND := "handslot.l"
 
 var animation_player: AnimationPlayer
 var current: StringName = &""
@@ -20,15 +38,16 @@ var _stride: int = 1
 var _phase: int = 0
 var _pending: float = 0.0
 var _on_screen: bool = true
-# Merged body meshes per model file (see _merge_body).
+# Merged body meshes per model + hidden set (see _merge_body), and the shared animation library.
 static var _merged: Dictionary = {}
+static var _library: AnimationLibrary
 
 
-## `scale_factor` brings the model to game size; `parts` are the accessory meshes to keep (every
-## other mesh hanging off a bone attachment is hidden); `extra_right` is a weapon scene put in the
-## right hand; `tint` colours the meshes whose names contain "Cape".
-func setup(scene: PackedScene, scale_factor: float, parts: PackedStringArray = [], extra_right: PackedScene = null,
-		tint: Color = Color.WHITE, shadows: bool = true, merge: bool = false) -> void:
+## Loads `scene` at `scale_factor`. Options:
+##   hide: mesh names to remove (e.g. a helmet visor), right / left: scene paths held in the hands,
+##   tint: colour for meshes whose names contain "Cape" or "Cloak", shadows (default true),
+##   merge: merge the body meshes into one draw per material (crowds).
+func setup(scene: PackedScene, scale_factor: float, options: Dictionary = {}) -> void:
 	for child in get_children():
 		child.queue_free()
 	current = &""
@@ -38,25 +57,56 @@ func setup(scene: PackedScene, scale_factor: float, parts: PackedStringArray = [
 	model.rotation.y = PI
 	model.scale = Vector3.ONE * scale_factor
 	_skeleton = model.find_children("*", "Skeleton3D", true, false).front()
-	animation_player = model.find_children("*", "AnimationPlayer", true, false).front()
+	var hidden: PackedStringArray = options.get("hide", PackedStringArray())
+	for child in _skeleton.get_children():
+		if child is MeshInstance3D and hidden.has(String(child.name)):
+			child.free()
+	_hold(RIGHT_HAND, options.get("right", ""))
+	_hold(LEFT_HAND, options.get("left", ""))
 	_light_up_eyes()
-	if merge:
-		_merge_body(scene.resource_path)
-	for slot in _skeleton.get_children():
-		if slot is BoneAttachment3D:
-			for item: Node3D in slot.get_children():
-				item.visible = parts.has(String(item.name))
-			if extra_right and slot.name == "handslot_r":
-				slot.add_child(extra_right.instantiate())
+	if options.get("merge", false):
+		_merge_body(scene.resource_path + str(hidden))
+	var shadows: bool = options.get("shadows", true)
+	var tint: Color = options.get("tint", Color.WHITE)
 	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		if tint != Color.WHITE and "Cape" in String(mesh.name):
+		var mesh_name := String(mesh.name)
+		if tint != Color.WHITE and ("Cape" in mesh_name or "Cloak" in mesh_name):
 			var material := mesh.get_active_material(0).duplicate() as StandardMaterial3D
 			material.albedo_color = tint
 			mesh.material_override = material
-	for clip in LOOPING:
-		if animation_player.has_animation(clip):
-			animation_player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	animation_player = AnimationPlayer.new()
+	animation_player.name = "AnimationPlayer"
+	model.add_child(animation_player)
+	animation_player.add_animation_library(&"", _shared_library())
+
+
+# Every model shares one library built from the Character Animations pack (looping clips marked).
+static func _shared_library() -> AnimationLibrary:
+	if _library == null:
+		_library = AnimationLibrary.new()
+		for path in LIBRARIES:
+			var holder: Node = load(path).instantiate()
+			var source: AnimationPlayer = holder.find_children("*", "AnimationPlayer", true, false).front()
+			for clip in source.get_animation_list():
+				if clip == &"T-Pose" or _library.has_animation(clip):
+					continue
+				var animation := source.get_animation(clip)
+				if LOOPING.has(clip):
+					animation.loop_mode = Animation.LOOP_LINEAR
+				_library.add_animation(clip, animation)
+			holder.free()
+	return _library
+
+
+func _hold(bone: String, item_path: String) -> void:
+	if item_path == "" or _skeleton.find_bone(bone) == -1:
+		return
+	var slot := BoneAttachment3D.new()
+	slot.name = bone.replace(".", "_")
+	slot.bone_name = bone
+	_skeleton.add_child(slot)
+	slot.add_child(load(item_path).instantiate())
 
 
 # Eyes glow in the dark (the material is shared by every instance of the model, so this runs once).
@@ -71,7 +121,7 @@ func _light_up_eyes() -> void:
 
 
 # The body parts of a rig share one skin; merged by material they draw in 2 calls instead of ~9.
-# The merged mesh is built once per model file and shared.
+# The merged mesh is built once per model (and hidden set) and shared.
 func _merge_body(key: String) -> void:
 	var parts: Array[MeshInstance3D] = []
 	for child in _skeleton.get_children():

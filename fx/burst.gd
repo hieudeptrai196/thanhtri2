@@ -36,13 +36,13 @@ static func spawn(context: Node, kind: StringName, at: Vector3) -> void:
 	particles.initial_velocity_min = spec[2].x
 	particles.initial_velocity_max = spec[2].y
 	particles.gravity = Vector3(0.0, -spec[3], 0.0)
-	particles.scale_amount_min = spec[4] * 0.6
-	particles.scale_amount_max = spec[4] * 1.4
+	particles.scale_amount_min = 0.6
+	particles.scale_amount_max = 1.4
 	var ramp := Gradient.new()
 	ramp.set_color(0, spec[5])
 	ramp.set_color(1, spec[6])
 	particles.color_ramp = ramp
-	particles.mesh = _quad(GLOWING.has(kind))
+	particles.mesh = quad(GLOWING.has(kind), spec[4])
 	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_track(particles, kind)
 	context.get_viewport().add_child(particles)
@@ -83,10 +83,12 @@ static func _track(node: Node, kind: StringName) -> void:
 	node.tree_exiting.connect(func() -> void: _alive[kind] = maxi(_alive.get(kind, 1) - 1, 0))
 
 
-# A soft round billboard (radial gradient) shared by every burst; colour comes from the particle
-# ramp. Glowing kinds add light, the others blend normally.
-static func _quad(glowing: bool) -> QuadMesh:
-	if not _meshes.has(glowing):
+## A soft round billboard `size` metres wide (radial gradient), shared per glow/size; colour comes
+## from the particle ramp. Glowing kinds add light, the others blend normally. The size lives in the
+## mesh because billboarded particles do not shrink a unit quad reliably.
+static func quad(glowing: bool, size: float) -> QuadMesh:
+	var key := [glowing, snappedf(size, 0.005)]
+	if not _meshes.has(key):
 		var dot := GradientTexture2D.new()
 		dot.fill = GradientTexture2D.FILL_RADIAL
 		dot.fill_from = Vector2(0.5, 0.5)
@@ -105,7 +107,8 @@ static func _quad(glowing: bool) -> QuadMesh:
 		material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 		material.vertex_color_use_as_albedo = true
 		material.albedo_texture = dot
-		var quad := QuadMesh.new()
-		quad.material = material
-		_meshes[glowing] = quad
-	return _meshes[glowing]
+		var mesh := QuadMesh.new()
+		mesh.size = Vector2(size, size)
+		mesh.material = material
+		_meshes[key] = mesh
+	return _meshes[key]

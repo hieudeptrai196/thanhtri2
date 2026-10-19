@@ -23,8 +23,9 @@ extends CharacterBody3D
 @export var net_smoothing: float = 15.0
 
 ## Look without a class (and in tests): the KayKit knight.
-const DEFAULT_MODEL := "res://assets/kaykit/adventurers/Knight.glb"
-const DEFAULT_PARTS: PackedStringArray = ["1H_Sword", "Round_Shield", "Knight_Helmet", "Knight_Cape"]
+const DEFAULT_MODEL := "res://assets/kaykit2/adventurers/Knight.glb"
+const DEFAULT_RIGHT := "res://assets/kaykit2/weapons/sword_A.gltf"
+const DEFAULT_LEFT := "res://assets/kaykit2/weapons/shield_A.gltf"
 const MODEL_SCALE := 0.75
 ## Ground speed at which the run clip plays at normal speed.
 const RUN_CLIP_SPEED := 5.5
@@ -445,7 +446,7 @@ func _flash_swing(yaw: float, from_network: bool = false) -> void:
 	Sfx.play(self, {MeleeWeapon.Style.ARC: &"swing", MeleeWeapon.Style.SMASH: &"smash"}.get(weapon.style,
 		&"magic" if weapon.projectile_kind == &"orb" else (&"throw" if weapon.projectile_kind == &"axe" else &"shoot")), global_position)
 	if _model:
-		var clip := player_class.attack_clip if player_class else &"1H_Melee_Attack_Slice_Diagonal"
+		var clip := player_class.attack_clip if player_class else &"Melee_1H_Attack_Slice_Diagonal"
 		_model.play(clip, maxf(_model.clip_length(clip) / (weapon.cooldown * 0.9), 1.0), 0.05, true)
 
 
@@ -494,10 +495,12 @@ func _build_look() -> void:
 # The class's model and accessories (the knight without a class) and its colour on the ring and cape.
 func _apply_look(look_class: PlayerClass) -> void:
 	var has_model := look_class != null and look_class.model_path != ""
-	var weapon: PackedScene = load(look_class.weapon_path) if has_model and look_class.weapon_path != "" else null
 	var color := look_class.color if look_class else _base_color
-	_model.setup(load(look_class.model_path if has_model else DEFAULT_MODEL), MODEL_SCALE,
-		look_class.model_parts if has_model else DEFAULT_PARTS, weapon, color.lightened(0.15))
+	_model.setup(load(look_class.model_path if has_model else DEFAULT_MODEL), MODEL_SCALE, {
+		"hide": look_class.model_hide if has_model else PackedStringArray(["Knight_HelmetVisor"]),
+		"right": look_class.weapon_path if has_model else DEFAULT_RIGHT,
+		"left": look_class.offhand_path if has_model else DEFAULT_LEFT,
+		"tint": color.lightened(0.15)})
 	_ring_material.albedo_color = Color(color, 0.75)
 	$Body.visible = false
 	$Nose.visible = false
@@ -527,7 +530,7 @@ func _update_animation(delta: float) -> void:
 			_model.play(&"Lie_Idle")
 		return
 	if manning:
-		_model.play(&"2H_Ranged_Aiming")
+		_model.play(&"Ranged_2H_Aiming")
 		return
 	if _model.is_busy():
 		return
@@ -538,10 +541,10 @@ func _update_animation(delta: float) -> void:
 			_step_left = 0.33
 			Sfx.play(self, &"step", global_position)
 	elif builder.hammer_target:
-		_model.play(&"Interact", 1.3)
+		_model.play(&"Hammering", 1.2)
 		_step_left -= delta
 		if _step_left <= 0.0:
 			_step_left = 0.45
 			Sfx.play(self, &"hammer", global_position)
 	else:
-		_model.play(&"Idle")
+		_model.play(&"Idle_A")

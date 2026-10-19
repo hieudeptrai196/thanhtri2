@@ -7,9 +7,10 @@ var target: Node3D
 
 
 func _ready() -> void:
-	_add(&"ash", 90, 9.0, Vector3(0, -0.6, 0), Color(0.6, 0.58, 0.55, 0.4), 0.025, false)
-	_add(&"ember", 16, 5.0, Vector3(0, 1.2, 0), Color(1.0, 0.5, 0.15, 0.9), 0.03, true)
-	_add(&"firefly", 18, 6.0, Vector3.ZERO, Color(0.75, 1.0, 0.4, 0.9), 0.04, true)
+	# Kept below the glow threshold so they read as specks, not blooming blobs.
+	_add(&"ash", 80, 9.0, Vector3(0, -0.6, 0), Color(0.45, 0.43, 0.41, 0.35), 0.02, false)
+	_add(&"ember", 14, 5.0, Vector3(0, 1.2, 0), Color(0.7, 0.32, 0.1, 0.8), 0.025, true)
+	_add(&"firefly", 16, 6.0, Vector3.ZERO, Color(0.45, 0.6, 0.22, 0.8), 0.03, true)
 
 
 func _process(_delta: float) -> void:
@@ -31,15 +32,15 @@ func _add(kind: StringName, amount: int, lifetime: float, gravity: Vector3, colo
 	particles.spread = 180.0
 	particles.initial_velocity_min = 0.1
 	particles.initial_velocity_max = 0.6 if kind != &"firefly" else 0.3
-	particles.scale_amount_min = size * 0.6
-	particles.scale_amount_max = size * 1.4
+	particles.scale_amount_min = 0.6
+	particles.scale_amount_max = 1.4
 	var ramp := Gradient.new()
 	ramp.set_color(0, Color(color, 0.0))
 	ramp.add_point(0.2, color)
 	ramp.add_point(0.8, color)
 	ramp.set_color(1, Color(color, 0.0))
 	particles.color_ramp = ramp
-	particles.mesh = Burst._quad(glowing)
+	particles.mesh = Burst.quad(glowing, size)
 	particles.local_coords = false
 	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(particles)
