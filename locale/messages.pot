@@ -5,103 +5,115 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: match/match.gd:169
+#: match/match.gd:170
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:246
+#: match/match.gd:247
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:263
+#: match/match.gd:264
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:329
+#: match/match.gd:313
+msgid "Khắc phù! %s bắn nhanh hơn mãi mãi"
+msgstr ""
+
+#: match/match.gd:354
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr ""
 
-#: match/match.gd:331
+#: match/match.gd:356
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:452
+#: match/match.gd:477
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:452
+#: match/match.gd:477
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:543
+#: match/match.gd:568
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:550
+#: match/match.gd:575
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:654
+#: match/match.gd:679
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:663
+#: match/match.gd:688
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:667
+#: match/match.gd:692
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:673
+#: match/match.gd:698
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:678
+#: match/match.gd:703
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:717
+#: match/match.gd:742
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:718
+#: match/match.gd:743
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:808
+#: match/match.gd:834
+msgid "Đốt lò! Lò hơi nạp tên — nỏ trên thành bắn nhanh hơn"
+msgstr ""
+
+#: match/match.gd:836
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr ""
 
-#: match/match.gd:810
+#: match/match.gd:838
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr ""
 
-#: match/match.gd:991
-msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
-msgstr ""
-
-#: match/match.gd:1005
-msgid "Điểm dừng — nâng cấp rồi khởi hành"
-msgstr ""
-
-#: match/match.gd:1019
-msgid "Khởi hành — tuyến %s"
+#: match/match.gd:853
+msgid "Trấn yểm! Quái dính bùa: chậm hẳn, chịu thêm sát thương"
 msgstr ""
 
 #: match/match.gd:1021
+msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
+msgstr ""
+
+#: match/match.gd:1035
+msgid "Điểm dừng — nâng cấp rồi khởi hành"
+msgstr ""
+
+#: match/match.gd:1049
+msgid "Khởi hành — tuyến %s"
+msgstr ""
+
+#: match/match.gd:1051
 msgid "Khởi hành!"
 msgstr ""
 
-#: player/warrior.gd:260
+#: player/warrior.gd:265
 msgid "Đỡ dậy %d%%"
 msgstr ""
 
-#: player/warrior.gd:261
+#: player/warrior.gd:266
 msgid "Gục — %ds"
 msgstr ""
 
-#: structures/structure.gd:221
+#: structures/structure.gd:282
 msgid "Thiếu %s"
 msgstr ""
 

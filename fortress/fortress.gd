@@ -57,6 +57,8 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @export var manned_damage_multiplier: float = 2.5
 @export var manned_rate_multiplier: float = 1.6
 @export var manned_range_multiplier: float = 1.5
+## Combo with the Thợ máy's Đốt lò: a manned crossbow fires this much faster while it burns.
+@export var stoked_gunner_rate: float = 1.5
 
 @onready var health: HealthComponent = $Health
 @onready var follower: RouteFollower = $RouteFollower
@@ -94,6 +96,7 @@ var _fuel_owed: float = 0.0
 var _oil_step_reached: int = 0
 var _furnace_cooldown: float = 0.0
 var _since_hit: float = 0.0
+var _stoked_applied: bool = false
 
 
 func _ready() -> void:
@@ -301,14 +304,29 @@ func _tick_gunner() -> void:
 	var aim: Vector3 = gunner.input.aim_direction
 	crossbow.aim_direction = Vector3(aim.x, 0.0, aim.z).normalized()
 	_crossbow_mesh.global_rotation.y = atan2(-aim.x, -aim.z)
+	if is_stoked() != _stoked_applied:
+		_apply_crossbow()
+
+
+## Đốt lò is burning (free overdrive): a manned crossbow fires faster.
+func is_stoked() -> bool:
+	return free_overdrive_left > 0.0
 
 
 func _apply_crossbow() -> void:
 	var level := upgrade_level(&"crossbow")
 	var manned := gunner != null
+	var rate := manned_rate_multiplier if manned else 1.0
+	var reach := manned_range_multiplier if manned else 1.0
+	_stoked_applied = manned and is_stoked()
+	if _stoked_applied:
+		rate *= stoked_gunner_rate
+		var gunner_class: PlayerClass = gunner.get("player_class")
+		if gunner_class:
+			reach *= gunner_class.stoked_gunner_range
 	crossbow.damage = crossbow_damage_levels[level] * (manned_damage_multiplier if manned else 1.0)
-	crossbow.interval = crossbow_interval_levels[level] / (manned_rate_multiplier if manned else 1.0)
-	crossbow.set_range(crossbow_range_levels[level] * (manned_range_multiplier if manned else 1.0))
+	crossbow.interval = crossbow_interval_levels[level] / rate
+	crossbow.set_range(crossbow_range_levels[level] * reach)
 
 
 func _apply_upgrades() -> void:

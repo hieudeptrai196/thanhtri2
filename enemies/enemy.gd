@@ -38,6 +38,7 @@ var _taunt_target: Node3D = null
 var _taunt_left: float = 0.0
 var _slow: float = 1.0
 var _slow_left: float = 0.0
+var _exposed_left: float = 0.0
 
 
 func setup(fortress: Node3D, players: Array[Node3D]) -> void:
@@ -77,6 +78,16 @@ func taunt(target: Node3D, seconds: float) -> void:
 	_taunt_left = seconds
 
 
+func is_taunted() -> bool:
+	return _taunt_left > 0.0 and is_instance_valid(_taunt_target)
+
+
+## Takes `multiplier` times the damage for `seconds` (renewed while the cause lasts).
+func expose(multiplier: float, seconds: float) -> void:
+	_health.damage_taken_multiplier = multiplier
+	_exposed_left = seconds
+
+
 ## Moves at `factor` of its speed for `seconds` (renewed while it stays in a slowing area).
 func slow(factor: float, seconds: float) -> void:
 	_slow = factor
@@ -100,6 +111,10 @@ func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	_taunt_left = maxf(_taunt_left - delta, 0.0)
 	_slow_left = maxf(_slow_left - delta, 0.0)
+	if _exposed_left > 0.0:
+		_exposed_left -= delta
+		if _exposed_left <= 0.0:
+			_health.damage_taken_multiplier = 1.0
 	var target := _pick_target()
 	velocity.x = 0.0
 	velocity.z = 0.0

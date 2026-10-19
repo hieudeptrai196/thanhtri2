@@ -60,6 +60,9 @@ var carry_capacity: int = 1
 ## Class strengths read by other systems (Builder, ServiceZone).
 var hammer_multiplier: float = 1.0
 var repair_multiplier: float = 1.0
+## Class combos (see PlayerClass): teammates building nearby may use this bag; what a shared unit counts as.
+var bag_share_radius: float = 0.0
+var shared_bag_value: float = 1.0
 var _empty_speed_multiplier: float = 1.0
 # Structures carried under the top one, as [type, health].
 var _carried_stack: Array = []
@@ -122,6 +125,8 @@ func apply_class(new_class: PlayerClass) -> void:
 	carry_capacity = c.carry_capacity
 	hammer_multiplier = c.hammer_multiplier
 	repair_multiplier = c.repair_multiplier
+	bag_share_radius = c.bag_share_radius
+	shared_bag_value = c.shared_bag_value
 	_empty_speed_multiplier = c.empty_speed_multiplier
 	var material := StandardMaterial3D.new()
 	material.albedo_color = new_class.color if new_class else _base_color

@@ -7,6 +7,12 @@ extends Node3D
 const SLOW_FACTOR := 0.5
 ## Structures heal this much faster than players (they have more health).
 const STRUCTURE_HEAL_SCALE := 1.5
+## Combo with the Võ tướng's Hét trận: a taunted monster inside is trấn yểm — slower, takes more damage.
+const HEX_SLOW_FACTOR := 0.25
+const HEX_DAMAGE_TAKEN := 1.3
+
+## The first time a taunted monster is caught inside (host only).
+signal hexed
 
 var radius: float = 5.0
 var duration: float = 6.0
@@ -15,6 +21,7 @@ var heal_per_second: float = 8.0
 var simulated: bool = true
 
 var _left: float
+var _hexed_any: bool = false
 
 
 func _ready() -> void:
@@ -49,7 +56,15 @@ func _physics_process(delta: float) -> void:
 		if _inside(structure):
 			structure.heal(heal_per_second * STRUCTURE_HEAL_SCALE * delta)
 	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
-		if _inside(enemy):
+		if not _inside(enemy):
+			continue
+		if enemy.is_taunted():
+			enemy.slow(HEX_SLOW_FACTOR, 0.2)
+			enemy.expose(HEX_DAMAGE_TAKEN, 0.2)
+			if not _hexed_any:
+				_hexed_any = true
+				hexed.emit()
+		else:
 			enemy.slow(SLOW_FACTOR, 0.2)
 
 

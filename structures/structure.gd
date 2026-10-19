@@ -42,9 +42,19 @@ var recover_progress: float = 0.0
 var helpers: int = 0
 ## Identifies this structure between host and clients (given by the host's StructureNetwork).
 var net_id: int = 0
+## Counted as paid without being spent (a Công binh building from a Tiều phu's bag); never refunded.
+var bonus_paid: Dictionary = {}
+## Who hammered on the tick the blueprint was finished (class combos look at it).
+var finished_by: Array[Node] = []
+## Permanent fire-rate multiplier of a khắc phù turret (Công binh × Thầy pháp); 1 = none.
+var engrave_bonus: float = 1.0
 
 var _hammer_purses: Array[Inventory] = []
 var _hammer_weight: float = 0.0
+var _hammerers: Array[Node] = []
+# Teammates' bags this tick's hammerers may pay from: Inventory -> what one unit counts as.
+var _shared_bags: Dictionary = {}
+var _bonus_credit: Dictionary = {}
 # Construction speed-up and seconds left (a Công binh's Dựng tốc).
 var _build_boost: float = 1.0
 var _build_boost_left: float = 0.0
@@ -69,11 +79,38 @@ func start_as_blueprint() -> void:
 	build_progress = 0.0
 
 
-## A player hammers this blueprint this tick; `purse` pays first, before the shared storage.
-## `weight` > 1 counts as more than one hammer (a Công binh).
-func add_hammer(purse: Inventory, weight: float = 1.0) -> void:
+## A player hammers this blueprint this tick; `purse` pays first, then `shared` bags of teammates
+## nearby (a Tiều phu's), then the shared storage. `weight` > 1 counts as more than one hammer and
+## each unit from a shared bag counts as `shared_value` (a Công binh).
+func add_hammer(purse: Inventory, weight: float = 1.0, hammerer: Node = null, shared: Array[Inventory] = [],
+		shared_value: float = 1.0) -> void:
 	_hammer_purses.append(purse)
 	_hammer_weight += weight
+	if hammerer:
+		_hammerers.append(hammerer)
+	for bag in shared:
+		if not _hammer_purses.has(bag):
+			_shared_bags[bag] = maxf(_shared_bags.get(bag, 1.0), shared_value)
+
+
+## Makes this a khắc phù structure: it fires `bonus` times as fast for as long as it stands.
+func engrave(bonus: float) -> void:
+	engrave_bonus = bonus
+	var rune := MeshInstance3D.new()
+	rune.name = "Rune"
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.4
+	mesh.height = 0.8
+	mesh.radial_segments = 4
+	mesh.rings = 2
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.7, 0.45, 1.0)
+	material.emission_enabled = true
+	material.emission = Color(0.6, 0.35, 1.0)
+	mesh.material = material
+	rune.mesh = mesh
+	rune.position.y = 2.4  # above a turret's bow, under its status label
+	add_child(rune)
 
 
 ## A player holds recover on this structure this tick.
@@ -92,7 +129,7 @@ func set_simulated(on: bool) -> void:
 ## filled in by the StructureNetwork (StructureTypes would be a cyclic reference from here).
 func net_state() -> Array:
 	return [net_id, -1, global_position, rotation.y, built, build_progress,
-		health.current, health.max_health, buffer, powered, starved, starved_resource, recover_progress, helpers]
+		health.current, health.max_health, buffer, powered, starved, starved_resource, recover_progress, helpers, engrave_bonus]
 
 
 func apply_net_state(state: Array) -> void:
@@ -104,6 +141,8 @@ func apply_net_state(state: Array) -> void:
 	starved_resource = state[11]
 	recover_progress = state[12]
 	helpers = state[13]
+	if state[14] != engrave_bonus:
+		engrave(state[14])
 	if state[4] and not built:
 		built = true
 		_on_built()
@@ -162,7 +201,11 @@ func can_recover() -> bool:
 func _advance_construction(delta: float, storage: Inventory) -> void:
 	var hammers := _hammer_weight
 	var purses := _hammer_purses.duplicate()
+	var hammerers := _hammerers.duplicate()
+	var shared := _shared_bags.duplicate()
 	_hammer_purses.clear()
+	_hammerers.clear()
+	_shared_bags.clear()
 	_hammer_weight = 0.0
 	if purses.is_empty():
 		return
@@ -172,25 +215,43 @@ func _advance_construction(delta: float, storage: Inventory) -> void:
 	var affordable := 1.0
 	for id in type.cost:
 		var total: int = type.cost[id]
-		var owed: int = ceili(total * target / build_time) - paid.get(id, 0)
-		while owed > 0 and _pay_one(id, purses, storage):
-			owed -= 1
+		var owed: int = ceili(total * target / build_time) - _counted(id)
+		while owed > 0 and _pay_one(id, purses, shared, storage):
+			owed = ceili(total * target / build_time) - _counted(id)
 		if owed > 0:
 			starved = true
 			starved_resource = id
-		affordable = minf(affordable, float(paid.get(id, 0)) / total)
+		affordable = minf(affordable, minf(float(_counted(id)) / total, 1.0))
 	build_progress = minf(target, affordable * build_time)
 	if build_progress >= build_time:
+		finished_by = hammerers
 		built = true
 		_on_built()
 		built_finished.emit(self)
 
 
-func _pay_one(id: StringName, purses: Array, storage: Inventory) -> bool:
-	for purse: Inventory in purses + [storage]:
+# Units of `id` that count towards the cost: spent ones plus bonus ones.
+func _counted(id: StringName) -> int:
+	return paid.get(id, 0) + bonus_paid.get(id, 0)
+
+
+func _pay_one(id: StringName, purses: Array, shared: Dictionary, storage: Inventory) -> bool:
+	for purse: Inventory in purses:
 		if purse and purse.spend({id: 1}):
 			paid[id] = paid.get(id, 0) + 1
 			return true
+	for bag: Inventory in shared:
+		if is_instance_valid(bag) and bag.spend({id: 1}):
+			paid[id] = paid.get(id, 0) + 1
+			# A unit worth more than one adds up into whole bonus units.
+			_bonus_credit[id] = _bonus_credit.get(id, 0.0) + shared[bag] - 1.0
+			while _bonus_credit[id] >= 1.0 - 0.0001:
+				_bonus_credit[id] -= 1.0
+				bonus_paid[id] = bonus_paid.get(id, 0) + 1
+			return true
+	if storage and storage.spend({id: 1}):
+		paid[id] = paid.get(id, 0) + 1
+		return true
 	return false
 
 

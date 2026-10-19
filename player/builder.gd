@@ -121,7 +121,20 @@ func _update_hammer(input: PlayerInput) -> void:
 	if blueprint and input.interact_held:
 		hammer_target = blueprint
 		if multiplayer.is_server():
-			blueprint.add_hammer(_warrior.inventory, _warrior.hammer_multiplier)
+			blueprint.add_hammer(_warrior.inventory, _warrior.hammer_multiplier, _warrior, _shared_bags(),
+				_warrior.shared_bag_value)
+
+
+# Bags of teammates who share theirs (a Tiều phu) standing close to this hammering warrior.
+func _shared_bags() -> Array[Inventory]:
+	var bags: Array[Inventory] = []
+	for other: Node3D in get_tree().get_nodes_in_group(&"players"):
+		if other == _warrior or not other.is_alive or other.bag_share_radius <= 0.0 \
+				or other.get_world_3d() != _warrior.get_world_3d():
+			continue
+		if other.global_position.distance_to(_warrior.global_position) <= other.bag_share_radius:
+			bags.append(other.inventory)
+	return bags
 
 
 # Recover progress lives on the structure, so helpers holding recover together finish sooner.

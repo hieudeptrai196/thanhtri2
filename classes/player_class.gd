@@ -46,6 +46,16 @@ extends Resource
 @export var structure_aura_radius: float = 0.0
 @export var structure_fire_rate: float = 1.0
 
+@export_group("Combos with other classes")
+## Teammates hammering a blueprint within this distance pay from this class's bag before the storage (Tiều phu).
+@export var bag_share_radius: float = 0.0
+## When this class hammers, each unit from a teammate's shared bag counts this much (Công binh).
+@export var shared_bag_value: float = 1.0
+## Turrets this class finishes inside a structure aura (Thầy pháp) fire this much faster for good (Công binh).
+@export var engrave_fire_rate: float = 1.0
+## Crossbow range multiplier while this class mans it during Đốt lò (Thợ máy).
+@export var stoked_gunner_range: float = 1.0
+
 @export_group("Team (while this class plays)")
 @export var overdrive_fuel_multiplier: float = 1.0
 @export var upgrade_cost_multiplier: float = 1.0

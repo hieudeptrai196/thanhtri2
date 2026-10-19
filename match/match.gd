@@ -148,6 +148,7 @@ func _ready() -> void:
 		for id in contents:
 			divine.add_charge(divine.charge_per_deposited_unit * contents[id]))
 	_structures.structure_built.connect(func(_structure: Structure) -> void: divine.add_charge(divine.charge_per_structure_built))
+	_structures.structure_built.connect(_try_engrave)
 	_spawner.active = _is_host()
 	_follower.start(_route)
 	_structures.setup(_fortress, _route, _fortress.storage)
@@ -294,7 +295,31 @@ func _apply_structure_auras() -> void:
 			if c and c.structure_aura_radius > 0.0 and warrior.is_alive \
 					and warrior.global_position.distance_to(structure.global_position) <= c.structure_aura_radius:
 				bonus = maxf(bonus, c.structure_fire_rate)
-		structure.fire_rate_bonus = bonus
+		structure.fire_rate_bonus = bonus * structure.engrave_bonus
+
+
+# Công binh × Thầy pháp: a turret a Công binh finishes inside a Thầy pháp's aura is khắc phù for good.
+func _try_engrave(structure: Structure) -> void:
+	if not _is_host() or structure.find_children("*", "AutoShooter", true, false).is_empty():
+		return
+	var engrave := 1.0
+	for hammerer in structure.finished_by:
+		var c: PlayerClass = hammerer.get("player_class") if is_instance_valid(hammerer) else null
+		if c:
+			engrave = maxf(engrave, c.engrave_fire_rate)
+	if engrave <= 1.0 or not _in_structure_aura(structure):
+		return
+	structure.engrave(engrave)
+	_toast_all("Khắc phù! %s bắn nhanh hơn mãi mãi", [structure.type.display_name])  # i18n
+
+
+func _in_structure_aura(structure: Structure) -> bool:
+	for warrior in players:
+		var c := warrior.player_class
+		if c and c.structure_aura_radius > 0.0 and warrior.is_alive \
+				and warrior.global_position.distance_to(structure.global_position) <= c.structure_aura_radius:
+			return true
+	return false
 
 
 ## Distance at which a teammate holding interact helps a downed warrior up.
@@ -767,7 +792,8 @@ func apply_net_snapshot(snapshot: Dictionary) -> void:
 
 ## Shows a toast here and on every client, each in its own language (pass the untranslated text).
 func _toast_all(text: String, args: Array = []) -> void:
-	_hud.show_toast(tr(text) % args if not args.is_empty() else tr(text))
+	var shown := args.map(func(value: Variant) -> Variant: return tr(value) if value is String else value)
+	_hud.show_toast(tr(text) % shown if not shown.is_empty() else tr(text))
 	_send_fx(&"toast", [text, args])
 
 
@@ -804,7 +830,9 @@ func play_fx(kind: StringName, args: Array) -> void:
 func _on_skill_used(skill_id: StringName, at: Vector3, warrior: Warrior) -> void:
 	_show_skill(skill_id, at, true)
 	_send_fx(&"skill", [skill_id, at])
-	if skill_id == &"mechanic":
+	if skill_id == &"mechanic" and _fortress.gunner:
+		_toast_all("Đốt lò! Lò hơi nạp tên — nỏ trên thành bắn nhanh hơn")  # i18n
+	elif skill_id == &"mechanic":
 		_toast_all("Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than")  # i18n
 	elif warrior == local_warrior and skill_id == &"general":
 		_hud.show_toast(tr("Hét trận! Quái quanh bạn lao vào bạn"))
@@ -821,6 +849,8 @@ func _show_skill(skill_id: StringName, at: Vector3, simulated: bool) -> void:
 		zone.duration = player_class.skill_duration
 		zone.heal_per_second = player_class.skill_power
 		zone.simulated = simulated
+		if simulated:
+			zone.hexed.connect(func() -> void: _toast_all("Trấn yểm! Quái dính bùa: chậm hẳn, chịu thêm sát thương"))  # i18n
 		add_child(zone)
 		zone.global_position = Vector3(at.x, 0.0, at.z)
 	elif skill_id in [&"general", &"engineer"]:
