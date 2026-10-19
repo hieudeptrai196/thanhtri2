@@ -33,7 +33,11 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 
 **M2.4 — Độ khó theo số người, vào/ra giữa trận** (bắt đầu 2026-10-19, người dùng: "cứ tiếp đi, bug fix sau")
 
-- [x] **M2.4 — XONG, CHỜ DUYỆT (2026-10-19):** mỗi người thêm (so với solo): nhịp sinh quái +35% (5 người ×2.4), đàn +0.5 con (làm tròn xuống; 5 người +2), giới hạn quái sống +40% (trần đội 300), máu quái +15% (5 người ×1.6); sát thương quái không đổi. Số trong `Difficulty` nhóm "Per extra player" = Đề xuất. Cập nhật ngay khi có người vào/ra (vào giữa trận đã có từ M2.1). Người rời phòng giữa trận: túi đồ + công trình đang vác rơi tại chỗ (trước đây mất). Solo không đổi. 5 test mới, 158 xanh, smoke OK. Chưa đo hiệu năng 5 người × 300 quái (benchmark cũ: 300 quái ~184 FPS, khung tệ nhất 21.5 ms ở 1600×900). [Chốt 2026-10-19] làm cả 4: (1) Võ tướng × Thầy pháp: quái bị Hét trận trong Bùa trận chậm ¼ + nhận thêm 30% sát thương; (2) Công binh × Thầy pháp: tháp Công binh gõ xong trong hào quang Thầy pháp được khắc phù, bắn nhanh ×1.25 vĩnh viễn (cộng hào quang); (3) Tiều phu × Công binh: người gõ bản vẽ lấy Gỗ từ túi Tiều phu đứng ≤ 4 m trước kho, người gõ là Công binh thì 1 Gỗ đó tính 1.5; (4) Thợ máy × người điều khiển nỏ: trong Đốt lò nỏ có người bắn nhanh ×1.5, chính Thợ máy điều khiển thì tầm +20%. Số liệu = Đề xuất.
+- [x] **M2.4 (2026-10-19):** mỗi người thêm (so với solo): nhịp sinh quái +35% (5 người ×2.4), đàn +0.5 con (làm tròn xuống; 5 người +2), giới hạn quái sống +40% (trần đội 300), máu quái +15% (5 người ×1.6); sát thương quái không đổi. Số trong `Difficulty` nhóm "Per extra player" = Đề xuất. Cập nhật ngay khi có người vào/ra (vào giữa trận đã có từ M2.1). Người rời phòng giữa trận: túi đồ + công trình đang vác rơi tại chỗ (trước đây mất). Solo không đổi. 5 test mới, 158 xanh, smoke OK. Chưa đo hiệu năng 5 người × 300 quái (benchmark cũ: 300 quái ~184 FPS, khung tệ nhất 21.5 ms ở 1600×900).
+
+**M2.5 — Tổng kết cuối trận theo vai trò** (bắt đầu 2026-10-19)
+
+- [x] **M2.5 — XONG, CHỜ DUYỆT (2026-10-19):** `TeamStats` đếm theo người: giây gõ búa, đơn vị tài nguyên nộp về kho, quái tự tay hạ (đòn cuối; nỏ trên thành có người điều khiển tính cho người đó; tháp không tính cho ai), số lần đỡ đồng đội. Màn kết quả co-op: mỗi hạng mục 1 người dẫn đầu (gọi theo tên class, không class thì "Người chơi N" theo thứ tự vào; máy mình có "(bạn)"), hạng mục không ai làm thì ẩn; solo: 1 dòng số của mình. Gửi kèm `run_finished`. 7 test mới, 165 xanh, smoke OK, ảnh 1280×720 Việt + Anh vừa. Chưa lưu số liệu này vào máy (chỉ hiện). [Chốt 2026-10-19] làm cả 4: (1) Võ tướng × Thầy pháp: quái bị Hét trận trong Bùa trận chậm ¼ + nhận thêm 30% sát thương; (2) Công binh × Thầy pháp: tháp Công binh gõ xong trong hào quang Thầy pháp được khắc phù, bắn nhanh ×1.25 vĩnh viễn (cộng hào quang); (3) Tiều phu × Công binh: người gõ bản vẽ lấy Gỗ từ túi Tiều phu đứng ≤ 4 m trước kho, người gõ là Công binh thì 1 Gỗ đó tính 1.5; (4) Thợ máy × người điều khiển nỏ: trong Đốt lò nỏ có người bắn nhanh ×1.5, chính Thợ máy điều khiển thì tầm +20%. Số liệu = Đề xuất.
 - **Bản nháp tiêu chuẩn asset:** `docs/ASSET_SPEC.md` (2026-10-18, chờ người dùng review; hoàn thiện ở M3 B1).
 - Người dùng **chưa chơi thử** từ M1.4b tới giờ (cả M2): nên nhắc chơi thử + cân bằng khi có dịp.
 
@@ -83,6 +87,7 @@ Nguyên tắc: solo = máy chủ không ai vào, cùng một đường code; đ�
 | M2.3b | `6a99a91` | Điều khiển nỏ liên châu trên thành |
 | M2.3c | `3d8002a` | Ping theo ngữ cảnh |
 | M2.3d | `f61a698` | Kết hợp class — M2.3 xong |
+| M2.4 | (xem git log) | Độ khó theo số người, rơi đồ khi rời phòng |
 
 ## Nhật ký quyết định (mới nhất ở trên)
 

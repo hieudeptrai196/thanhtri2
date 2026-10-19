@@ -6,6 +6,8 @@ extends CharacterBody3D
 
 ## Emitted on death with what it leaves behind; whoever owns the world spawns the pickup.
 signal dropped(contents: Dictionary, at: Vector3)
+## Dies from `killer`'s hit (a warrior, a structure, the fortress… or null).
+signal slain(killer: Node)
 
 ## Metres per second.
 @export var move_speed: float = 3.5
@@ -175,6 +177,7 @@ func _hurtbox_in_reach(target: Node3D) -> Hurtbox:
 
 
 func _on_died() -> void:
+	slain.emit(_health.last_source if is_instance_valid(_health.last_source) else null)
 	dropped.emit(drops.duplicate(), global_position)
 	queue_free()
 

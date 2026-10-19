@@ -4,6 +4,8 @@ extends Area3D
 ## and repair the fortress while holding interact.
 
 signal deposited(contents: Dictionary)
+## Same drop-off, with who brought it.
+signal player_deposited(player: Node3D, contents: Dictionary)
 
 @onready var _fortress: Fortress = owner
 
@@ -18,6 +20,7 @@ func _physics_process(delta: float) -> void:
 			var contents := inventory.take_all()
 			_fortress.storage.add_all(contents)
 			deposited.emit(contents)
+			player_deposited.emit(body, contents)
 		var input: PlayerInput = body.get("input")
 		if input and input.interact_held:
 			var multiplier: Variant = body.get("repair_multiplier")

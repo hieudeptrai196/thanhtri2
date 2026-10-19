@@ -6,103 +6,103 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en\n"
 
-#: match/match.gd:170
+#: match/match.gd:176
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr "Protect the citadel — go as far as you can!"
 
-#: match/match.gd:247
+#: match/match.gd:255
 msgid "Người chơi %d đã vào"
 msgstr "Player %d joined"
 
-#: match/match.gd:264
+#: match/match.gd:272
 msgid "Một người chơi đã rời đi"
 msgstr "A player left"
 
-#: match/match.gd:315
+#: match/match.gd:323
 msgid "Khắc phù! %s bắn nhanh hơn mãi mãi"
 msgstr "Engraved! This %s now fires faster for good"
 
-#: match/match.gd:356
+#: match/match.gd:385
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr "You are down — a teammate can hold E next to you to help you up (%d)"
 
-#: match/match.gd:358
+#: match/match.gd:387
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:479
+#: match/match.gd:508
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:479
+#: match/match.gd:508
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:570
+#: match/match.gd:599
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:577
+#: match/match.gd:606
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:681
+#: match/match.gd:714
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr "Could not open the room (is port %d in use?)"
 
-#: match/match.gd:690
+#: match/match.gd:723
 msgid "Địa chỉ không hợp lệ"
 msgstr "Invalid address"
 
-#: match/match.gd:694
+#: match/match.gd:727
 msgid "Đang kết nối tới %s…"
 msgstr "Connecting to %s…"
 
-#: match/match.gd:700
+#: match/match.gd:733
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr "In the room — waiting for the host to start"
 
-#: match/match.gd:705
+#: match/match.gd:738
 msgid "Không kết nối được tới %s"
 msgstr "Could not connect to %s"
 
-#: match/match.gd:744
+#: match/match.gd:777
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr "Room open — address: %s"
 
-#: match/match.gd:745
+#: match/match.gd:778
 msgid "Người chơi: %d/%d"
 msgstr "Players: %d/%d"
 
-#: match/match.gd:836
+#: match/match.gd:869
 msgid "Đốt lò! Lò hơi nạp tên — nỏ trên thành bắn nhanh hơn"
 msgstr "Boiler stoked! Steam feeds the crossbow — it fires faster"
 
-#: match/match.gd:838
+#: match/match.gd:871
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr "Boiler stoked! The citadel speeds up at no extra coal"
 
-#: match/match.gd:840
+#: match/match.gd:873
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr "War cry! Nearby monsters charge at you"
 
-#: match/match.gd:855
+#: match/match.gd:888
 msgid "Trấn yểm! Quái dính bùa: chậm hẳn, chịu thêm sát thương"
 msgstr "Hexed! Charmed enemies are much slower and take more damage"
 
-#: match/match.gd:1028
+#: match/match.gd:1062
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:1042
+#: match/match.gd:1076
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:1056
+#: match/match.gd:1090
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:1058
+#: match/match.gd:1092
 msgid "Khởi hành!"
 msgstr "Setting off!"
 
@@ -238,25 +238,69 @@ msgstr "%s citadel %d/%d"
 msgid "Nộp vào kho: %s"
 msgstr "Stored: %s"
 
-#: ui/result_screen.gd:21
+#: ui/result_screen.gd:23
 msgid "Chơi lại"
 msgstr "Play again"
 
-#: ui/result_screen.gd:24
+#: ui/result_screen.gd:26
 msgid "Về menu"
 msgstr "Main menu"
 
-#: ui/result_screen.gd:33
+#: ui/result_screen.gd:35
 msgid "Thành trì đã thất thủ"
 msgstr "The citadel has fallen"
 
-#: ui/result_screen.gd:37
+#: ui/result_screen.gd:39
 msgid "Thử thách ngày %s"
 msgstr "Daily challenge %s"
 
-#: ui/result_screen.gd:38
+#: ui/result_screen.gd:40
 msgid "Quãng đường: %s\nKỷ lục: %s\nThời gian: %d:%02d\nQuái đã hạ: %d"
 msgstr "Distance: %s\nRecord: %s\nTime: %d:%02d\nMonsters slain: %d"
+
+#: ui/result_screen.gd:54
+msgid "Bạn đã gõ búa %d giây, mang về %d tài nguyên, tự tay hạ %d quái"
+msgstr "You hammered for %d s, brought home %d resources and slew %d enemies yourself"
+
+#: ui/result_screen.gd:68
+msgid "Thợ xây cừ nhất"
+msgstr "Master builder"
+
+#: ui/result_screen.gd:68
+msgid "%s — gõ búa %d giây"
+msgstr "%s — hammered for %d s"
+
+#: ui/result_screen.gd:70
+msgid "Khuân vác giỏi nhất"
+msgstr "Best hauler"
+
+#: ui/result_screen.gd:70
+msgid "%s — mang về %d tài nguyên"
+msgstr "%s — brought home %d resources"
+
+#: ui/result_screen.gd:72
+msgid "Diệt quái nhiều nhất"
+msgstr "Top slayer"
+
+#: ui/result_screen.gd:72
+msgid "%s — hạ %d quái"
+msgstr "%s — slew %d enemies"
+
+#: ui/result_screen.gd:74
+msgid "Cứu người nhiều nhất"
+msgstr "Top rescuer"
+
+#: ui/result_screen.gd:74
+msgid "%s — đỡ dậy %d lần"
+msgstr "%s — helped teammates up %d times"
+
+#: ui/result_screen.gd:83
+msgid "Người chơi %d"
+msgstr "Player %d"
+
+#: ui/result_screen.gd:84
+msgid "%s (bạn)"
+msgstr "%s (you)"
 
 #: ui/route_progress.gd:32
 msgid "Điểm dừng: %d m"

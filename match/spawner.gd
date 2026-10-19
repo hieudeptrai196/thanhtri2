@@ -6,6 +6,7 @@ extends Node3D
 ## Spawned enemies are children of this node.
 
 signal enemy_dropped(contents: Dictionary, at: Vector3)
+signal enemy_slain(killer: Node)
 
 @export var enemy_scene: PackedScene
 @export var difficulty: Difficulty
@@ -84,6 +85,7 @@ func spawn_one(angle: float = NAN) -> Enemy:
 	enemy.apply_scaling(difficulty.health_multiplier(distance(), team_size) * route_health_multiplier, difficulty.damage_multiplier(distance()),
 		noise.enemy_speed_multiplier() if noise else 1.0)
 	enemy.dropped.connect(enemy_dropped.emit)
+	enemy.slain.connect(enemy_slain.emit)
 	return enemy
 
 

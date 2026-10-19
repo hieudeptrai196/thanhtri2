@@ -176,8 +176,8 @@ func fx(kind: StringName, args: Array) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func run_finished(distance: float, elapsed: float, kills: int) -> void:
-	_match.finish_from_host(distance, elapsed, kills)
+func run_finished(distance: float, elapsed: float, kills: int, stats: Dictionary) -> void:
+	_match.finish_from_host(distance, elapsed, kills, stats)
 
 
 func _sender_warrior() -> Warrior:

@@ -16,6 +16,8 @@ var max_shield: float = 0.0
 
 ## Scales incoming damage (e.g. a Võ tướng's Hét trận halves it for a while).
 var damage_taken_multiplier: float = 1.0
+## Host: what dealt the latest damage (who gets the kill).
+var last_source: Node = null
 
 func _ready() -> void:
 	current = max_health
@@ -26,6 +28,7 @@ func apply_damage(amount: float, _source: Node = null) -> void:
 	# Only the host decides damage; clients get health from snapshots (offline counts as host).
 	if current <= 0.0 or amount <= 0.0 or not multiplayer.is_server():
 		return
+	last_source = _source
 	if shield > 0.0:
 		var absorbed := minf(shield, amount)
 		shield -= absorbed

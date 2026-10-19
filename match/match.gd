@@ -56,6 +56,8 @@ static var _queued_seed: int = 0
 var result: Result = Result.NONE
 var elapsed: float = 0.0
 var kills: int = 0
+## Who did what this run (host keeps it; clients get it with the result).
+var team_stats := TeamStats.new()
 
 ## Route types offered at the current stop, the pick (-1 = none yet), and the stretch being driven.
 var route_offers: Array[RouteType] = []
@@ -119,6 +121,10 @@ func _ready() -> void:
 		_follower.departed.connect(_on_departed)
 	_fortress.health.died.connect(_finish)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
+	_spawner.enemy_slain.connect(_on_enemy_slain)
+	_fortress.service_zone.player_deposited.connect(func(player: Node3D, contents: Dictionary) -> void:
+		if player is Warrior:
+			team_stats.add(player.peer_id, &"haul", contents.values().reduce(func(a: int, b: int) -> int: return a + b, 0)))
 	_upgrade_panel.setup(_fortress)
 	_upgrade_panel.tier_upgrade_requested.connect(_panel_request.bind(&"tier", -1))
 	_upgrade_panel.fortress_upgrade_requested.connect(func(upgrade: FortressUpgrade) -> void:
@@ -193,6 +199,7 @@ func _physics_process(delta: float) -> void:
 	_apply_structure_auras()
 	_tick_downed(delta)
 	_tick_crossbow_seat()
+	_count_hammering(delta)
 	_despawn_far_pickups()
 	_tick_respawns(delta)
 
@@ -201,6 +208,7 @@ func _physics_process(delta: float) -> void:
 func add_player(warrior: Warrior) -> void:
 	players.append(warrior)
 	_player_targets.append(warrior)
+	team_stats.set_class(warrior.peer_id, PlayerClasses.ALL.find(warrior.player_class))  # join order names class-less players
 	warrior.input.ready_requested.connect(request_departure.bind(warrior))
 	warrior.input.overdrive_requested.connect(request_overdrive)
 	warrior.input.divine_requested.connect(request_divine_crossbow)
@@ -332,12 +340,33 @@ func _tick_downed(delta: float) -> void:
 	for downed in players:
 		if not downed.downed:
 			continue
+		var helpers: Array[Warrior] = []
 		for helper in players:
 			if helper != downed and helper.is_alive and helper.input.interact_held:
 				var offset := helper.global_position - downed.global_position
 				if Vector2(offset.x, offset.z).length() <= REVIVE_REACH:
 					downed.add_reviver()
+					helpers.append(helper)
 		downed.tick_downed(delta)
+		if downed.is_alive:  # helped up this tick
+			for helper in helpers:
+				team_stats.add(helper.peer_id, &"revives", 1)
+
+
+# Seconds each player spends hammering a blueprint (the "build" stat).
+func _count_hammering(delta: float) -> void:
+	for warrior in players:
+		var target := warrior.builder.hammer_target
+		if warrior.is_alive and target and is_instance_valid(target) and not target.built:
+			team_stats.add(warrior.peer_id, &"build", delta)
+
+
+# A warrior's own blow, or the fortress crossbow while someone mans it, counts as that player's kill.
+func _on_enemy_slain(killer: Node) -> void:
+	if killer is Warrior:
+		team_stats.add(killer.peer_id, &"kills", 1)
+	elif killer == _fortress and _fortress.gunner:
+		team_stats.add(_fortress.gunner.peer_id, &"kills", 1)
 
 
 # E at the foot of the ladder climbs onto the fortress crossbow; E or dash climbs down.
@@ -645,11 +674,15 @@ func _finish() -> void:
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
+	if _is_host():
+		for warrior in players:
+			team_stats.set_class(warrior.peer_id, PlayerClasses.ALL.find(warrior.player_class))
 	if _net and _is_host():
-		_net.run_finished.rpc(_follower.distance, elapsed, kills)
+		_net.run_finished.rpc(_follower.distance, elapsed, kills, team_stats.net_state())
 	var is_record := SaveManager.record_run(_follower.distance, daily_date if mode == Mode.DAILY else "")
 	var best := maxf(best_before, _follower.distance)
 	_result_screen.show_result(_follower.distance, elapsed, kills, best, is_record, daily_date if mode == Mode.DAILY else "")
+	_result_screen.show_team(team_stats, local_warrior.peer_id if local_warrior else 1)
 	# Online the world keeps running underneath: pausing one machine would stall the others' sync.
 	if not Net.is_online(multiplayer):
 		get_tree().paused = true
@@ -958,9 +991,10 @@ func _apply_pickups(states: Array) -> void:
 
 
 ## Client: the host says the run is over.
-func finish_from_host(distance: float, host_elapsed: float, host_kills: int) -> void:
+func finish_from_host(distance: float, host_elapsed: float, host_kills: int, stats: Dictionary = {}) -> void:
 	elapsed = host_elapsed
 	kills = host_kills
+	team_stats.apply_net_state(stats)
 	_follower.distance = distance
 	_finish()
 

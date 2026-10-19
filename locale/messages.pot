@@ -5,103 +5,103 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: match/match.gd:170
+#: match/match.gd:176
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr ""
 
-#: match/match.gd:247
+#: match/match.gd:255
 msgid "Người chơi %d đã vào"
 msgstr ""
 
-#: match/match.gd:264
+#: match/match.gd:272
 msgid "Một người chơi đã rời đi"
 msgstr ""
 
-#: match/match.gd:315
+#: match/match.gd:323
 msgid "Khắc phù! %s bắn nhanh hơn mãi mãi"
 msgstr ""
 
-#: match/match.gd:356
+#: match/match.gd:385
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr ""
 
-#: match/match.gd:358
+#: match/match.gd:387
 msgid "Hồi sinh sau %d…"
 msgstr ""
 
-#: match/match.gd:479
+#: match/match.gd:508
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr ""
 
-#: match/match.gd:479
+#: match/match.gd:508
 msgid "Chạy bình thường"
 msgstr ""
 
-#: match/match.gd:570
+#: match/match.gd:599
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr ""
 
-#: match/match.gd:577
+#: match/match.gd:606
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr ""
 
-#: match/match.gd:681
+#: match/match.gd:714
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr ""
 
-#: match/match.gd:690
+#: match/match.gd:723
 msgid "Địa chỉ không hợp lệ"
 msgstr ""
 
-#: match/match.gd:694
+#: match/match.gd:727
 msgid "Đang kết nối tới %s…"
 msgstr ""
 
-#: match/match.gd:700
+#: match/match.gd:733
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr ""
 
-#: match/match.gd:705
+#: match/match.gd:738
 msgid "Không kết nối được tới %s"
 msgstr ""
 
-#: match/match.gd:744
+#: match/match.gd:777
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr ""
 
-#: match/match.gd:745
+#: match/match.gd:778
 msgid "Người chơi: %d/%d"
 msgstr ""
 
-#: match/match.gd:836
+#: match/match.gd:869
 msgid "Đốt lò! Lò hơi nạp tên — nỏ trên thành bắn nhanh hơn"
 msgstr ""
 
-#: match/match.gd:838
+#: match/match.gd:871
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr ""
 
-#: match/match.gd:840
+#: match/match.gd:873
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr ""
 
-#: match/match.gd:855
+#: match/match.gd:888
 msgid "Trấn yểm! Quái dính bùa: chậm hẳn, chịu thêm sát thương"
 msgstr ""
 
-#: match/match.gd:1028
+#: match/match.gd:1062
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr ""
 
-#: match/match.gd:1042
+#: match/match.gd:1076
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr ""
 
-#: match/match.gd:1056
+#: match/match.gd:1090
 msgid "Khởi hành — tuyến %s"
 msgstr ""
 
-#: match/match.gd:1058
+#: match/match.gd:1092
 msgid "Khởi hành!"
 msgstr ""
 
@@ -237,24 +237,68 @@ msgstr ""
 msgid "Nộp vào kho: %s"
 msgstr ""
 
-#: ui/result_screen.gd:21
+#: ui/result_screen.gd:23
 msgid "Chơi lại"
 msgstr ""
 
-#: ui/result_screen.gd:24
+#: ui/result_screen.gd:26
 msgid "Về menu"
 msgstr ""
 
-#: ui/result_screen.gd:33
+#: ui/result_screen.gd:35
 msgid "Thành trì đã thất thủ"
 msgstr ""
 
-#: ui/result_screen.gd:37
+#: ui/result_screen.gd:39
 msgid "Thử thách ngày %s"
 msgstr ""
 
-#: ui/result_screen.gd:38
+#: ui/result_screen.gd:40
 msgid "Quãng đường: %s\nKỷ lục: %s\nThời gian: %d:%02d\nQuái đã hạ: %d"
+msgstr ""
+
+#: ui/result_screen.gd:54
+msgid "Bạn đã gõ búa %d giây, mang về %d tài nguyên, tự tay hạ %d quái"
+msgstr ""
+
+#: ui/result_screen.gd:68
+msgid "Thợ xây cừ nhất"
+msgstr ""
+
+#: ui/result_screen.gd:68
+msgid "%s — gõ búa %d giây"
+msgstr ""
+
+#: ui/result_screen.gd:70
+msgid "Khuân vác giỏi nhất"
+msgstr ""
+
+#: ui/result_screen.gd:70
+msgid "%s — mang về %d tài nguyên"
+msgstr ""
+
+#: ui/result_screen.gd:72
+msgid "Diệt quái nhiều nhất"
+msgstr ""
+
+#: ui/result_screen.gd:72
+msgid "%s — hạ %d quái"
+msgstr ""
+
+#: ui/result_screen.gd:74
+msgid "Cứu người nhiều nhất"
+msgstr ""
+
+#: ui/result_screen.gd:74
+msgid "%s — đỡ dậy %d lần"
+msgstr ""
+
+#: ui/result_screen.gd:83
+msgid "Người chơi %d"
+msgstr ""
+
+#: ui/result_screen.gd:84
+msgid "%s (bạn)"
 msgstr ""
 
 #: ui/route_progress.gd:32
