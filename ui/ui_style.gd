@@ -35,6 +35,7 @@ static func panel() -> StyleBoxFlat:
 ## Wood button with bronze border; brighter on hover, dim when disabled.
 static func apply_button(button: Button, accent: Color = BRONZE) -> void:
 	button.focus_mode = Control.FOCUS_NONE
+	button.pressed.connect(func() -> void: Sfx.play_ui(button, &"click"))
 	button.add_theme_stylebox_override("normal", box(WOOD, accent.darkened(0.25)))
 	button.add_theme_stylebox_override("hover", box(WOOD_LIGHT, BRONZE_BRIGHT, 3))
 	button.add_theme_stylebox_override("pressed", box(WOOD_DARK, BRONZE_BRIGHT, 3))

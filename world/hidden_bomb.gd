@@ -39,6 +39,7 @@ func explode_from_host() -> void:
 
 # Placeholder blast: a flash sphere that grows and fades, then the bomb is gone.
 func _play_blast() -> void:
+	Sfx.play(self, &"boom", global_position)
 	_blast.visible = true
 	var material: StandardMaterial3D = _blast.mesh.material
 	var tween := create_tween().set_parallel()

@@ -81,6 +81,7 @@ func spawn_one(angle: float = NAN) -> Enemy:
 	_next_net_id += 1
 	add_child(enemy)
 	enemy.global_position = spawn_position
+	enemy.reset_physics_interpolation()  # placed after entering the tree: no streak from the origin
 	enemy.setup(_fortress, _players)
 	enemy.apply_scaling(difficulty.health_multiplier(distance(), team_size) * route_health_multiplier, difficulty.damage_multiplier(distance()),
 		noise.enemy_speed_multiplier() if noise else 1.0)

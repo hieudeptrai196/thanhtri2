@@ -22,6 +22,18 @@ var type: StructureType
 @export var team_exponent: float = 0.85
 ## Blueprint transparency while unbuilt (0 = opaque).
 @export_range(0.0, 1.0) var blueprint_transparency: float = 0.6
+@export_group("Look")
+## Model for the whole structure (empty keeps the placeholder meshes).
+@export_file("*.gltf", "*.glb") var model_path: String = ""
+@export var model_scale: float = 1.0
+@export var model_yaw_degrees: float = 0.0
+## A second model hung under another node (e.g. a turret's bow, which turns to aim).
+@export_file("*.gltf", "*.glb") var part_path: String = ""
+@export var part_parent: NodePath
+@export var part_scale: float = 1.0
+@export var part_yaw_degrees: float = 0.0
+## Placeholder meshes emptied once the models are in.
+@export var placeholder_meshes: PackedStringArray = []
 
 @onready var health: HealthComponent = $Health
 @onready var _hurtbox: Hurtbox = $Hurtbox
@@ -64,6 +76,7 @@ var _recover_helpers: int = 0
 
 
 func _ready() -> void:
+	_build_look()
 	buffer = buffer_seconds
 	health.died.connect(_on_died)
 	if built:
@@ -263,6 +276,23 @@ func _on_built() -> void:
 	_hurtbox.monitorable = true
 	_set_transparency(0.0)
 	buffer = buffer_seconds
+
+
+func _build_look() -> void:
+	if model_path != "":
+		var model: Node3D = load(model_path).instantiate()
+		model.scale = Vector3.ONE * model_scale
+		model.rotation_degrees.y = model_yaw_degrees
+		add_child(model)
+	if part_path != "" and has_node(part_parent):
+		var part: Node3D = load(part_path).instantiate()
+		part.scale = Vector3.ONE * part_scale
+		part.rotation_degrees.y = part_yaw_degrees
+		get_node(part_parent).add_child(part)
+	for mesh_name in placeholder_meshes:
+		var placeholder := get_node_or_null(NodePath(mesh_name)) as MeshInstance3D
+		if placeholder:
+			placeholder.mesh = null
 
 
 func _set_transparency(value: float) -> void:

@@ -97,6 +97,7 @@ func _spawn(type: StructureType, point: Vector3, health_value: float, as_bluepri
 	for shooter: AutoShooter in structure.find_children("*", "AutoShooter", true, false):
 		shooter.fired.connect(shot_fired.emit)
 	structure.global_position = Vector3(point.x, 0.0, point.z)
+	structure.reset_physics_interpolation()
 	if health_value >= 0.0:
 		structure.health.apply_damage(structure.health.max_health - health_value)
 	return structure
@@ -148,6 +149,7 @@ func apply_net_state(states: Array) -> void:
 				structure.start_as_blueprint()
 			add_child(structure)
 			structure.global_position = state[2]
+			structure.reset_physics_interpolation()
 			structure.rotation.y = state[3]
 			structure.set_simulated(false)
 			_by_net_id[id] = structure

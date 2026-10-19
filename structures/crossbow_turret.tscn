@@ -34,6 +34,13 @@ radius = 6.0
 
 [node name="CrossbowTurret" type="StaticBody3D"]
 script = ExtResource("1_turret")
+model_path = "res://assets/kaykit/medieval/building_tower_base_red.gltf"
+model_scale = 1.15
+part_path = "res://assets/kaykit/adventurers/crossbow_2handed.gltf"
+part_parent = NodePath("Bow")
+part_scale = 1.6
+part_yaw_degrees = 180.0
+placeholder_meshes = PackedStringArray("Base", "Bow")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)

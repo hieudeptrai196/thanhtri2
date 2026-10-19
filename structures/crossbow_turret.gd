@@ -12,6 +12,19 @@ const BLAST_SCENE := preload("res://world/blast_fx.tscn")
 @onready var _shooter: AutoShooter = $AutoShooter
 @onready var _blast_area: Area3D = $BlastArea
 @onready var _status: Label3D = $Status
+@onready var _bow: Node3D = $Bow
+
+
+func _ready() -> void:
+	super()
+	_shooter.fired.connect(_aim_bow)
+
+
+# The bow turns to what it just shot at.
+func _aim_bow(_from: Vector3, to: Vector3) -> void:
+	var flat := Vector3(to.x, _bow.global_position.y, to.z)
+	if flat.distance_to(_bow.global_position) > 0.1:
+		_bow.look_at(flat, Vector3.UP)
 
 ## Seconds of overload left; negative when not overloading.
 var _last_shot_left: float = -1.0

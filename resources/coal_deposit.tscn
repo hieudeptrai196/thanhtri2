@@ -20,6 +20,9 @@ size = Vector3(2.2, 1.6, 2.2)
 [node name="CoalDeposit" type="StaticBody3D"]
 script = ExtResource("1_node")
 resource_type = ExtResource("2_coal")
+model_paths = PackedStringArray("res://assets/kaykit/medieval/resource_stone.gltf")
+model_scale = 5.0
+model_tint = Color(0.32, 0.3, 0.34, 1)
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)

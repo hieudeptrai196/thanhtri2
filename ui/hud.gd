@@ -267,4 +267,5 @@ func _on_warrior_health_changed(current: float, maximum: float) -> void:
 
 
 func _on_deposited(contents: Dictionary) -> void:
+	Sfx.play_ui(self, &"coins")
 	show_toast(tr("Nộp vào kho: %s") % ResourceTypes.format_amounts(contents))

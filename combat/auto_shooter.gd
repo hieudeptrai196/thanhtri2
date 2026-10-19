@@ -83,6 +83,7 @@ func _aimed_target() -> Hurtbox:
 ## Placeholder shot: a thin bar from the muzzle to the target, visible for a moment.
 ## Clients call it with the shots the host reports.
 func show_tracer(from: Vector3, to: Vector3) -> void:
+	Sfx.play(self, &"shoot", from)
 	var length := from.distance_to(to)
 	if length < 0.01:
 		return

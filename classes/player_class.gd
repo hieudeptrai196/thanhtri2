@@ -28,6 +28,15 @@ extends Resource
 ## Later: portrait for the picker card.
 @export var art: Texture2D
 
+@export_group("Look")
+## Rigged model (glTF) and the accessory meshes to show on it; an optional weapon for the right hand.
+@export_file("*.glb", "*.gltf") var model_path: String = ""
+@export var model_parts: PackedStringArray = []
+@export_file("*.glb", "*.gltf") var weapon_path: String = ""
+## Clips for the basic attack and the class skill.
+@export var attack_clip: StringName = &"1H_Melee_Attack_Slice_Diagonal"
+@export var skill_clip: StringName = &"Use_Item"
+
 @export_group("Warrior")
 @export var max_health_multiplier: float = 1.0
 @export var damage_multiplier: float = 1.0

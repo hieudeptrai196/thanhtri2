@@ -100,6 +100,7 @@ var _ping_ready_at: Dictionary = {}
 
 
 func _ready() -> void:
+	_setup_look()
 	if _queued_mode != -1:
 		mode = _queued_mode as Mode
 		daily_date = _queued_daily_date
@@ -122,6 +123,10 @@ func _ready() -> void:
 	_fortress.health.died.connect(_finish)
 	_spawner.enemy_dropped.connect(_on_enemy_dropped, CONNECT_DEFERRED)
 	_spawner.enemy_slain.connect(_on_enemy_slain)
+	# Jingles on every machine (clients run the follower too).
+	_follower.reached_stop.connect(func(_index: int) -> void: Sfx.play_ui(self, &"stop"))
+	_follower.departed.connect(func() -> void: Sfx.play_ui(self, &"depart"))
+	_structures.structure_built.connect(func(structure: Structure) -> void: Sfx.play(self, &"build", structure.global_position))
 	_fortress.service_zone.player_deposited.connect(func(player: Node3D, contents: Dictionary) -> void:
 		if player is Warrior:
 			team_stats.add(player.peer_id, &"haul", contents.values().reduce(func(a: int, b: int) -> int: return a + b, 0)))
@@ -241,6 +246,7 @@ func spawn_player(id: int, player_class: PlayerClass = null) -> Warrior:
 	warrior.peer_id = id
 	add_child(warrior)
 	warrior.global_position = _fortress.global_transform * Vector3(8.0, 0.1, 2.0 * players.size())
+	warrior.reset_physics_interpolation()
 	warrior.apply_class(player_class)
 	var is_mine := id == multiplayer.get_unique_id()
 	warrior.input.remote = not is_mine
@@ -588,6 +594,7 @@ func _show_ping(peer: int, kind: StringName, subject: String, point: Vector3) ->
 	marker.color = warrior.display_color() if warrior else Color.WHITE
 	add_child(marker)
 	marker.global_position = point
+	marker.reset_physics_interpolation()
 	_pings[peer] = marker
 
 
@@ -598,6 +605,7 @@ func request_divine_crossbow() -> bool:
 	var hits := _fortress.divine_crossbow.fire()
 	_toast_all("NỎ THẦN! Trúng %d quái", [hits])  # i18n
 	_send_fx(&"blast", [_fortress.divine_crossbow.global_position, 25.0])
+	Sfx.play(self, &"divine", _fortress.global_position)
 	return true
 
 
@@ -671,6 +679,7 @@ func _finish() -> void:
 	if result != Result.NONE:
 		return
 	result = Result.LOST
+	Sfx.play_ui(self, &"lost")
 	_spawner.active = false
 	_upgrade_panel.hide()
 	_hud.set_center_message("")
@@ -686,6 +695,46 @@ func _finish() -> void:
 	# Online the world keeps running underneath: pausing one machine would stall the others' sync.
 	if not Net.is_online(multiplayer):
 		get_tree().paused = true
+
+
+# Night in a cursed land: a cold moon, dark sky and haze, warm torchlight from the fortress and the
+# warriors. Volumetric fog and SSAO are Forward+ only; the Mobile renderer keeps the rest.
+func _setup_look() -> void:
+	var environment: Environment = $WorldEnvironment.environment
+	environment.background_mode = Environment.BG_COLOR
+	environment.background_color = Color(0.04, 0.05, 0.07)
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_color = Color(0.36, 0.37, 0.44)
+	environment.ambient_light_energy = 0.5
+	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.tonemap_exposure = 1.1
+	environment.adjustment_enabled = true
+	environment.adjustment_saturation = 0.9
+	environment.adjustment_contrast = 1.12
+	environment.glow_enabled = true
+	environment.glow_intensity = 0.8
+	environment.glow_strength = 1.1
+	environment.glow_bloom = 0.05
+	environment.glow_hdr_threshold = 0.9
+	environment.fog_enabled = true
+	environment.fog_light_color = Color(0.08, 0.09, 0.11)
+	environment.fog_density = 0.002
+	environment.fog_sky_affect = 0.0
+	if RenderingServer.get_current_rendering_method() == "forward_plus":
+		environment.ssao_enabled = true
+		environment.ssao_radius = 1.2
+		environment.ssao_intensity = 2.0
+		environment.volumetric_fog_enabled = true
+		environment.volumetric_fog_density = 0.005
+		environment.volumetric_fog_albedo = Color(0.7, 0.7, 0.72)
+		environment.volumetric_fog_length = 90.0
+	# Closer than the prototype's 26 m view, so the models read.
+	$IsoCamera.size = 21.0
+	var moon: DirectionalLight3D = $Sun
+	moon.light_color = Color(0.72, 0.8, 1.0)
+	moon.light_energy = 1.05
+	moon.shadow_blur = 1.5
+	moon.directional_shadow_max_distance = 70.0
 
 
 func _is_host() -> bool:
@@ -855,6 +904,7 @@ func play_fx(kind: StringName, args: Array) -> void:
 		&"ping":
 			_show_ping(args[0], args[1], args[2], args[3])
 		&"blast":
+			Sfx.play(self, &"divine", args[0])
 			var blast: Node3D = BLAST_SCENE.instantiate()
 			blast.max_scale = args[1]
 			add_child(blast)
@@ -981,6 +1031,7 @@ func _apply_pickups(states: Array) -> void:
 		_pickups.add_child(pickup)
 		pickup.set_physics_process(false)
 		pickup.global_position = state[1]
+		pickup.reset_physics_interpolation()
 		pickup.set_color(state[2])
 		_pickups_by_id[id] = pickup
 	for id: int in _pickups_by_id.keys():
@@ -1011,6 +1062,7 @@ func _keep_on_leash(warrior: Warrior) -> void:
 	if offset.length() > leash_radius:
 		var pulled := _fortress.global_position + offset.normalized() * leash_radius
 		warrior.global_position = Vector3(pulled.x, warrior.global_position.y, pulled.z)
+		warrior.reset_physics_interpolation()
 
 
 func _despawn_far_pickups() -> void:
@@ -1054,6 +1106,7 @@ func _spawn_pickup(contents: Dictionary, at: Vector3) -> void:
 	_next_pickup_id += 1
 	_pickups.add_child(pickup)
 	pickup.global_position = Vector3(at.x, 0.0, at.z)
+	pickup.reset_physics_interpolation()
 	var type: ResourceType = ResourceTypes.find(contents.keys()[0]) if contents.size() == 1 else null
 	pickup.set_color(type.color if type else MIXED_PILE_COLOR)
 

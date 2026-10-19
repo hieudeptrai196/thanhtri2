@@ -10,5 +10,5 @@ description = "Than nằm khắp nơi — nhưng đầy bom ẩn và ít cây."
 coal_multiplier = 3.0
 tree_multiplier = 0.5
 bomb_multiplier = 2.0
-ground_color_a = Color(0.36, 0.36, 0.33, 1)
-ground_color_b = Color(0.31, 0.31, 0.29, 1)
+ground_color_a = Color(0.24, 0.24, 0.23, 1)
+ground_color_b = Color(0.18, 0.17, 0.17, 1)

@@ -10,5 +10,5 @@ description = "Cây cối um tùm — nhiều Gỗ, nhưng quái kéo tới dày
 tree_multiplier = 2.5
 coal_multiplier = 0.5
 enemy_rate_multiplier = 1.3
-ground_color_a = Color(0.2, 0.36, 0.16, 1)
-ground_color_b = Color(0.17, 0.31, 0.14, 1)
+ground_color_a = Color(0.18, 0.26, 0.14, 1)
+ground_color_b = Color(0.21, 0.18, 0.13, 1)

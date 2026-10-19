@@ -31,7 +31,30 @@ const STOP_MARKER_SCENE := preload("res://world/stop_marker.tscn")
 @export var bomb_stop_margin: float = 40.0
 ## Width of the drawn dirt road (the fortress is 10 m wide).
 @export var road_visual_width: float = 12.0
-@export var road_color: Color = Color(0.55, 0.45, 0.3)
+@export var road_color: Color = Color(0.33, 0.26, 0.19)
+@export_group("Scenery")
+## Decoration only (no collision, no gameplay): far woods / hills, near rocks and camp props.
+@export var far_band: Vector2 = Vector2(26.0, 60.0)
+@export var near_band: Vector2 = Vector2(10.0, 24.0)
+@export var far_per_side: Vector2i = Vector2i(2, 4)
+@export var near_per_side: Vector2i = Vector2i(1, 2)
+
+const KIT := "res://assets/kaykit/"
+## [piece (under KIT), scale, weight] for the far and near bands; route types shift the weights
+## (trees by tree_multiplier, rock-like pieces by coal_multiplier). A cursed, war-torn land.
+const FAR_PIECES := [["halloween/tree_dead_large.gltf", 1.3, 3], ["halloween/tree_dead_large_decorated.gltf", 1.3, 1],
+	["halloween/tree_pine_orange_large.gltf", 1.0, 2], ["halloween/tree_pine_yellow_medium.gltf", 1.1, 2],
+	["medieval/hills_A_trees.gltf", 4.0, 1.5], ["medieval/mountain_A_grass_trees.gltf", 5.0, 0.8],
+	["halloween/crypt.gltf", 0.9, 0.25]]
+const NEAR_PIECES := [["halloween/tree_dead_medium.gltf", 1.1, 2], ["halloween/tree_dead_small.gltf", 1.2, 2],
+	["halloween/gravestone.gltf", 0.9, 1.2], ["halloween/grave_A_destroyed.gltf", 0.8, 0.8],
+	["halloween/gravemarker_A.gltf", 1.0, 1], ["halloween/skull.gltf", 0.6, 0.8], ["halloween/ribcage.gltf", 0.9, 0.6],
+	["halloween/bone_C.gltf", 1.0, 0.8], ["halloween/fence_broken.gltf", 1.0, 1], ["halloween/post_skull.gltf", 0.9, 0.5],
+	["halloween/post_lantern.gltf", 0.9, 0.5], ["dungeon/rubble_half.glb", 0.6, 0.6],
+	["dungeon/barrel_large.glb", 0.5, 0.4], ["dungeon/sword_shield_broken.glb", 0.8, 0.4],
+	["medieval/rock_single_A.gltf", 6.0, 1], ["medieval/rock_single_B.gltf", 6.0, 1]]
+## Pieces that carry a warm light (lanterns, torches): [piece, light height].
+const LIT_PIECES := {"halloween/post_lantern.gltf": 3.4, "dungeon/torch_lit.glb": 1.2}
 
 var _route: EndlessRoute
 var _rng: RandomNumberGenerator
@@ -48,11 +71,16 @@ var route_type: RouteType = null
 var _pending: Array = []
 var _next_content_id: int = 1
 var _by_content_id: Dictionary = {}
+# Scenery has its own random stream (seeded from the run and the segment), so adding or changing
+# it never shifts where trees, coal and bombs go.
+var _scenery_seed: int = 0
+static var _kit_cache: Dictionary = {}
 
 
 func setup(route: EndlessRoute, rng: RandomNumberGenerator) -> void:
 	_route = route
 	_rng = rng
+	_scenery_seed = rng.seed
 	_road_material = StandardMaterial3D.new()
 	_road_material.albedo_color = road_color
 	_road_material.roughness = 1.0
@@ -117,9 +145,12 @@ func resource_nodes(id: StringName) -> Array[ResourceNode]:
 
 func _on_segment_added(from_distance: float, to_distance: float) -> void:
 	_add_road_strip(from_distance, to_distance)
+	_add_scenery(from_distance, to_distance)
 	while _route.stop_distance(_next_stop_index) <= to_distance:
 		_place(STOP_MARKER_SCENE.instantiate(), _route.stop_distance(_next_stop_index), 0.0)
+		_add_stop_camp(_route.stop_distance(_next_stop_index))
 		_next_stop_index += 1
+	_spawned.sort_custom(func(a: Array, b: Array) -> bool: return a[1] < b[1])
 	if from_distance >= content_limit or not _pending.is_empty():
 		_pending.append([from_distance, to_distance])
 	else:
@@ -166,6 +197,70 @@ func _add_road_strip(from_distance: float, to_distance: float) -> void:
 	_spawned.append([strip, to_distance, 0])
 
 
+func _add_scenery(from_distance: float, to_distance: float) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([_scenery_seed, roundi(from_distance * 10.0)])
+	var trees := route_type.tree_multiplier if route_type else 1.0
+	var rocks := route_type.coal_multiplier if route_type else 1.0
+	for side in [-1.0, 1.0]:
+		for i in rng.randi_range(far_per_side.x, far_per_side.y):
+			_add_decor(_pick(FAR_PIECES, rng, trees, rocks), rng, rng.randf_range(from_distance, to_distance),
+				side * rng.randf_range(far_band.x, far_band.y))
+		if from_distance < clear_start:
+			continue
+		for i in rng.randi_range(near_per_side.x, near_per_side.y):
+			_add_decor(_pick(NEAR_PIECES, rng, trees, rocks), rng, rng.randf_range(from_distance, to_distance),
+				side * rng.randf_range(near_band.x, near_band.y))
+
+
+# Flags along the safe zone and a small camp beside the road at a stop.
+func _add_stop_camp(at: float) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([_scenery_seed, "camp", roundi(at)])
+	for offset in [-8.0, 8.0]:
+		for side in [-1.0, 1.0]:
+			_add_decor(["dungeon/torch_lit.glb", 1.6, 1], rng, at + offset, side * 9.0, false)
+	for side in [-1.0, 1.0]:
+		_add_decor(["dungeon/banner_patternA_red.glb", 0.9, 1], rng, at, side * 9.5, false)
+		_add_decor(["medieval/tent.gltf", 5.0, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 14.0)
+		_add_decor(["dungeon/crates_stacked.glb", 0.6, 1], rng, at + rng.randf_range(-6.0, 6.0), side * 12.0)
+
+
+func _pick(pieces: Array, rng: RandomNumberGenerator, trees: float, rocks: float) -> Array:
+	var weights := PackedFloat32Array()
+	for piece: Array in pieces:
+		var name: String = piece[0]
+		var weight: float = piece[2]
+		if name.contains("tree"):
+			weight *= trees
+		elif name.contains("rock") or name.contains("mountain") or name.contains("rubble"):
+			weight *= rocks
+		weights.append(weight)
+	return pieces[rng.rand_weighted(weights)]
+
+
+func _add_decor(piece: Array, rng: RandomNumberGenerator, distance: float, lateral: float, random_yaw: bool = true) -> void:
+	var path: String = KIT + piece[0]
+	if not _kit_cache.has(path):
+		_kit_cache[path] = load(path)
+	var node: Node3D = _kit_cache[path].instantiate()
+	node.add_to_group(&"scenery")
+	var road := _route.sample(distance)
+	add_child(node)
+	node.scale = Vector3.ONE * piece[1] * rng.randf_range(0.85, 1.15)
+	node.global_position = road.origin + road.basis.x.normalized() * lateral
+	node.rotation.y = rng.randf() * TAU if random_yaw else road.basis.get_euler().y
+	node.reset_physics_interpolation()
+	if LIT_PIECES.has(piece[0]):
+		var light := OmniLight3D.new()
+		light.light_color = Color(1.0, 0.62, 0.3)
+		light.light_energy = 2.2
+		light.omni_range = 8.0
+		light.position.y = LIT_PIECES[piece[0]]
+		node.add_child(light)
+	_spawned.append([node, distance, 0])
+
+
 func _random_side(band: Vector2) -> float:
 	var offset := _rng.randf_range(maxf(band.x, road_half_width), band.y)
 	return offset if _rng.randf() < 0.5 else -offset
@@ -181,6 +276,7 @@ func _place(node: Node3D, distance: float, lateral: float) -> void:
 	var road := _route.sample(distance)
 	add_child(node)
 	node.global_position = road.origin + road.basis.x.normalized() * lateral
+	node.reset_physics_interpolation()
 	node.rotation.y = _rng.randf() * TAU if node is ResourceNode else road.basis.get_euler().y
 	var id := _next_content_id
 	_next_content_id += 1

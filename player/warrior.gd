@@ -22,6 +22,13 @@ extends CharacterBody3D
 ## Online, on clients: how quickly a warrior glides to the position the host last sent.
 @export var net_smoothing: float = 15.0
 
+## Look without a class (and in tests): the KayKit knight.
+const DEFAULT_MODEL := "res://assets/kaykit/adventurers/Knight.glb"
+const DEFAULT_PARTS: PackedStringArray = ["1H_Sword", "Round_Shield", "Knight_Helmet", "Knight_Cape"]
+const MODEL_SCALE := 0.75
+## Ground speed at which the run clip plays at normal speed.
+const RUN_CLIP_SPEED := 5.5
+
 ## Out of the fight for real (solo: at 0 health; co-op: after lying downed unrevived). The match then
 ## drops what was carried and schedules the respawn.
 signal fell
@@ -80,6 +87,13 @@ var _net_position: Variant = null
 ## Swings so far and the last one's direction, so clients can show other warriors attacking.
 var _swing_count: int = 0
 var _swing_yaw: float = 0.0
+# Rigged model, the class-coloured ring under the feet, and where the model was last frame (to
+# animate movement the same way on the host and on clients).
+var _model: CharacterModel
+var _ring_material: StandardMaterial3D
+var _last_visual_position: Vector3
+var _visual_speed: float = 0.0
+var _running: bool = false
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _dash_time_left: float = 0.0
@@ -110,6 +124,8 @@ func _ready() -> void:
 	_base_capacity = inventory.capacity
 	_base_color = ($Body.mesh.material as StandardMaterial3D).albedo_color
 	_body_height = $Body.position.y
+	_build_look()
+	skills.used.connect(func(_id: StringName, _at: Vector3) -> void: _play_skill_clip())
 
 
 ## Gives this warrior a class (null = none): its passive strengths and placeholder colour.
@@ -131,6 +147,7 @@ func apply_class(new_class: PlayerClass) -> void:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = new_class.color if new_class else _base_color
 	$Body.material_override = material
+	_apply_look(new_class)
 
 
 ## Placeholder colour of this warrior (its class colour), also used for its pings.
@@ -141,6 +158,7 @@ func display_color() -> Color:
 ## Brings the warrior back at full health. Who decides when and where is up to the match.
 func respawn_at(spawn_position: Vector3) -> void:
 	global_position = spawn_position
+	reset_physics_interpolation()
 	health.reset()
 	_set_downed(false)
 	_set_alive(true)
@@ -153,6 +171,7 @@ func man_crossbow(seat: Node3D) -> void:
 	_dash_time_left = 0.0
 	_collision.set_deferred("disabled", true)
 	global_position = seat.global_position
+	reset_physics_interpolation()
 
 
 ## Host: climbs back down to `ground_point`.
@@ -160,6 +179,7 @@ func leave_crossbow(ground_point: Vector3) -> void:
 	_seat = null
 	manning = false
 	global_position = ground_point
+	reset_physics_interpolation()
 	velocity = Vector3.ZERO
 	_collision.set_deferred("disabled", not is_alive)
 
@@ -219,6 +239,8 @@ func can_carry_more() -> bool:
 
 func set_simulated(on: bool) -> void:
 	simulated = on
+	# Clients glide in _process, so physics-tick interpolation would fight it.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_INHERIT if on else Node.PHYSICS_INTERPOLATION_MODE_OFF
 	set_physics_process(on and is_alive)
 
 
@@ -267,6 +289,7 @@ func _process(delta: float) -> void:
 		_down_label.modulate = Color(0.6, 1.0, 0.6) if revive_progress > 0.0 else Color(1.0, 0.5, 0.4)
 	if not simulated and _net_position != null:
 		global_position = global_position.lerp(_net_position, 1.0 - exp(-net_smoothing * delta))
+	_update_animation(delta)
 
 
 func is_dashing() -> bool:
@@ -339,6 +362,8 @@ func _start_dash() -> void:
 	_dash_time_left = dash_duration
 	_dash_cooldown_left = dash_cooldown
 	_hurtbox.set_deferred("monitorable", false)
+	if _model:
+		_model.play(&"Dodge_Forward", 2.2, 0.03, true)
 
 
 func _on_died() -> void:
@@ -358,8 +383,10 @@ func _set_downed(on: bool) -> void:
 		visible = true
 	$Body.rotation_degrees.x = 90.0 if on else 0.0
 	$Body.position.y = 0.35 if on else _body_height
-	$Nose.visible = not on
+	$Nose.visible = not on and _model == null
 	_down_label.visible = on
+	if _model:
+		_model.play(&"Lie_Down" if on else &"Lie_StandUp", 1.0, 0.1, true)
 
 
 func _set_alive(alive: bool) -> void:
@@ -382,3 +409,85 @@ func _flash_swing(yaw: float) -> void:
 	_swing_fx.global_rotation.y = yaw
 	_swing_fx.visible = true
 	get_tree().create_timer(0.1).timeout.connect(_swing_fx.hide)
+	Sfx.play(self, &"swing", global_position)
+	if _model:
+		var clip := player_class.attack_clip if player_class else &"1H_Melee_Attack_Slice_Diagonal"
+		_model.play(clip, maxf(_model.clip_length(clip) / (weapon.cooldown * 0.9), 1.0), 0.05, true)
+
+
+func _build_look() -> void:
+	_model = CharacterModel.new()
+	_model.name = "Model"
+	add_child(_model)
+	var ring := MeshInstance3D.new()
+	ring.name = "ClassRing"
+	var disc := TorusMesh.new()
+	disc.inner_radius = 0.5
+	disc.outer_radius = 0.65
+	disc.rings = 24
+	_ring_material = StandardMaterial3D.new()
+	_ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	disc.material = _ring_material
+	ring.mesh = disc
+	ring.scale = Vector3(1.0, 0.15, 1.0)
+	ring.position.y = 0.05
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(ring)
+	# A small warm glow so every player stays readable at night.
+	var glow := OmniLight3D.new()
+	glow.name = "Glow"
+	glow.light_color = Color(1.0, 0.78, 0.55)
+	glow.light_energy = 1.8
+	glow.omni_range = 5.5
+	glow.position.y = 2.2
+	add_child(glow)
+	_apply_look(null)
+
+
+# The class's model and accessories (the knight without a class) and its colour on the ring and cape.
+func _apply_look(look_class: PlayerClass) -> void:
+	var has_model := look_class != null and look_class.model_path != ""
+	var weapon: PackedScene = load(look_class.weapon_path) if has_model and look_class.weapon_path != "" else null
+	var color := look_class.color if look_class else _base_color
+	_model.setup(load(look_class.model_path if has_model else DEFAULT_MODEL), MODEL_SCALE,
+		look_class.model_parts if has_model else DEFAULT_PARTS, weapon, color.lightened(0.15))
+	_ring_material.albedo_color = Color(color, 0.75)
+	$Body.visible = false
+	$Nose.visible = false
+
+
+func _play_skill_clip() -> void:
+	if _model and player_class:
+		_model.play(player_class.skill_clip, 1.4, 0.08, true)
+
+
+# Runs on every machine. The host knows the real velocity; clients only see positions, and with the
+# screen refreshing faster than physics (120 Hz vs 60 Hz) a raw per-frame distance flickers between
+# moving and still, so it is smoothed and the run / idle switch has hysteresis.
+func _update_animation(delta: float) -> void:
+	var moved := global_position - _last_visual_position
+	_last_visual_position = global_position
+	var raw := Vector2(velocity.x, velocity.z).length() if simulated and not is_dashing() \
+		else Vector2(moved.x, moved.z).length() / maxf(delta, 0.0001)
+	if raw > 40.0:
+		raw = 0.0  # a teleport (respawn, climbing the ladder), not movement
+	_visual_speed = lerpf(_visual_speed, raw, 1.0 - exp(-12.0 * delta)) if not simulated else raw
+	_running = _visual_speed > (0.5 if _running else 1.2)
+	if _model == null or not visible:
+		return
+	if downed:
+		if not _model.is_busy():
+			_model.play(&"Lie_Idle")
+		return
+	if manning:
+		_model.play(&"2H_Ranged_Aiming")
+		return
+	if _model.is_busy():
+		return
+	if _running:
+		_model.play(&"Running_B" if carried_type else &"Running_A", clampf(_visual_speed / RUN_CLIP_SPEED, 0.7, 1.6))
+	elif builder.hammer_target:
+		_model.play(&"Interact", 1.3)
+	else:
+		_model.play(&"Idle")

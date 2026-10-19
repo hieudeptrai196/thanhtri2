@@ -97,9 +97,11 @@ var _oil_step_reached: int = 0
 var _furnace_cooldown: float = 0.0
 var _since_hit: float = 0.0
 var _stoked_applied: bool = false
+var _look: FortressLook
 
 
 func _ready() -> void:
+	_build_look()
 	health.health_changed.connect(func(_current: float, _maximum: float) -> void: _update_speed())
 	_apply_tier(TIERS[tier_index])
 	storage.add_all(starting_resources)
@@ -199,6 +201,8 @@ func apply_net_state(state: Dictionary) -> void:
 		var material := StandardMaterial3D.new()
 		material.albedo_color = get_tier().color
 		_body_mesh.material_override = material
+		if _look:
+			_look.set_tier(tier_index)
 		for module in _modules.get_children():
 			module.visible = upgrade_level(StringName(module.name.to_snake_case())) > 0
 	if state.divine != divine_crossbow.charge:
@@ -249,7 +253,34 @@ func tick_repair(_delta: float, rate: float = 1.0) -> void:
 		health.heal(repair_per_unit)
 
 
+func _process(delta: float) -> void:
+	if _look:
+		_look.roll(0.0 if follower.is_stopped else follower.base_speed * follower.speed_multiplier, delta)
+
+
+# Kit-built look over the gameplay box (see FortressLook); the box and placeholder meshes hide.
+func _build_look() -> void:
+	_look = FortressLook.new()
+	_look.name = "Look"
+	add_child(_look)
+	_body_mesh.visible = false
+	$LadderMesh.visible = false
+	$Front.position.y = 2.6
+	var bronze := StandardMaterial3D.new()
+	bronze.albedo_color = Color(0.72, 0.5, 0.22)
+	bronze.metallic = 0.5
+	bronze.roughness = 0.4
+	$Front.material_override = bronze
+	var crossbow_model: Node3D = load("res://assets/kaykit/adventurers/crossbow_2handed.gltf").instantiate()
+	crossbow_model.scale = Vector3.ONE * 3.2
+	crossbow_model.rotation_degrees.y = 180.0
+	_crossbow_mesh.mesh = null
+	_crossbow_mesh.add_child(crossbow_model)
+
+
 func _apply_tier(tier: FortressTier) -> void:
+	if _look:
+		_look.set_tier(tier_index)
 	health.set_max_health(tier.max_health)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = tier.color

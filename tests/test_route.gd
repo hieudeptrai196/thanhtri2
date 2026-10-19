@@ -83,6 +83,8 @@ func test_content_layout() -> void:
 				rocks += 1
 		elif node is MeshInstance3D:
 			strips += 1
+		elif node.is_in_group(&"scenery"):
+			continue
 		elif node is HiddenBomb:
 			check(lateral < 0.01, "bombs sit on the road")
 			var nearest := route.stop_distance(maxi(roundi((at - route.first_stop) / route.stop_interval), 0))
@@ -124,6 +126,7 @@ func test_long_run_keeps_node_count_bounded() -> void:
 		await frames(1)
 		if follower.is_stopped:
 			follower.depart()
+		m.get_node("Spawner").active = false  # departing turns it back on; this test is about road content
 		if counts.size() < int(follower.distance / 1000.0) + 1:
 			counts.append(int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)))
 	check(counts.size() >= 4, "sampled every km: %s" % [counts])
