@@ -52,7 +52,7 @@ const NEAR_PIECES := [["halloween/tree_dead_medium.gltf", 1.1, 2], ["halloween/t
 	["halloween/bone_C.gltf", 1.0, 0.8], ["halloween/fence_broken.gltf", 1.0, 1], ["halloween/post_skull.gltf", 0.9, 0.5],
 	["halloween/post_lantern.gltf", 0.9, 0.5], ["dungeon/rubble_half.glb", 0.6, 0.6],
 	["dungeon/barrel_large.glb", 0.5, 0.4], ["dungeon/sword_shield_broken.glb", 0.8, 0.4],
-	["medieval/rock_single_A.gltf", 6.0, 1], ["medieval/rock_single_B.gltf", 6.0, 1]]
+	["medieval/rock_single_A.gltf", 6.0, 1, Color(0.42, 0.44, 0.4)], ["medieval/rock_single_B.gltf", 6.0, 1, Color(0.38, 0.4, 0.37)]]
 ## Pieces that carry a warm light (lanterns, torches): [piece, light height].
 const LIT_PIECES := {"halloween/post_lantern.gltf": 3.4, "dungeon/torch_lit.glb": 1.2}
 
@@ -245,6 +245,8 @@ func _add_decor(piece: Array, rng: RandomNumberGenerator, distance: float, later
 		_kit_cache[path] = load(path)
 	var node: Node3D = _kit_cache[path].instantiate()
 	node.add_to_group(&"scenery")
+	if piece.size() > 3:
+		_tint(node, piece[3])
 	var road := _route.sample(distance)
 	add_child(node)
 	node.scale = Vector3.ONE * piece[1] * rng.randf_range(0.85, 1.15)
@@ -259,6 +261,23 @@ func _add_decor(piece: Array, rng: RandomNumberGenerator, distance: float, later
 		light.position.y = LIT_PIECES[piece[0]]
 		node.add_child(light)
 	_spawned.append([node, distance, 0])
+
+
+# Darkens a kit piece to the scene's palette (the kit's pale stones glare at night). One material
+# per colour, shared.
+static var _tinted: Dictionary = {}
+
+
+static func _tint(node: Node3D, color: Color) -> void:
+	for mesh: MeshInstance3D in node.find_children("*", "MeshInstance3D", true, false):
+		var source := mesh.get_active_material(0)
+		var key := [source, color]
+		if not _tinted.has(key) and source is StandardMaterial3D:
+			var material := (source as StandardMaterial3D).duplicate() as StandardMaterial3D
+			material.albedo_color = color
+			_tinted[key] = material
+		if _tinted.has(key):
+			mesh.material_override = _tinted[key]
 
 
 func _random_side(band: Vector2) -> float:

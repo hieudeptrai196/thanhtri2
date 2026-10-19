@@ -40,6 +40,7 @@ var _back: Button
 
 
 func _ready() -> void:
+	(func() -> void: UiStyle.gothic_titles(self)).call_deferred()  # after the UI built below
 	_panel.add_theme_stylebox_override("panel", UiStyle.panel())
 	_title.add_theme_color_override("font_color", UiStyle.BRONZE_BRIGHT)
 	UiStyle.outline(_title, 10)

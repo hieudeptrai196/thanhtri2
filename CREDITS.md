@@ -36,6 +36,7 @@ file of each pack is kept next to its files under `assets/`.
 | Asset | Author | Source | License | Folder |
 |---|---|---|---|---|
 | Be Vietnam Pro (Regular, Bold) | The Be Vietnam Pro Project Authors | https://github.com/bettergui/BeVietnamPro · https://fonts.google.com/specimen/Be+Vietnam+Pro | SIL Open Font License 1.1 (`assets/fonts/OFL.txt`) | `assets/fonts/` |
+| Grenze, Grenze Gotisch | The Grenze Project Authors (Omnibus-Type) | https://github.com/Omnibus-Type/Grenze · https://fonts.google.com/specimen/Grenze · https://fonts.google.com/specimen/Grenze+Gotisch | SIL Open Font License 1.1 (`assets/fonts/grenze/OFL.txt`) | `assets/fonts/grenze/` |
 
 ## Engine
 

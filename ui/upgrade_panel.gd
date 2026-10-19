@@ -30,6 +30,7 @@ func setup(fortress: Fortress) -> void:
 
 
 func _ready() -> void:
+	(func() -> void: UiStyle.gothic_titles(self)).call_deferred()  # after the UI built below
 	add_theme_stylebox_override("panel", UiStyle.panel())
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 12)

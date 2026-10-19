@@ -13,13 +13,13 @@ func _enter_tree() -> void:
 	_apply_font()
 
 
-# Be Vietnam Pro (OFL, full Vietnamese) for every Control, bold as the theme's bold face. Set on the
-# root window's theme so it needs no project setting.
+# Grenze (OFL, full Vietnamese) at a semi-bold weight for every Control; titles switch to its gothic
+# sister face (UiStyle.gothic_titles). Set as the global fallback font so it needs no project setting.
 func _apply_font() -> void:
-	var regular: FontFile = load("res://assets/fonts/BeVietnamPro-Regular.ttf")
-	var bold: FontFile = load("res://assets/fonts/BeVietnamPro-Bold.ttf")
 	var font := FontVariation.new()
-	font.base_font = bold if bold else regular
-	var theme := Theme.new()
-	theme.default_font = font
-	get_tree().root.theme = theme
+	font.base_font = load("res://assets/fonts/grenze/Grenze.ttf")
+	font.variation_opentype = {"wght": 560}
+	# The engine's default theme reaches every Control, including those under CanvasLayers (a theme
+	# on the root window does not); the fallback covers custom-drawn text.
+	ThemeDB.get_default_theme().default_font = font
+	ThemeDB.fallback_font = font

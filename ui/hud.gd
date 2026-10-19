@@ -13,6 +13,8 @@ var _carried_label: Label
 var _carried: Array[ResourceCounter] = []
 var _stored: Array[ResourceCounter] = []
 var _toast_tween: Tween
+var _blood: TextureRect
+var _blood_tween: Tween
 # Class skill slot (bottom right), built in code; hidden without a class.
 var _skill_panel: PanelContainer
 var _skill_label: Label
@@ -42,6 +44,8 @@ var _best: float = 0.0
 
 
 func _ready() -> void:
+	_build_vignette()
+	(func() -> void: UiStyle.gothic_titles(self)).call_deferred()
 	$TopPanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
 	$ResourcePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
 	$DistancePanel.add_theme_stylebox_override("panel", UiStyle.hud_panel())
@@ -262,8 +266,47 @@ func _on_fortress_health_changed(current: float, maximum: float) -> void:
 
 
 func _on_warrior_health_changed(current: float, maximum: float) -> void:
+	if current < _warrior_bar.value - 0.5 and _blood:
+		# Blood at the screen edges when hurt, stronger the lower the health.
+		if _blood_tween:
+			_blood_tween.kill()
+		_blood.modulate.a = 0.55 + 0.35 * (1.0 - current / maxf(maximum, 1.0))
+		_blood_tween = create_tween()
+		_blood_tween.tween_property(_blood, "modulate:a", 0.0, 0.6)
 	_warrior_bar.max_value = maximum
 	_warrior_bar.value = current
+
+
+# Dark corners all the time (a heavier, closed-in feel) and a blood-red edge flash when hurt.
+func _build_vignette() -> void:
+	var dark := TextureRect.new()
+	dark.texture = _edge_texture(Color(0, 0, 0, 0.72))
+	dark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dark.stretch_mode = TextureRect.STRETCH_SCALE
+	dark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(dark)
+	move_child(dark, 0)
+	_blood = TextureRect.new()
+	_blood.texture = _edge_texture(Color(0.55, 0.0, 0.0, 0.9))
+	_blood.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_blood.stretch_mode = TextureRect.STRETCH_SCALE
+	_blood.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_blood.modulate.a = 0.0
+	add_child(_blood)
+	move_child(_blood, 1)
+
+
+static func _edge_texture(edge: Color) -> GradientTexture2D:
+	var texture := GradientTexture2D.new()
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.15, 0.5)
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(edge, 0.0))
+	gradient.set_color(1, edge)
+	gradient.add_point(0.55, Color(edge, 0.0))
+	texture.gradient = gradient
+	return texture
 
 
 func _on_deposited(contents: Dictionary) -> void:
