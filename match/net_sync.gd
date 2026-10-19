@@ -17,7 +17,7 @@ const SNAPSHOT_PART_BYTES := 1200
 ## Stop-panel actions a client may ask for (see Match.handle_request).
 const ALLOWED_REQUESTS: Array[StringName] = [&"tier", &"fortress", &"weapon", &"route", &"ready"]
 ## Events a client may send; anything else is dropped.
-const ALLOWED_EVENTS: Array[StringName] = [&"dash", &"interact", &"place", &"cancel", &"select", &"skill", &"ready", &"overdrive", &"divine"]
+const ALLOWED_EVENTS: Array[StringName] = [&"dash", &"interact", &"place", &"cancel", &"select", &"skill", &"ready", &"overdrive", &"divine", &"ping"]
 
 var _match: Match
 ## Host: peers whose match has loaded and that receive snapshots.
@@ -105,6 +105,8 @@ func client_events(events: Array, state: Dictionary) -> void:
 	for event in events:
 		if event is Array and not event.is_empty() and ALLOWED_EVENTS.has(event[0]):
 			if event[0] == &"select" and not (event.size() == 2 and event[1] is int):
+				continue
+			if event[0] == &"ping" and not (event.size() == 2 and event[1] is Vector3 and (event[1] as Vector3).is_finite()):
 				continue
 			clean.append(event)
 	warrior.input.apply_remote_events(clean)

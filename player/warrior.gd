@@ -128,6 +128,11 @@ func apply_class(new_class: PlayerClass) -> void:
 	$Body.material_override = material
 
 
+## Placeholder colour of this warrior (its class colour), also used for its pings.
+func display_color() -> Color:
+	return player_class.color if player_class else _base_color
+
+
 ## Brings the warrior back at full health. Who decides when and where is up to the match.
 func respawn_at(spawn_position: Vector3) -> void:
 	global_position = spawn_position

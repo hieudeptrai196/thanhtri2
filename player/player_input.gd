@@ -9,6 +9,8 @@ signal ready_requested
 signal overdrive_requested
 ## The player fires the Nỏ thần (G / RB).
 signal divine_requested
+## The player marks a ground point for the team (Z / middle mouse / D-pad down).
+signal ping_requested(point: Vector3)
 
 ## Number keys that pick a structure; key 1 = StructureTypes.ALL[0], ...
 const BUILD_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4]
@@ -21,6 +23,9 @@ const DIVINE_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
 ## Class skill: R / left trigger.
 const SKILL_KEY := KEY_R
 const SKILL_AXIS := JOY_AXIS_TRIGGER_LEFT
+const PING_KEY := KEY_Z
+const PING_MOUSE := MOUSE_BUTTON_MIDDLE
+const PING_BUTTON := JOY_BUTTON_DPAD_DOWN
 
 ## World-space direction on the ground plane, length 0..1.
 var move_direction: Vector3 = Vector3.ZERO
@@ -76,6 +81,10 @@ func _input(event: InputEvent) -> void:
 			_emit_local(&"overdrive")
 		if event is InputEventJoypadButton and event.pressed and event.button_index == DIVINE_BUTTON:
 			_emit_local(&"divine")
+		if event is InputEventJoypadButton and event.pressed and event.button_index == PING_BUTTON:
+			emit_ping(_read_aim_point())
+	if event is InputEventMouseButton and event.pressed and event.button_index == PING_MOUSE:
+		emit_ping(_read_aim_point())
 	if event is InputEventJoypadMotion and event.axis == SKILL_AXIS:
 		var down: bool = event.axis_value > 0.6
 		if down and not _trigger_down:
@@ -97,6 +106,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			return
 		if event.physical_keycode == SKILL_KEY:
 			_pending_skill = true
+			return
+		if event.physical_keycode == PING_KEY:
+			emit_ping(_read_aim_point())
 			return
 		var index := BUILD_KEYS.find(event.physical_keycode)
 		if index != -1:
@@ -175,6 +187,13 @@ func _emit_local(event: StringName) -> void:
 	_fire(event)
 
 
+## Marks `point` for the team: fires locally (solo / host) and is recorded for the server (clients).
+func emit_ping(point: Vector3) -> void:
+	if record_events:
+		local_events.append([&"ping", point])
+	ping_requested.emit(point)
+
+
 func _fire(event: StringName) -> void:
 	match event:
 		&"ready":
@@ -215,6 +234,8 @@ func _consume_remote() -> void:
 				skill_pressed = true
 			&"select":
 				build_select = event[1]
+			&"ping":
+				ping_requested.emit(event[1])
 			_:
 				_fire(event[0])
 	_remote_events.clear()

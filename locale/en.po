@@ -6,99 +6,99 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en\n"
 
-#: match/match.gd:166
+#: match/match.gd:169
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr "Protect the citadel — go as far as you can!"
 
-#: match/match.gd:242
+#: match/match.gd:246
 msgid "Người chơi %d đã vào"
 msgstr "Player %d joined"
 
-#: match/match.gd:259
+#: match/match.gd:263
 msgid "Một người chơi đã rời đi"
 msgstr "A player left"
 
-#: match/match.gd:325
+#: match/match.gd:329
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr "You are down — a teammate can hold E next to you to help you up (%d)"
 
-#: match/match.gd:327
+#: match/match.gd:331
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:448
+#: match/match.gd:452
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:448
+#: match/match.gd:452
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:456
+#: match/match.gd:543
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:463
+#: match/match.gd:550
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:567
+#: match/match.gd:654
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr "Could not open the room (is port %d in use?)"
 
-#: match/match.gd:576
+#: match/match.gd:663
 msgid "Địa chỉ không hợp lệ"
 msgstr "Invalid address"
 
-#: match/match.gd:580
+#: match/match.gd:667
 msgid "Đang kết nối tới %s…"
 msgstr "Connecting to %s…"
 
-#: match/match.gd:586
+#: match/match.gd:673
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr "In the room — waiting for the host to start"
 
-#: match/match.gd:591
+#: match/match.gd:678
 msgid "Không kết nối được tới %s"
 msgstr "Could not connect to %s"
 
-#: match/match.gd:630
+#: match/match.gd:717
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr "Room open — address: %s"
 
-#: match/match.gd:631
+#: match/match.gd:718
 msgid "Người chơi: %d/%d"
 msgstr "Players: %d/%d"
 
-#: match/match.gd:719
+#: match/match.gd:808
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr "Boiler stoked! The citadel speeds up at no extra coal"
 
-#: match/match.gd:721
+#: match/match.gd:810
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr "War cry! Nearby monsters charge at you"
 
-#: match/match.gd:902
+#: match/match.gd:991
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:916
+#: match/match.gd:1005
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:930
+#: match/match.gd:1019
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:932
+#: match/match.gd:1021
 msgid "Khởi hành!"
 msgstr "Setting off!"
 
-#: player/warrior.gd:255
+#: player/warrior.gd:260
 msgid "Đỡ dậy %d%%"
 msgstr "Reviving %d%%"
 
-#: player/warrior.gd:256
+#: player/warrior.gd:261
 msgid "Gục — %ds"
 msgstr "Down — %d s"
 
@@ -349,6 +349,34 @@ msgstr "%s — max level"
 #: ui/upgrade_panel.gd:147
 msgid "%s cấp %d — %s"
 msgstr "%s level %d — %s"
+
+#: world/ping_marker.gd:57
+msgid "Quái ở đây!"
+msgstr "Enemies here!"
+
+#: world/ping_marker.gd:59
+msgid "Xây giúp ở đây"
+msgstr "Help build here"
+
+#: world/ping_marker.gd:61
+msgid "Thu %s này"
+msgstr "Pick up this %s"
+
+#: world/ping_marker.gd:63
+msgid "Đồ rơi ở đây"
+msgstr "Dropped loot here"
+
+#: world/ping_marker.gd:65
+msgid "Lấy %s ở đây"
+msgstr "Get %s here"
+
+#: world/ping_marker.gd:67
+msgid "Về giữ thành!"
+msgstr "Defend the fortress!"
+
+#: world/ping_marker.gd:68
+msgid "Đến đây"
+msgstr "Come here"
 
 #: classes/types/engineer.tres
 msgid "Công binh"

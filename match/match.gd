@@ -92,6 +92,9 @@ var _net_shots := PackedVector3Array()
 var _next_pickup_id: int = 1
 ## Client: piles shown, by id.
 var _pickups_by_id: Dictionary = {}
+## The current ping of each peer (one each; a new one replaces it), and when each player may ping again.
+var _pings: Dictionary = {}
+var _ping_ready_at: Dictionary = {}
 
 
 func _ready() -> void:
@@ -200,6 +203,7 @@ func add_player(warrior: Warrior) -> void:
 	warrior.input.ready_requested.connect(request_departure.bind(warrior))
 	warrior.input.overdrive_requested.connect(request_overdrive)
 	warrior.input.divine_requested.connect(request_divine_crossbow)
+	warrior.input.ping_requested.connect(request_ping.bind(warrior))
 	warrior.fell.connect(_on_player_died.bind(warrior))
 	warrior.builder.network = _structures
 	warrior.builder.storage = _fortress.storage
@@ -446,6 +450,89 @@ func request_overdrive() -> void:
 		return
 	_fortress.overdrive = not _fortress.overdrive
 	_toast_all("Tăng tốc! Tốn Than gấp nhiều lần" if _fortress.overdrive else "Chạy bình thường")  # i18n
+
+
+## Seconds between two pings of one player (anti-spam).
+const PING_COOLDOWN := 0.6
+## How far from the pinged point something still counts as pinged.
+const PING_REACH := 2.5
+## Pings farther than this from the pinging player are pulled in.
+const PING_MAX_DISTANCE := 45.0
+
+
+## Any player may mark a point for the team; what is there decides what the mark says.
+func request_ping(point: Vector3, warrior: Warrior) -> void:
+	if not _is_host() or result != Result.NONE or not warrior.is_alive:
+		return
+	if elapsed < _ping_ready_at.get(warrior, 0.0):
+		return
+	_ping_ready_at[warrior] = elapsed + PING_COOLDOWN
+	var offset := point - warrior.global_position
+	offset.y = 0.0
+	point = warrior.global_position + offset.limit_length(PING_MAX_DISTANCE)
+	point.y = _fortress.global_position.y
+	var meaning := ping_kind(point)
+	_show_ping(warrior.peer_id, meaning[0], meaning[1], point)
+	_send_fx(&"ping", [warrior.peer_id, meaning[0], meaning[1], point])
+
+
+## [kind, subject] of a ping at `point` (see PingMarker.kind): enemies first, then building work,
+## dropped piles, resources, the fortress itself, else plain ground.
+func ping_kind(point: Vector3) -> Array:
+	if _nearest_in_group(&"enemies", point, PING_REACH * 1.2):
+		return [&"enemy", ""]
+	# Blueprints are not in the "structures" group, so ask the network.
+	for structure in _structures.structures():
+		if _flat_distance(structure.global_position, point) <= PING_REACH:
+			return [&"structure", structure.type.display_name] if structure.built else [&"blueprint", ""]
+	for pickup: Node3D in _pickups.get_children():
+		if _flat_distance(pickup.global_position, point) <= PING_REACH:
+			return [&"pickup", ""]
+	var node: ResourceNode = _nearest_in_group(&"resource_nodes", point, PING_REACH)
+	if node and node.amount > 0:
+		return [&"resource", node.resource_type.display_name]
+	var local := _fortress.to_local(point)
+	if absf(local.x) <= FORTRESS_HALF_SIZE and absf(local.z) <= FORTRESS_HALF_SIZE:
+		return [&"fortress", ""]
+	return [&"ground", ""]
+
+
+## Half the fortress footprint plus a margin, for pings on the fortress.
+const FORTRESS_HALF_SIZE := 5.5
+
+
+# Groups span the whole SceneTree (in-process co-op tests run several worlds), so check the world.
+func _nearest_in_group(group: StringName, point: Vector3, reach: float) -> Node3D:
+	var best: Node3D = null
+	var best_distance := reach
+	for node: Node3D in get_tree().get_nodes_in_group(group):
+		if node.is_queued_for_deletion() or node.get_world_3d() != _fortress.get_world_3d():
+			continue
+		var distance := _flat_distance(node.global_position, point)
+		if distance <= best_distance:
+			best = node
+			best_distance = distance
+	return best
+
+
+static func _flat_distance(a: Vector3, b: Vector3) -> float:
+	return Vector2(a.x - b.x, a.z - b.z).length()
+
+
+# One mark per player: a new ping replaces that player's previous one.
+func _show_ping(peer: int, kind: StringName, subject: String, point: Vector3) -> void:
+	var previous: Node = _pings.get(peer)
+	if is_instance_valid(previous):
+		previous.queue_free()
+	var marker := PingMarker.new()
+	marker.peer_id = peer
+	marker.kind = kind
+	marker.subject = subject
+	var warrior := player_by_peer(peer)
+	marker.color = warrior.display_color() if warrior else Color.WHITE
+	add_child(marker)
+	marker.global_position = point
+	_pings[peer] = marker
 
 
 ## Any player may fire the Nỏ thần once it is fully charged.
@@ -704,6 +791,8 @@ func play_fx(kind: StringName, args: Array) -> void:
 			_content.explode_bomb(args[0])
 		&"skill":
 			_show_skill(args[0], args[1], false)
+		&"ping":
+			_show_ping(args[0], args[1], args[2], args[3])
 		&"blast":
 			var blast: Node3D = BLAST_SCENE.instantiate()
 			blast.max_scale = args[1]
