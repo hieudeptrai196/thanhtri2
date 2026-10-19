@@ -18,91 +18,91 @@ msgstr "Player %d joined"
 msgid "Một người chơi đã rời đi"
 msgstr "A player left"
 
-#: match/match.gd:313
+#: match/match.gd:315
 msgid "Khắc phù! %s bắn nhanh hơn mãi mãi"
 msgstr "Engraved! This %s now fires faster for good"
 
-#: match/match.gd:354
+#: match/match.gd:356
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr "You are down — a teammate can hold E next to you to help you up (%d)"
 
-#: match/match.gd:356
+#: match/match.gd:358
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:477
+#: match/match.gd:479
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:477
+#: match/match.gd:479
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:568
+#: match/match.gd:570
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:575
+#: match/match.gd:577
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:679
+#: match/match.gd:681
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr "Could not open the room (is port %d in use?)"
 
-#: match/match.gd:688
+#: match/match.gd:690
 msgid "Địa chỉ không hợp lệ"
 msgstr "Invalid address"
 
-#: match/match.gd:692
+#: match/match.gd:694
 msgid "Đang kết nối tới %s…"
 msgstr "Connecting to %s…"
 
-#: match/match.gd:698
+#: match/match.gd:700
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr "In the room — waiting for the host to start"
 
-#: match/match.gd:703
+#: match/match.gd:705
 msgid "Không kết nối được tới %s"
 msgstr "Could not connect to %s"
 
-#: match/match.gd:742
+#: match/match.gd:744
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr "Room open — address: %s"
 
-#: match/match.gd:743
+#: match/match.gd:745
 msgid "Người chơi: %d/%d"
 msgstr "Players: %d/%d"
 
-#: match/match.gd:834
+#: match/match.gd:836
 msgid "Đốt lò! Lò hơi nạp tên — nỏ trên thành bắn nhanh hơn"
 msgstr "Boiler stoked! Steam feeds the crossbow — it fires faster"
 
-#: match/match.gd:836
+#: match/match.gd:838
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr "Boiler stoked! The citadel speeds up at no extra coal"
 
-#: match/match.gd:838
+#: match/match.gd:840
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr "War cry! Nearby monsters charge at you"
 
-#: match/match.gd:853
+#: match/match.gd:855
 msgid "Trấn yểm! Quái dính bùa: chậm hẳn, chịu thêm sát thương"
 msgstr "Hexed! Charmed enemies are much slower and take more damage"
 
-#: match/match.gd:1021
+#: match/match.gd:1028
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:1035
+#: match/match.gd:1042
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:1049
+#: match/match.gd:1056
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:1051
+#: match/match.gd:1058
 msgid "Khởi hành!"
 msgstr "Setting off!"
 

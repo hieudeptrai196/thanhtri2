@@ -20,6 +20,8 @@ var noise: NoiseMeter
 ## Set by the match from the current route type.
 var route_rate_multiplier: float = 1.0
 var route_health_multiplier: float = 1.0
+## Players in the run, set by the match whenever someone joins or leaves.
+var team_size: int = 1
 
 var active: bool = false
 
@@ -52,8 +54,8 @@ func _physics_process(delta: float) -> void:
 	if _time_left > 0.0:
 		return
 	var at := distance()
-	_time_left = difficulty.spawn_interval(at) / (noise.spawn_rate_multiplier() if noise else 1.0) / route_rate_multiplier
-	spawn_wave(difficulty.pack_size(at) + (noise.extra_pack_size() if noise else 0))
+	_time_left = difficulty.spawn_interval(at, team_size) / (noise.spawn_rate_multiplier() if noise else 1.0) / route_rate_multiplier
+	spawn_wave(difficulty.pack_size(at, team_size) + (noise.extra_pack_size() if noise else 0))
 
 
 ## Spawns up to `size` enemies around one random direction, respecting the alive cap.
@@ -63,7 +65,7 @@ func spawn_wave(size: int) -> void:
 		var behind := _fortress.global_basis.z
 		centre = atan2(behind.z, behind.x) + deg_to_rad(_rng.randf_range(-pursuit_rear_degrees, pursuit_rear_degrees))
 	for i in size:
-		if alive_count() >= difficulty.max_alive(distance()):
+		if alive_count() >= difficulty.max_alive(distance(), team_size):
 			return
 		spawn_one(centre + deg_to_rad(_rng.randf_range(-pack_spread_degrees, pack_spread_degrees)))
 
@@ -79,7 +81,7 @@ func spawn_one(angle: float = NAN) -> Enemy:
 	add_child(enemy)
 	enemy.global_position = spawn_position
 	enemy.setup(_fortress, _players)
-	enemy.apply_scaling(difficulty.health_multiplier(distance()) * route_health_multiplier, difficulty.damage_multiplier(distance()),
+	enemy.apply_scaling(difficulty.health_multiplier(distance(), team_size) * route_health_multiplier, difficulty.damage_multiplier(distance()),
 		noise.enemy_speed_multiplier() if noise else 1.0)
 	enemy.dropped.connect(enemy_dropped.emit)
 	return enemy

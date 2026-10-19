@@ -252,8 +252,8 @@ func remove_player(id: int) -> void:
 	var warrior := player_by_peer(id)
 	if warrior == null or warrior == local_warrior:
 		return
-	if warrior.manning:
-		_fortress.release_gunner()
+	if _is_host():
+		_drop_belongings(warrior)  # nothing they carried is lost for the team
 	players.erase(warrior)
 	_player_targets.erase(warrior)
 	_respawns.erase(warrior)
@@ -282,6 +282,8 @@ func _update_team_bonuses() -> void:
 	# With teammates around, 0 health downs a warrior so others can get them up.
 	for warrior in players:
 		warrior.downed_enabled = players.size() > 1
+	# More players, more monsters (see Difficulty); follows joins and leaves at once.
+	_spawner.team_size = players.size()
 	_fortress.upgrade_cost_multiplier = prices
 	_upgrade_panel.refresh()
 
@@ -984,6 +986,12 @@ func _despawn_far_pickups() -> void:
 
 
 func _on_player_died(warrior: Warrior) -> void:
+	_drop_belongings(warrior)
+	_respawns[warrior] = respawn_delay
+
+
+# Host: what a warrior carries falls where it stands (on falling, or leaving the run).
+func _drop_belongings(warrior: Warrior) -> void:
 	if warrior.manning:
 		_fortress.release_gunner()  # drop things at the foot of the ladder, not on the roof
 	while warrior.carried_type:
@@ -993,7 +1001,6 @@ func _on_player_died(warrior: Warrior) -> void:
 	var carried := warrior.inventory.take_all()
 	if not carried.is_empty():
 		_spawn_pickup.call_deferred(carried, warrior.global_position)
-	_respawns[warrior] = respawn_delay
 
 
 func _on_enemy_dropped(contents: Dictionary, at: Vector3) -> void:
