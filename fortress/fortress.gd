@@ -7,6 +7,8 @@ extends AnimatableBody3D
 ## whatever strikes it. Upgrades bought at stops (FortressUpgrades) strengthen the crossbow and add
 ## boiling oil, a coal furnace and a regenerating shield. Holding the line is still the job of field
 ## structures and players.
+## One player at a time can climb the ladder at the back and man the crossbow: it then shoots where
+## that player aims, harder, faster and farther.
 
 ## Body material levels in order; the fortress starts at the first.
 const TIERS: Array[FortressTier] = [
@@ -48,6 +50,13 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @export var shield_levels: Array[float] = [0.0, 100.0, 200.0]
 @export var shield_regen_per_second: float = 15.0
 @export var shield_regen_delay: float = 4.0
+@export_group("Gunner")
+## How close to the foot of the ladder a player must be to climb up to the crossbow.
+@export var ladder_reach: float = 2.0
+## Crossbow multipliers while a player mans it (on top of its upgrade level).
+@export var manned_damage_multiplier: float = 2.5
+@export var manned_rate_multiplier: float = 1.6
+@export var manned_range_multiplier: float = 1.5
 
 @onready var health: HealthComponent = $Health
 @onready var follower: RouteFollower = $RouteFollower
@@ -59,6 +68,9 @@ enum SpeedMode { MARCH, OVERDRIVE, OUT_OF_FUEL }
 @onready var _defense_area: Area3D = $DefenseArea
 @onready var _modules: Node3D = $Modules
 @onready var _body_mesh: MeshInstance3D = $Body
+@onready var _gunner_seat: Marker3D = $GunnerSeat
+@onready var _ladder: Marker3D = $Ladder
+@onready var _crossbow_mesh: MeshInstance3D = $CrossbowMesh
 
 var tier_index: int = 0
 ## Players toggle this; it only applies while there is fuel.
@@ -71,6 +83,10 @@ var overdrive_fuel_multiplier: float = 1.0
 ## Seconds of overdrive speed that cost no extra coal (Thợ máy's Đốt lò).
 var free_overdrive_left: float = 0.0
 var upgrade_cost_multiplier: float = 1.0
+## The player manning the crossbow (host only; duck-typed: `input`, `is_alive`, `peer_id`, `man_crossbow`).
+var gunner: Node3D = null
+## Peer of the gunner, 0 = nobody; also known on clients (HUD prompts).
+var gunner_peer: int = 0
 
 var _repair_cooldown: float = 0.0
 ## Fuel burned but not yet taken out of storage (whole units are taken).
@@ -95,6 +111,7 @@ func _physics_process(delta: float) -> void:
 	_update_speed()
 	_tick_furnace(delta)
 	_tick_shield(delta)
+	_tick_gunner()
 
 
 func fuel_left() -> int:
@@ -158,7 +175,7 @@ func net_state() -> Dictionary:
 	return {"follow": follower.net_state(), "hp": [health.current, health.max_health, health.shield, health.max_shield],
 		"storage": storage.amounts, "overdrive": overdrive, "mode": speed_mode, "tier": tier_index,
 		"upgrades": upgrade_levels, "divine": divine_crossbow.charge, "speed": follower.speed_multiplier,
-		"prices": upgrade_cost_multiplier}
+		"prices": upgrade_cost_multiplier, "gunner": gunner_peer, "gun_yaw": _crossbow_mesh.rotation.y}
 
 
 func apply_net_state(state: Dictionary) -> void:
@@ -171,6 +188,8 @@ func apply_net_state(state: Dictionary) -> void:
 	overdrive = state.overdrive
 	speed_mode = state.mode
 	upgrade_cost_multiplier = state.prices
+	gunner_peer = state.gunner
+	_crossbow_mesh.rotation.y = state.gun_yaw
 	if state.tier != tier_index or state.upgrades != upgrade_levels:
 		tier_index = state.tier
 		upgrade_levels = state.upgrades.duplicate()
@@ -234,11 +253,66 @@ func _apply_tier(tier: FortressTier) -> void:
 	_body_mesh.material_override = material
 
 
-func _apply_upgrades() -> void:
+## Ground point at the foot of the ladder.
+func ladder_point() -> Vector3:
+	return _ladder.global_position
+
+
+func is_near_ladder(point: Vector3) -> bool:
+	var offset := point - _ladder.global_position
+	return Vector2(offset.x, offset.z).length() <= ladder_reach
+
+
+## Whether `player` may climb onto the crossbow now: nobody up there, standing at the ladder,
+## hands free and not building. Also asked by the HUD on clients.
+func can_man_crossbow(player: Node3D) -> bool:
+	return gunner_peer == 0 and player.is_alive and not player.manning and player.carried_type == null \
+		and not player.builder.is_placing() and is_near_ladder(player.global_position)
+
+
+## Host: puts `player` on the crossbow if can_man_crossbow allows it.
+func try_man_crossbow(player: Node3D) -> bool:
+	if not can_man_crossbow(player):
+		return false
+	gunner = player
+	gunner_peer = player.peer_id
+	player.man_crossbow(_gunner_seat)
+	_apply_crossbow()
+	return true
+
+
+## Host: the gunner climbs down (or is gone); the crossbow goes back to shooting by itself.
+func release_gunner() -> void:
+	if gunner != null and is_instance_valid(gunner):
+		gunner.leave_crossbow(_ladder.global_position)
+	gunner = null
+	gunner_peer = 0
+	crossbow.aim_direction = Vector3.ZERO
+	_apply_crossbow()
+
+
+# The gunner's aim turns the crossbow; a gunner who went down or left frees it.
+func _tick_gunner() -> void:
+	if gunner == null:
+		return
+	if not is_instance_valid(gunner) or not gunner.is_alive:
+		release_gunner()
+		return
+	var aim: Vector3 = gunner.input.aim_direction
+	crossbow.aim_direction = Vector3(aim.x, 0.0, aim.z).normalized()
+	_crossbow_mesh.global_rotation.y = atan2(-aim.x, -aim.z)
+
+
+func _apply_crossbow() -> void:
 	var level := upgrade_level(&"crossbow")
-	crossbow.damage = crossbow_damage_levels[level]
-	crossbow.interval = crossbow_interval_levels[level]
-	crossbow.set_range(crossbow_range_levels[level])
+	var manned := gunner != null
+	crossbow.damage = crossbow_damage_levels[level] * (manned_damage_multiplier if manned else 1.0)
+	crossbow.interval = crossbow_interval_levels[level] / (manned_rate_multiplier if manned else 1.0)
+	crossbow.set_range(crossbow_range_levels[level] * (manned_range_multiplier if manned else 1.0))
+
+
+func _apply_upgrades() -> void:
+	_apply_crossbow()
 	health.set_max_shield(shield_levels[upgrade_level(&"shield")])
 	# Placeholder modules on the hull show what has been bought.
 	for module in _modules.get_children():

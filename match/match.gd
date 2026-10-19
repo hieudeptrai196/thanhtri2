@@ -188,6 +188,7 @@ func _physics_process(delta: float) -> void:
 		_keep_on_leash(player)
 	_apply_structure_auras()
 	_tick_downed(delta)
+	_tick_crossbow_seat()
 	_despawn_far_pickups()
 	_tick_respawns(delta)
 
@@ -246,6 +247,8 @@ func remove_player(id: int) -> void:
 	var warrior := player_by_peer(id)
 	if warrior == null or warrior == local_warrior:
 		return
+	if warrior.manning:
+		_fortress.release_gunner()
 	players.erase(warrior)
 	_player_targets.erase(warrior)
 	_respawns.erase(warrior)
@@ -304,6 +307,16 @@ func _tick_downed(delta: float) -> void:
 				if Vector2(offset.x, offset.z).length() <= REVIVE_REACH:
 					downed.add_reviver()
 		downed.tick_downed(delta)
+
+
+# E at the foot of the ladder climbs onto the fortress crossbow; E or dash climbs down.
+func _tick_crossbow_seat() -> void:
+	for warrior in players:
+		if warrior.manning:
+			if warrior.input.interact_pressed or warrior.input.dash_pressed:
+				_fortress.release_gunner()
+		elif warrior.input.interact_pressed:
+			_fortress.try_man_crossbow(warrior)
 
 
 # Downed > respawn countdown > nothing, for this machine's player.
@@ -852,6 +865,8 @@ func _despawn_far_pickups() -> void:
 
 
 func _on_player_died(warrior: Warrior) -> void:
+	if warrior.manning:
+		_fortress.release_gunner()  # drop things at the foot of the ladder, not on the roof
 	while warrior.carried_type:
 		# Folded structures drop where the warrior fell (unpowered unless the fortress is near).
 		_structures.place.call_deferred(warrior.carried_type, warrior.global_position, warrior.carried_health)

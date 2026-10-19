@@ -189,6 +189,9 @@ func _update_prompt() -> void:
 	if fallen:
 		_repair_hint.text = tr("Giữ E để đỡ đồng đội dậy — %d%%") % roundi(fallen.revive_progress / fallen.revive_time * 100.0)
 		return
+	if _warrior.manning:
+		_repair_hint.text = tr("Đang điều khiển nỏ · E / Shift để xuống")
+		return
 	if _warrior.carried_type:
 		_repair_hint.text = tr("Đang vác %s — click / E để đặt (không tốn tài nguyên)") % tr(_warrior.carried_type.display_name)
 		return
@@ -205,6 +208,9 @@ func _update_prompt() -> void:
 		# Whole sentences per case, so translations can order the words their own way.
 		var prompt := tr("Giữ F để thu %s") if builder.recover_target.built else tr("Giữ F để dỡ bản vẽ %s")
 		_repair_hint.text = prompt % tr(builder.recover_target.type.display_name) + (" (%d%%)" % progress if progress > 0 else "") + _helpers_text(builder.recover_target)
+		return
+	if _fortress.can_man_crossbow(_warrior):
+		_repair_hint.text = tr("Nhấn E để lên điều khiển nỏ trên thành")
 		return
 	var damaged := _fortress.health.current < _fortress.health.max_health
 	_repair_hint.visible = damaged and _fortress.service_zone.overlaps_body(_warrior)

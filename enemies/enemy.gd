@@ -142,7 +142,8 @@ func _pick_target() -> Node3D:
 	if best != _fortress:
 		return best  # a luring structure beats chasing players
 	for player in _players:
-		if not is_instance_valid(player) or not player.get("is_alive"):
+		# Someone up on the fortress crossbow is out of reach; the enemy goes for the walls instead.
+		if not is_instance_valid(player) or not player.get("is_alive") or player.get("manning"):
 			continue
 		var distance := global_position.distance_to(player.global_position)
 		if distance <= best_distance:

@@ -2,7 +2,8 @@ class_name AutoShooter
 extends Node3D
 ## Shoots the nearest Hurtbox inside its Range area every `interval` seconds while `enabled`.
 ## Which hurtboxes count as targets is decided by the Range area's collision mask.
-## Used by field turrets and the fortress's own crossbow.
+## Used by field turrets and the fortress's own crossbow. While someone aims it (`aim_direction` set),
+## it shoots the target closest to that direction instead, and holds fire when nothing is in the cone.
 
 ## Every shot, so the host can show it to clients.
 signal fired(from: Vector3, to: Vector3)
@@ -12,8 +13,12 @@ signal fired(from: Vector3, to: Vector3)
 @export var interval: float = 1.0
 @export var enabled: bool = true
 @export var range_radius: float = 14.0
+## Half-angle of the cone searched around `aim_direction`.
+@export var aim_cone_degrees: float = 35.0
 ## > 1 shoots faster (e.g. a turret's last shot).
 var rate_multiplier: float = 1.0
+## Ground-plane direction a gunner aims at; ZERO = pick the nearest target by itself.
+var aim_direction: Vector3 = Vector3.ZERO
 
 @onready var _range: Area3D = $Range
 @onready var _muzzle: Marker3D = $Muzzle
@@ -38,7 +43,7 @@ func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if not enabled or _cooldown > 0.0:
 		return
-	var target := _nearest_target()
+	var target := _aimed_target() if aim_direction != Vector3.ZERO else _nearest_target()
 	if target == null:
 		return
 	_cooldown = interval / rate_multiplier
@@ -57,6 +62,21 @@ func _nearest_target() -> Hurtbox:
 			if distance < best_distance:
 				best = area
 				best_distance = distance
+	return best
+
+
+# The target whose direction is closest to the aim, inside the cone.
+func _aimed_target() -> Hurtbox:
+	var best: Hurtbox = null
+	var best_angle := deg_to_rad(aim_cone_degrees)
+	var aim := Vector2(aim_direction.x, aim_direction.z)
+	for area in _range.get_overlapping_areas():
+		if area is Hurtbox:
+			var offset: Vector3 = area.global_position - global_position
+			var angle := absf(aim.angle_to(Vector2(offset.x, offset.z)))
+			if angle <= best_angle:
+				best = area
+				best_angle = angle
 	return best
 
 

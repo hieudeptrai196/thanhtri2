@@ -65,7 +65,7 @@ func ghost_point() -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
-	if network == null or not _warrior.is_alive:
+	if network == null or not _warrior.is_alive or _warrior.manning:
 		_ghost.visible = false
 		radial_open = false
 		recover_progress = 0.0

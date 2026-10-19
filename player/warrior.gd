@@ -47,6 +47,9 @@ var downed_left: float = 0.0
 var revive_progress: float = 0.0
 var _revivers: float = 0.0
 var _down_label: Label3D
+## On the fortress crossbow (synced to clients for prompts and build mode); the seat it stands on is host-only.
+var manning: bool = false
+var _seat: Node3D = null
 ## Folded structure on the warrior's back (null = hands free), and its health when folded.
 var carried_type: StructureType = null
 var carried_health: float = 0.0
@@ -133,6 +136,24 @@ func respawn_at(spawn_position: Vector3) -> void:
 	_set_alive(true)
 
 
+## Host: stands on `seat` (on top of the fortress) and aims the crossbow; no moving or attacking meanwhile.
+func man_crossbow(seat: Node3D) -> void:
+	_seat = seat
+	manning = true
+	_dash_time_left = 0.0
+	_collision.set_deferred("disabled", true)
+	global_position = seat.global_position
+
+
+## Host: climbs back down to `ground_point`.
+func leave_crossbow(ground_point: Vector3) -> void:
+	_seat = null
+	manning = false
+	global_position = ground_point
+	velocity = Vector3.ZERO
+	_collision.set_deferred("disabled", not is_alive)
+
+
 ## A teammate holds interact next to this downed warrior this tick (`weight` > 1 counts for more).
 func add_reviver(weight: float = 1.0) -> void:
 	_revivers += weight
@@ -195,7 +216,7 @@ func set_simulated(on: bool) -> void:
 func net_state() -> Array:
 	return [global_position, rotation.y, is_alive, health.current, health.max_health, inventory.amounts,
 		StructureTypes.ALL.find(carried_type), _swing_count, _swing_yaw, PlayerClasses.ALL.find(player_class), carried_count(), skills.cooldown_left,
-		downed, downed_left, revive_progress]
+		downed, downed_left, revive_progress, manning]
 
 
 func apply_net_state(state: Array) -> void:
@@ -211,6 +232,7 @@ func apply_net_state(state: Array) -> void:
 	revive_progress = state[14]
 	if state[12] != downed:
 		_set_downed(state[12])
+	manning = state[15]
 	health.set_net_state(state[3], state[4], 0.0, 0.0)
 	inventory.set_net_amounts(state[5])
 	skills.cooldown_left = state[11]
@@ -248,6 +270,9 @@ func _physics_process(delta: float) -> void:
 	var cancelling := builder.is_placing() and input.cancel_pressed
 	if input.skill_pressed:
 		skills.try_use()
+	if _seat:
+		_tick_manning(delta)
+		return
 	if input.dash_pressed and not cancelling and _dash_cooldown_left == 0.0 and not is_dashing():
 		_start_dash()
 
@@ -273,6 +298,15 @@ func _physics_process(delta: float) -> void:
 		_facing = direction.normalized()
 	rotation.y = lerp_angle(rotation.y, atan2(-_facing.x, -_facing.z), 1.0 - exp(-turn_speed * delta))
 	move_and_slide()
+
+
+# Rides the seat as the fortress moves and faces where the crossbow aims.
+func _tick_manning(delta: float) -> void:
+	global_position = _seat.global_position
+	velocity = Vector3.ZERO
+	if input.aim_direction != Vector3.ZERO:
+		_facing = input.aim_direction
+	rotation.y = lerp_angle(rotation.y, atan2(-_facing.x, -_facing.z), 1.0 - exp(-turn_speed * delta))
 
 
 func _auto_attack() -> void:

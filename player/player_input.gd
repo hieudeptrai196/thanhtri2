@@ -37,6 +37,8 @@ var recover_held: bool = false
 var radial_held: bool = false
 # The flags below are true only on the tick the button goes down.
 var dash_pressed: bool = false
+## Interact went down this tick (climbing on / off the fortress crossbow).
+var interact_pressed: bool = false
 var place_pressed: bool = false
 var cancel_pressed: bool = false
 ## The class skill button went down this tick.
@@ -116,6 +118,7 @@ func _physics_process(_delta: float) -> void:
 	recover_held = Input.is_action_pressed("recover")
 	radial_held = Input.is_action_pressed("build")
 	dash_pressed = Input.is_action_just_pressed("dash")
+	interact_pressed = Input.is_action_just_pressed("interact")
 	place_pressed = (Input.is_action_just_pressed("attack") and not over_ui) or Input.is_action_just_pressed("interact")
 	cancel_pressed = Input.is_action_just_pressed("cancel")
 	build_select = _pending_select
@@ -132,6 +135,8 @@ func _physics_process(_delta: float) -> void:
 func _record_tick_flags() -> void:
 	if dash_pressed:
 		local_events.append([&"dash"])
+	if interact_pressed:
+		local_events.append([&"interact"])
 	if place_pressed:
 		local_events.append([&"place"])
 	if cancel_pressed:
@@ -191,6 +196,7 @@ func _consume_remote() -> void:
 	recover_held = _remote_state.get("recover", false)
 	radial_held = _remote_state.get("radial", false)
 	dash_pressed = false
+	interact_pressed = false
 	place_pressed = false
 	cancel_pressed = false
 	skill_pressed = false
@@ -199,6 +205,8 @@ func _consume_remote() -> void:
 		match event[0]:
 			&"dash":
 				dash_pressed = true
+			&"interact":
+				interact_pressed = true
 			&"place":
 				place_pressed = true
 			&"cancel":

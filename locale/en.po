@@ -10,95 +10,95 @@ msgstr ""
 msgid "Bảo vệ thành trì — đi càng xa càng tốt!"
 msgstr "Protect the citadel — go as far as you can!"
 
-#: match/match.gd:241
+#: match/match.gd:242
 msgid "Người chơi %d đã vào"
 msgstr "Player %d joined"
 
-#: match/match.gd:256
+#: match/match.gd:259
 msgid "Một người chơi đã rời đi"
 msgstr "A player left"
 
-#: match/match.gd:312
+#: match/match.gd:325
 msgid "Bạn đã gục — đồng đội giữ E cạnh bạn để đỡ dậy (%d)"
 msgstr "You are down — a teammate can hold E next to you to help you up (%d)"
 
-#: match/match.gd:314
+#: match/match.gd:327
 msgid "Hồi sinh sau %d…"
 msgstr "Respawning in %d…"
 
-#: match/match.gd:435
+#: match/match.gd:448
 msgid "Tăng tốc! Tốn Than gấp nhiều lần"
 msgstr "Overdrive! Burns far more coal"
 
-#: match/match.gd:435
+#: match/match.gd:448
 msgid "Chạy bình thường"
 msgstr "Normal speed"
 
-#: match/match.gd:443
+#: match/match.gd:456
 msgid "NỎ THẦN! Trúng %d quái"
 msgstr "DIVINE CROSSBOW! %d monsters hit"
 
-#: match/match.gd:450
+#: match/match.gd:463
 msgid "TRUY ĐUỔI! Bầy quái dồn tới từ phía sau — chạy tới điểm dừng!"
 msgstr "PURSUIT! The horde closes in from behind — reach the next stop!"
 
-#: match/match.gd:554
+#: match/match.gd:567
 msgid "Không mở được phòng (cổng %d đang bận?)"
 msgstr "Could not open the room (is port %d in use?)"
 
-#: match/match.gd:563
+#: match/match.gd:576
 msgid "Địa chỉ không hợp lệ"
 msgstr "Invalid address"
 
-#: match/match.gd:567
+#: match/match.gd:580
 msgid "Đang kết nối tới %s…"
 msgstr "Connecting to %s…"
 
-#: match/match.gd:573
+#: match/match.gd:586
 msgid "Đã vào phòng — chờ chủ phòng bắt đầu"
 msgstr "In the room — waiting for the host to start"
 
-#: match/match.gd:578
+#: match/match.gd:591
 msgid "Không kết nối được tới %s"
 msgstr "Could not connect to %s"
 
-#: match/match.gd:617
+#: match/match.gd:630
 msgid "Phòng đã mở — địa chỉ: %s"
 msgstr "Room open — address: %s"
 
-#: match/match.gd:618
+#: match/match.gd:631
 msgid "Người chơi: %d/%d"
 msgstr "Players: %d/%d"
 
-#: match/match.gd:706
+#: match/match.gd:719
 msgid "Đốt lò! Pháo đài tăng tốc mà không tốn thêm Than"
 msgstr "Boiler stoked! The citadel speeds up at no extra coal"
 
-#: match/match.gd:708
+#: match/match.gd:721
 msgid "Hét trận! Quái quanh bạn lao vào bạn"
 msgstr "War cry! Nearby monsters charge at you"
 
-#: match/match.gd:887
+#: match/match.gd:902
 msgid "Pháo đài dẫm phải bom! Đứng cạnh, giữ E để sửa"
 msgstr "The citadel hit a bomb! Stand next to it and hold E to repair"
 
-#: match/match.gd:901
+#: match/match.gd:916
 msgid "Điểm dừng — nâng cấp rồi khởi hành"
 msgstr "Stop — upgrade, then set off"
 
-#: match/match.gd:915
+#: match/match.gd:930
 msgid "Khởi hành — tuyến %s"
 msgstr "Setting off — %s route"
 
-#: match/match.gd:917
+#: match/match.gd:932
 msgid "Khởi hành!"
 msgstr "Setting off!"
 
-#: player/warrior.gd:233
+#: player/warrior.gd:255
 msgid "Đỡ dậy %d%%"
 msgstr "Reviving %d%%"
 
-#: player/warrior.gd:234
+#: player/warrior.gd:256
 msgid "Gục — %ds"
 msgstr "Down — %d s"
 
@@ -175,46 +175,54 @@ msgid "Giữ E để đỡ đồng đội dậy — %d%%"
 msgstr "Hold E to help your teammate up — %d%%"
 
 #: ui/hud.gd:193
+msgid "Đang điều khiển nỏ · E / Shift để xuống"
+msgstr "Manning the crossbow · E / Shift to climb down"
+
+#: ui/hud.gd:196
 msgid "Đang vác %s — click / E để đặt (không tốn tài nguyên)"
 msgstr "Carrying %s — click / E to place it (free)"
 
-#: ui/hud.gd:199
+#: ui/hud.gd:202
 msgid "Hết tài nguyên để xây %s — mang thêm về hoặc góp từ túi"
 msgstr "Out of resources for %s — bring more back or chip in from your pack"
 
-#: ui/hud.gd:201
+#: ui/hud.gd:204
 msgid "Giữ E để xây %s — %d%%"
 msgstr "Hold E to build %s — %d%%"
 
-#: ui/hud.gd:206
+#: ui/hud.gd:209
 msgid "Giữ F để thu %s"
 msgstr "Hold F to fold up %s"
 
-#: ui/hud.gd:206
+#: ui/hud.gd:209
 msgid "Giữ F để dỡ bản vẽ %s"
 msgstr "Hold F to take down the %s blueprint"
 
-#: ui/hud.gd:214
+#: ui/hud.gd:213
+msgid "Nhấn E để lên điều khiển nỏ trên thành"
+msgstr "Press E to man the fortress crossbow"
+
+#: ui/hud.gd:220
 msgid "Giữ E để sửa pháo đài"
 msgstr "Hold E to repair the citadel"
 
-#: ui/hud.gd:216
+#: ui/hud.gd:222
 msgid "Kho hết %s — cần mang về để sửa"
 msgstr "No %s in storage — bring some back to repair"
 
-#: ui/hud.gd:229
+#: ui/hud.gd:235
 msgid " · %d người"
 msgstr " · %d players"
 
-#: ui/hud.gd:245
+#: ui/hud.gd:251
 msgid "Mang %d/%d"
 msgstr "Carrying %d/%d"
 
-#: ui/hud.gd:255
+#: ui/hud.gd:261
 msgid "Pháo đài %s %d/%d"
 msgstr "%s citadel %d/%d"
 
-#: ui/hud.gd:264
+#: ui/hud.gd:270
 msgid "Nộp vào kho: %s"
 msgstr "Stored: %s"
 
